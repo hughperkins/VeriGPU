@@ -1,7 +1,7 @@
 module comp_driver();
     reg rst, clk;
     reg [15:0] out;
-    reg [15:0] mem [32];
+    reg [15:0] mem [64];
     comp comp1(.rst(rst), .clk(clk), .out(out), .mem(mem));
     initial begin
         clk = 1;
