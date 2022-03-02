@@ -24,4 +24,5 @@ hs_err_pid*
 
 build/
 *.out
+obj_dir/
 
