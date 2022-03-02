@@ -6,20 +6,20 @@ module comp(
     output reg [3:0] reg_select,
     output reg [7:0] p1,
     output reg [7:0] x1
-   // output reg [7:0] regs[32]
+   // output reg [7:0] regs[16]
 );
-    reg [4:0] cnt;
+    reg [7:0] cnt;
     //reg [7:0] op;
     //reg [7:0] p1;
     //reg [7:0] r1;
-    reg [7:0] regs[32];
+    reg [7:0] regs[16];
 
     always @(clk, cnt) begin
     end
 
     always @(posedge clk or posedge rst) begin
         if (rst) begin
-            out <= 8'd0;
+            out = '0;
             cnt <= '0;
         end
         else begin
@@ -28,7 +28,7 @@ module comp(
             p1 = mem[cnt][7:0];
             out = '0;
             case (op)
-               4'h1: out = p1;
+               4'h1: out[7:0] = p1;
                4'h2: begin
                   out = mem[p1 >> 1];
                end
@@ -36,8 +36,9 @@ module comp(
                   regs[reg_select] = p1;
                end
                4'h4: begin
-                   out = regs[reg_select];
+                   out[7:0] = regs[reg_select];
                end
+               default: out = '0;
             endcase
             //out <= mem[cnt][15:12];
             //regs[1] = 8'hab;

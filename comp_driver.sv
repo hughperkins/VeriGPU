@@ -5,7 +5,7 @@ module comp_driver();
     reg [3:0] op;
     reg [3:0] reg_select;
     reg [7:0] p1;
-    //reg [7:0] regs[32];
+    //reg [7:0] regs[16];
     reg [7:0] x1;
 
     comp comp1(
