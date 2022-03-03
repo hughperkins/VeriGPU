@@ -10,7 +10,7 @@ def run(args):
     comp_driver = comp_driver.replace('{PROG}', args.name)
     with open('build/comp_driver.sv', 'w') as f:
         f.write(comp_driver)
-    assert os.system('iverilog -g2012 comp.sv build/comp_driver.sv') == 0
+    assert os.system('iverilog -g2012 comp.sv mem.sv build/comp_driver.sv') == 0
     os.system('./a.out')
 
 
