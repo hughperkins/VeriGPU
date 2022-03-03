@@ -1,61 +1,42 @@
+// represents a computer, i.e. the combination of processor (proc) and
+// memory controller (mem)
 module comp(
-    input rst, clk,
+    input clk,
+    input rst,
+
+    input [15:0] oob_write_addr,
+    input [15:0] oob_write_data,
+    input oob_mem_wen,
+
     output reg [15:0] out,
-    output [3:0] op,
-    output [3:0] reg_select,
-    output [7:0] p1,
-    output [7:0] x1,
-    output reg [15:0] pc,
-
-    output reg mem_we,
-    output [15:0] mem_read_addr,
-    output reg [15:0] mem_write_addr,
-    input [15:0] mem_read_data,
-    output reg [15:0] mem_write_data
+    output reg [3:0] op,
+    output reg [3:0] reg_select,
+    output reg [7:0] p1,
+    output reg [7:0] x1,
+    output reg [15:0] pc
 );
-    //reg [7:0] cnt;
-    // reg [15:0] pc;
-    //reg [7:0] op;
-    //reg [7:0] p1;
-    //reg [7:0] r1;
-    reg [7:0] regs[16];
+    wire mem_we;
 
-    always @(posedge clk or posedge rst) begin
-        if (rst) begin
-            out <= '0;
-            // cnt <= '0;
-            pc <= '0;
-        end
-        else begin
-            mem_we <= 1;
-            // mem_read_addr <= pc;
-            // TODO p1 = mem[cnt][7:0];
-            out <= '0;
-            case (op)
-               4'h1: out[7:0] <= p1;
-               4'h2: begin
-                   // TODO out <= mem[p1 >> 1];
-               end
-               4'h3: begin
-                  regs[reg_select] <= p1;
-               end
-               4'h4: begin
-                   out[7:0] <= regs[reg_select];
-               end
-               default: out <= '0;
-            endcase
-            //out <= mem[cnt][15:12];
-            //regs[1] = 8'hab;
-            // x1 = regs[1];
-            //cnt <= cnt + 1;
-            pc <= pc + 1;
-            //out <= mem[cnt][15:0];
-            //out <= r1;
-        end
-    end
-    assign mem_read_addr = pc;
-    assign op = mem_read_data[11:8];
-    assign reg_select = mem_read_data[15:12];
-    assign p1 = mem_read_data[7:0];
-    assign x1 = regs[1];
+    reg [15:0] mem_read_addr, mem_write_addr;
+    reg [15:0] mem_read_data, mem_write_data;
+
+    mem mem1(
+        .clk(clk), .we(mem_we),
+
+        .read_addr(mem_read_addr), .write_addr(mem_write_addr),
+        .read_data(mem_read_data), .write_data(mem_write_data),
+
+        .oob_write_addr(oob_write_addr), .oob_write_data(oob_write_data),
+        .oob_wen(oob_mem_wen)
+    );
+
+    proc proc1(
+        .rst(rst), .clk(clk), .out(out), .op(op), .p1(p1), .pc(pc),
+        .reg_select(reg_select),
+        .x1(x1),
+        .mem_read_addr(mem_read_addr), .mem_write_addr(mem_write_addr),
+        .mem_read_data(mem_read_data), .mem_write_data(mem_write_data),
+        .mem_we(mem_we)
+    );
+
 endmodule

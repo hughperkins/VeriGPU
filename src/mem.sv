@@ -1,3 +1,4 @@
+// represents memory controller (plus memory that the memory is controlling)
 module mem(
     input we, clk,
     input [15:0] read_addr,
