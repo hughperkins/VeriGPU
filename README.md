@@ -24,6 +24,6 @@ python run.py --name [progname, e.g. prog5]
 - opensroad/sta
 
 ```
-yosys -s yosys.tacl
+yosys -s src/yosys.tacl
 # some sta command here that I haven't figure out yet :)
 ```
