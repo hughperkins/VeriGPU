@@ -23,8 +23,6 @@ module proc(
         end
         else begin
             mem_we <= 1;
-            // mem_read_addr <= pc;
-            // TODO p1 = mem[cnt][7:0];
             out <= '0;
             case (op)
                4'h1: out[7:0] <= p1;
