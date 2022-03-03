@@ -14,17 +14,11 @@ module proc(
     input [15:0] mem_read_data,
     output reg [15:0] mem_write_data
 );
-    //reg [7:0] cnt;
-    // reg [15:0] pc;
-    //reg [7:0] op;
-    //reg [7:0] p1;
-    //reg [7:0] r1;
     reg [7:0] regs[16];
 
     always @(posedge clk or posedge rst) begin
         if (rst) begin
             out <= '0;
-            // cnt <= '0;
             pc <= '0;
         end
         else begin
@@ -45,13 +39,7 @@ module proc(
                end
                default: out <= '0;
             endcase
-            //out <= mem[cnt][15:12];
-            //regs[1] = 8'hab;
-            // x1 = regs[1];
-            //cnt <= cnt + 1;
             pc <= pc + 1;
-            //out <= mem[cnt][15:0];
-            //out <= r1;
         end
     end
     assign mem_read_addr = pc;
