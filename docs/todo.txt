@@ -1,0 +1,3 @@
+- create register file
+- start create ALU functions, eg add
+- measure timing/maximum clock speed somehow
