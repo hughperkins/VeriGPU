@@ -14,6 +14,20 @@ Play with building a toy processor from scratch, in verilog
 python run.py --name [progname, e.g. prog5]
 ```
 
+# To compile with verilator
+
+(there is no runner for verilator currently, but the modules do compile)
+
+## prerequisites
+
+- verilator (e.g. `brew install verilator`)
+
+## procedure
+
+```
+verilator -sv --cc src/proc.sv src/mem.sv src/comp.sv -Isrc
+```
+
 # To determine maximum clockspeed / timing
 
 [This section in progress]
