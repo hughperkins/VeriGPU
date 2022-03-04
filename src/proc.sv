@@ -24,9 +24,6 @@ module proc(
         GOT_INSTR
     } e_state;
     // reg [4:0] state;
-    //reg instruction_done;
-    //reg instruction_rdy;
-    //reg instruction_fetched;
 
     wire [3:0] c1_op;
     wire [3:0] c1_reg_select;
@@ -37,9 +34,6 @@ module proc(
             out <= '0;
             pc <= '0;
             state <= RESET;
-            //instruction_done <= 0;
-            //instruction_rdy <= 0;
-            //instruction_fetched <= 0;
         end
         else begin
             out <= '0;
@@ -63,16 +57,8 @@ module proc(
                            end
                            4'h2: begin
                                // outloc
-                              // if (mem_read_addr == {8'b0, 1'b0, p1[7:1]}) begin
-                                //   out <= mem_read_data;
-                                  // outen <= 1;
-                                    //pc <= pc + 1;
-                                   // mem_read_addr <= pc + 1;
-                                   // state <= AWAITING_INSTR;
-                               //end else begin
                                    mem_read_addr <= {8'b0, 1'b0, c1_p1[7:1]};
                                    state <= GOT_INSTR;
-                                   // pc <= pc - 1;
                                 //end
                            end
                            4'h3: begin
