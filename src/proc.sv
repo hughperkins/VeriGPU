@@ -17,8 +17,8 @@ module proc(
     output reg [15:0] mem_write_data
 );
     reg [7:0] regs[16];
-    reg [7:0] instruction;
-    typedef enum {
+    reg [15:0] instruction;
+    typedef enum bit[4:0] {
         RESET,
         AWAITING_INSTR,
         GOT_INSTR
@@ -67,14 +67,14 @@ module proc(
                        end
                        4'h2: begin
                            // outloc
-                           if (mem_read_addr == p1 >> 1) begin
+                           if (mem_read_addr == {8'b0, 1'b0, p1[7:1]}) begin
                                out <= mem_read_data;
                                outen <= 1;
                                 pc <= pc + 1;
                                 mem_read_addr <= pc + 1;
                                 state <= AWAITING_INSTR;
                            end else begin
-                               mem_read_addr <= p1 >> 1;
+                               mem_read_addr <= {8'b0, 1'b0, p1[7:1]};
                                // pc <= pc - 1;
                             end
                        end
@@ -96,6 +96,7 @@ module proc(
                        default: out <= '0;
                     endcase
                 end
+                default: out <= '0;
             endcase
             //if (~instruction_fetched) begin
             //    read_mem_addr <= pc;
