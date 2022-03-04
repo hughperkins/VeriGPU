@@ -23,7 +23,6 @@ module proc(
         AWAITING_INSTR,
         GOT_INSTR
     } e_state;
-    // reg [4:0] state;
 
     wire [3:0] c1_op;
     wire [3:0] c1_reg_select;
@@ -83,7 +82,6 @@ module proc(
                         op <= mem_read_data[11:8];
                         reg_select <= mem_read_data[15:12];
                         p1 <= mem_read_data[7:0];
-                        // state <= GOT_INSTR;
                     end
                 end
                 GOT_INSTR: begin
