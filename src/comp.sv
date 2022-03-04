@@ -14,7 +14,8 @@ module comp(
     output [7:0] p1,
     output [7:0] x1,
     output [15:0] pc,
-    output [4:0] state
+    output [4:0] state,
+    output outen
 );
     wire mem_we;
 
@@ -35,7 +36,7 @@ module comp(
         .rst(rst), .clk(clk), .out(out), .op(op), .p1(p1), .pc(pc),
         .reg_select(reg_select),
         .x1(x1),
-        .state(state),
+        .state(state), .outen(outen),
         .mem_read_addr(mem_read_addr), .mem_write_addr(mem_write_addr),
         .mem_read_data(mem_read_data), .mem_write_data(mem_write_data),
         .mem_we(mem_we)

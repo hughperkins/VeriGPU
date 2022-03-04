@@ -10,17 +10,21 @@ module comp_driver(
     wire [7:0] p1;
     wire [7:0] x1;
     wire [4:0] state;
+    wire outen;
 
     reg [15:0] oob_write_addr;
     reg [15:0] oob_write_data;
     reg oob_mem_wen;
     reg [15:0] mem_load [256];
 
+    reg [7:0] outmem [32];
+    reg [4:0] outpos;
+
     comp comp1(
         .clk(clk), .rst(rst),
         .pc(pc), .op(op), .reg_select(reg_select),
         .x1(x1), .p1(p1), .state(state),
-        .out(out),
+        .out(out), .outen(outen),
         .oob_write_addr(oob_write_addr),
         .oob_write_data(oob_write_data),
         .oob_mem_wen(oob_mem_wen)
@@ -29,6 +33,12 @@ module comp_driver(
     initial begin
         clk = 1;
         forever #5 clk = ~clk;
+    end
+    always @(posedge clk) begin
+        if (outen) begin
+            outmem[outpos] <= out;
+            outpos <= outpos + 1;
+        end
     end
     initial begin
         $readmemh("build/{PROG}.hex", mem_load);
@@ -40,6 +50,7 @@ module comp_driver(
         end
         #10
         oob_mem_wen = 0;
+        outpos = 0;
         #10
 
         $monitor(
@@ -47,6 +58,10 @@ module comp_driver(
             $time(), rst, pc, out,  op,   p1,   reg_select, x1, state);
         rst = 1;
         #10 rst = 0;
-        #400 $finish();
+        #400
+        for(int i = 0; i < outpos; i++) begin
+            $display("out %h %h", i, outmem[i]);
+        end
+        $finish();
     end
 endmodule
