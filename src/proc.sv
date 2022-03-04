@@ -28,6 +28,10 @@ module proc(
     //reg instruction_rdy;
     //reg instruction_fetched;
 
+    wire [3:0] c1_op;
+    wire [3:0] c1_reg_select;
+    wire [7:0] c1_p1;
+
     always @(posedge clk or posedge rst) begin
         if (rst) begin
             out <= '0;
@@ -48,66 +52,74 @@ module proc(
                 end
                 AWAITING_INSTR: begin
                     if(mem_read_addr == pc) begin
-                        instruction <= mem_read_data;
-                        op <= mem_read_data[11:8];
-                        reg_select <= mem_read_data[15:12];
-                        p1 <= mem_read_data[7:0];
-                        state <= GOT_INSTR;
-                    end
-                end
-                GOT_INSTR: begin
-                    case (op)
-                       4'h1: begin
-                           // out immediate
-                           out[7:0] <= p1;
-                           outen <= 1;
-                            pc <= pc + 1;
-                            mem_read_addr <= pc + 1;
-                            state <= AWAITING_INSTR;
-                       end
-                       4'h2: begin
-                           // outloc
-                           if (mem_read_addr == {8'b0, 1'b0, p1[7:1]}) begin
-                               out <= mem_read_data;
+                        case (c1_op)
+                           4'h1: begin
+                               // out immediate
+                               out[7:0] <= c1_p1;
                                outen <= 1;
                                 pc <= pc + 1;
                                 mem_read_addr <= pc + 1;
                                 state <= AWAITING_INSTR;
-                           end else begin
-                               mem_read_addr <= {8'b0, 1'b0, p1[7:1]};
-                               // pc <= pc - 1;
-                            end
-                       end
-                       4'h3: begin
-                          // li
-                          regs[reg_select] <= p1;
-                            pc <= pc + 1;
-                            mem_read_addr <= pc + 1;
-                            state <= AWAITING_INSTR;
-                       end
-                       4'h4: begin
-                           // outr
-                           out[7:0] <= regs[reg_select];
-                           outen <= 1;
-                            pc <= pc + 1;
-                            mem_read_addr <= pc + 1;
-                            state <= AWAITING_INSTR;
-                       end
-                       default: out <= '0;
+                           end
+                           4'h2: begin
+                               // outloc
+                              // if (mem_read_addr == {8'b0, 1'b0, p1[7:1]}) begin
+                                //   out <= mem_read_data;
+                                  // outen <= 1;
+                                    //pc <= pc + 1;
+                                   // mem_read_addr <= pc + 1;
+                                   // state <= AWAITING_INSTR;
+                               //end else begin
+                                   mem_read_addr <= {8'b0, 1'b0, c1_p1[7:1]};
+                                   state <= GOT_INSTR;
+                                   // pc <= pc - 1;
+                                //end
+                           end
+                           4'h3: begin
+                              // li
+                              regs[c1_reg_select] <= c1_p1;
+                                pc <= pc + 1;
+                                mem_read_addr <= pc + 1;
+                                state <= AWAITING_INSTR;
+                           end
+                           4'h4: begin
+                               // outr
+                               out[7:0] <= regs[c1_reg_select];
+                               outen <= 1;
+                                pc <= pc + 1;
+                                mem_read_addr <= pc + 1;
+                                state <= AWAITING_INSTR;
+                           end
+                           default: out <= '0;
+                        endcase
+
+                        instruction <= mem_read_data;
+                        op <= mem_read_data[11:8];
+                        reg_select <= mem_read_data[15:12];
+                        p1 <= mem_read_data[7:0];
+                        // state <= GOT_INSTR;
+                    end
+                end
+                GOT_INSTR: begin
+                    case (op)
+                        4'h2: begin
+                            // outloc
+                           if (mem_read_addr == {8'b0, 1'b0, p1[7:1]}) begin
+                                out <= mem_read_data;
+                                outen <= 1;
+                                pc <= pc + 1;
+                                mem_read_addr <= pc + 1;
+                                state <= AWAITING_INSTR;
+                           end
+                        end
                     endcase
                 end
                 default: out <= '0;
             endcase
-            //if (~instruction_fetched) begin
-            //    read_mem_addr <= pc;
-            //    instruction_fetched <= 1;
-            //end else if()
-            //pc <= pc + 1;
         end
     end
-    // assign mem_read_addr = pc;
-    // assign op = mem_read_data[11:8];
-    // assign reg_select = mem_read_data[15:12];
-    // assign p1 = mem_read_data[7:0];
+    assign c1_op = mem_read_data[11:8];
+    assign c1_reg_select = mem_read_data[15:12];
+    assign c1_p1 = mem_read_data[7:0];
     assign x1 = regs[1];
 endmodule
