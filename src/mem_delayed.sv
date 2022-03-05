@@ -1,50 +1,58 @@
-// represents memory controller (plus memory that the memory is controlling)
-
-// forked from mem.sv. Introduces some delays, to simulate that memory
-// requests in reality typically take a while...
-module mem(
-    input we, clk,
-    input [15:0] rd_addr,
-    input [15:0] wr_addr,
-    output [15:0] rd_data,
-    input [15:0] wr_data,
-    output reg rd_ready;
-
-    input [15:0] oob_wr_addr,
-    input [15:0] oob_wr_data,
-    input oob_wen
+module mem_delayed2(
+    input clk,  rst, input wr_req, input rd_req,
+    output reg busy, output reg ack,
+    input [15:0] addr, output reg [15:0] rd_data,
+    input [15:0] wr_data
 );
-    reg [15:0] mem [64];
-
-    parameter delay_cycles = 5;
-    reg [15:0] rd_addr_delayed [delay_cycles];
-    reg [15:0] wr_addr_delayed [delay_cycles];
-
-    always @(posedge clk) begin
-        if (we) begin
-            mem[wr_addr_delayed[delay_cycles - 1]] <= wr_data;
-        end
-        if(oob_wen) begin
-            mem[oob_wr_addr] <= oob_wr_data;
-        end
-        rd_addr_delayed[0] <= rd_addr;
-        wr_addr_delayed[0] <= wr_addr;
-        for(int i = 1; i < 5; i++) begin
-           read_addr_delayed[i] <= read_addr_delayed[i - 1];
-           write_addr_delayed[i] <= write_addr_delayed[i - 1];
+    reg [15:0] mem[256];
+    reg [15:0] received_addr;
+    reg [15:0] received_data;
+    reg received_rd_req;
+    reg received_wr_req;
+    reg [4:0] clks_to_wait;
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            received_rd_req <= 0;
+            received_wr_req <= 0;
+            busy <= 0;
+        end else begin
+            if (received_rd_req) begin
+                if (clks_to_wait == 0) begin
+                    ack <= 1;
+                    rd_data <= mem[received_addr];
+                    received_rd_req <= 0;
+                    received_wr_req <= 0;
+                    busy <= 0;
+                end else begin
+                    clks_to_wait <= clks_to_wait - 1;
+                end
+            end else if(received_wr_req) begin
+                if (clks_to_wait == 0) begin
+                    ack <= 1;
+                    mem[received_addr] <= received_data;
+                    received_rd_req <= 0;
+                    received_wr_req <= 0;
+                    busy <= 0;
+                end else begin
+                    clks_to_wait <= clks_to_wait - 1;
+                end
+            end else if (wr_req) begin
+                received_wr_req <= 1;
+                clks_to_wait <= 4;
+                received_addr <= addr;
+                received_data <= wr_data;
+                ack <= 0;
+                busy <= 1;
+            end else if (rd_req) begin
+                received_rd_req <= 1;
+                clks_to_wait <= 4;
+                received_addr <= addr;
+                ack <= 0;
+                busy <= 1;
+            end else begin
+                ack <= 0;
+                busy <= 0;
+            end
         end
     end
-    // assign read_data = mem[read_addr];
-    assign read_data = mem[read_addr_delayed[delay_cycles - 1]];
 endmodule
-
-/*
-seems not supported by either iverilog, or verilator
-interface mem_if;
-    logic we, clk;
-    wire [15:0] read_addr;
-    wire [15:0] write_addr;
-    logic [7:0] read_data;
-    logic [7:0] write_data;
-endinterface
-*/
