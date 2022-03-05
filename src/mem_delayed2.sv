@@ -14,6 +14,7 @@ module mem_delayed2(
         if (rst) begin
             received_rd_req <= 0;
             received_wr_req <= 0;
+            busy <= 0;
         end else begin
             if (received_rd_req) begin
                 if (clks_to_wait == 0) begin
@@ -37,14 +38,14 @@ module mem_delayed2(
                 end
             end else if (wr_req) begin
                 received_wr_req <= 1;
-                clks_to_wait <= 5;
+                clks_to_wait <= 4;
                 received_addr <= addr;
                 received_data <= wr_data;
                 ack <= 0;
                 busy <= 1;
             end else if (rd_req) begin
                 received_rd_req <= 1;
-                clks_to_wait <= 5;
+                clks_to_wait <= 4;
                 received_addr <= addr;
                 ack <= 0;
                 busy <= 1;
