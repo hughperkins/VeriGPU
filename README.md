@@ -5,6 +5,8 @@ Play with building a toy processor from scratch, in verilog
 
 Experiment with writing some very simple toy processor, maybe GPU, targeting ASIC synthesis. I don't actually intend to run synthesis myself, but I intend to do what I can to verify somehow that synthesis would work ok, timings ok, etc.
 
+Loosely based to be compliant with RISC-V ISA (but some initial scaffolding instructions, and where being RV compliant would increase the workload a lot, starting with simpler instructions (e.g. implementing a loosely implemented `LI` for now, rather than `LUI` with `ADDI`).
+
 # To run / simulate
 
 ## prerequisites
@@ -60,6 +62,6 @@ yosys -s src/yosys.tacl
 
 # Recent updates
 
-- migrated instruction layout to be compatible Risk-V
+- migrated instruction layout to be compatible RISC-V
 - migrated data and address buses to 32-bit, to be compatible with RV32
 - created regression tests
