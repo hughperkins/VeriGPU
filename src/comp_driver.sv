@@ -5,10 +5,10 @@ module comp_driver(
 
     wire [31:0] out;
     wire [31:0] pc;
-    wire [3:0] op;
-    wire [3:0] reg_select;
-    wire [7:0] p1;
-    wire [7:0] x1;
+    wire [6:0] op;
+    wire [4:0] rd;
+    wire [6:0] imm1;
+    wire [31:0] x1;
     wire [4:0] state;
     wire outen;
 
@@ -18,14 +18,14 @@ module comp_driver(
 
     reg [31:0] mem_load [256];
 
-    reg [7:0] outmem [32];
+    reg [31:0] outmem [32];
     reg [4:0] outpos;
     reg halt;
 
     comp comp1(
         .clk(clk), .rst(rst),
-        .pc(pc), .op(op), .reg_select(reg_select),
-        .x1(x1), .p1(p1), .state(state),
+        .pc(pc), .op(op), .rd(rd),
+        .x1(x1), .imm1(imm1), .state(state),
         .out(out), .outen(outen),
         .oob_wr_addr(oob_wr_addr),
         .oob_wr_data(oob_wr_data),
@@ -57,12 +57,12 @@ module comp_driver(
         #10
 
         $monitor(
-            "t=%d rst=%b pc=%h, out=%h op=%h p1=%h rs=%h x1=%h state=%d",
-            $time(), rst, pc, out,  op,   p1,   reg_select, x1, state);
+            "t=%d rst=%b pc=%h, out=%h op=%h imm1=%h rd=%h x1=%h state=%d",
+            $time(), rst, pc, out,  op,   imm1,   rd, x1, state);
         rst = 1;
         #10 rst = 0;
 
-        while(~halt) begin
+        while(~halt && clk < 100) begin
             #10;
         end
 

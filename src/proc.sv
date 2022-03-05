@@ -2,10 +2,10 @@
 module proc(
     input rst, clk,
     output reg [31:0] out,
-    output reg [3:0] op,
-    output reg [3:0] reg_select,
-    output reg [7:0] p1,
-    output [7:0] x1,
+    output reg [6:0] op,
+    output reg [4:0] rd,
+    output reg [6:0] imm1,
+    output [31:0] x1,
     output reg [31:0] pc,
     output reg [4:0] state,
     output reg outen,
@@ -26,9 +26,9 @@ module proc(
         C2
     } e_state;
 
-    wire [3:0] c1_op;
-    wire [4:0] c1_reg_select;
-    wire [7:0] c1_p1;
+    wire [6:0] c1_op;
+    wire [4:0] c1_rd;
+    wire [31:0] c1_imm1;
 
     typedef enum bit[3:0] {
         OUT = 1,
@@ -45,35 +45,35 @@ module proc(
         pc <= instr_addr;
     endtask
 
-    task write_out([7:0] _out);
-        out[7:0] <= _out;
+    task write_out([31:0] _out);
+        out[31:0] <= _out;
         outen <= 1;
     endtask
 
     task instr_c1();
         case (c1_op)
             OUT: begin
-                write_out(c1_p1);
+                write_out(c1_imm1);
                 read_next_instr(pc + 1);
             end
             OUTLOC: begin
-                mem_addr <= {8'b0, 1'b0, c1_p1[7:1]};
+                mem_addr <= {8'b0, 2'b0, c1_imm1[6:2]};
                 mem_rd_req <= 1;
                 state <= C2;
             end
             LI: begin
-                regs[c1_reg_select] <= c1_p1;
+                regs[c1_rd] <= c1_imm1;
                 read_next_instr(pc + 1);
             end
             OUTR: begin
                 mem_wr_req <= 0;
-                write_out(regs[c1_reg_select]);
+                write_out(regs[c1_rd]);
                 read_next_instr(pc + 1);
            end
            HALT: begin
                halt <= 1;
            end
-           default: out <= '0;
+           default: halt <= 1;
         endcase
     endtask
 
@@ -102,9 +102,9 @@ module proc(
                     if(mem_ack) begin
                         instr_c1();
                         instruction <= mem_rd_data;
-                        op <= mem_rd_data[11:8];
-                        reg_select <= mem_rd_data[15:12];
-                        p1 <= mem_rd_data[7:0];
+                        op <= mem_rd_data[6:0];
+                        rd <= mem_rd_data[11:7];
+                        imm1 <= { {20{1'b0}}, mem_rd_data[31:25] };
                     end
                 end
                 C2: begin
@@ -112,12 +112,12 @@ module proc(
                         instr_c2();
                     end
                 end
-                default: out <= '0;
+                default: halt <= 1;
             endcase
         end
     end
-    assign c1_op = mem_rd_data[11:8];
-    assign c1_reg_select = mem_rd_data[15:12];
-    assign c1_p1 = mem_rd_data[7:0];
+    assign c1_op = mem_rd_data[6:0];
+    assign c1_rd = mem_rd_data[11:7];
+    assign c1_imm1 = { {20{1'b0}}, mem_rd_data[31:25] };
     assign x1 = regs[1];
 endmodule

@@ -2,9 +2,7 @@
 - matrix multiplication
 - gpu structure
 - opencl
-- change bits of data to 32-bit, to match risc-v 32I
 - change bits of address to 64-bit, to allow 16GB+ of memory
-- migrate to risc-v instruction layout (opcode in [6:0], rd in [11:7], rs1 in [19:15], rs2 in [24:20], immediate in [31:20])
 - create register file
 - start create ALU functions, eg add
 - measure timing/maximum clock speed somehow
@@ -12,6 +10,9 @@
 - (use actual memory module?)
 
 done:
+- migrate to risc-v instruction layout (opcode in [6:0], rd in [11:7], rs1 in [19:15], rs2 in [24:20], immediate in [31:20])
+- change bits of address to 32-bit
+- change bits of data to 32-bit, to match risc-v 32I
 - add asserts to progs somehow (maybe create test runners for each prog? or add an assert instruction? or use normal systemverilog driver/tests?)
 - add halt
 - factorize proc a bit better, so not so many indentation levels...

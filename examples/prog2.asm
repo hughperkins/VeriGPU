@@ -1,9 +1,9 @@
-out abx
-out cdx
-out 12x
-out 34x
+out 1bx
+out 2dx
+out 32x
+out 44x
 halt
 
-10x:
+40x:
 word 0000deadx
 word 0000beefx

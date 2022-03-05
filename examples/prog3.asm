@@ -1,14 +1,13 @@
-out abx
-out cdx
-out 12x
-out 34x
-outloc 20x
-outloc 22x
-outloc 20x
-outloc 22x
-outloc 21x
+out 1bx
+out 2dx
+out 32x
+out 44x
+outloc 40x
+outloc 44x
+outloc 40x
+outloc 44x
 halt
 
-20x:
+40x:
 word 0000deadx
 word 0000beefx

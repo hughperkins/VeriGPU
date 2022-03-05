@@ -2,6 +2,22 @@ import argparse
 import os
 
 
+def int_to_binary(int_value, num_bits):
+    return format(int_value, f'#0{num_bits + 2}b')[2:]
+
+
+def hex_to_binary(hex_value, num_bits):
+    assert hex_value.endswith('x')
+    hex_value = hex_value[:-1]
+    bits = int_to_binary(int(hex_value, 16), num_bits)
+    assert len(bits) == num_bits
+    return bits
+
+
+def bits_to_hex(bits):
+    return hex(int(bits, 2))[2:]
+
+
 def run(args):
     if not os.path.isdir('build'):
         os.makedirs('build')
@@ -17,37 +33,71 @@ def run(args):
         p1 = split_line[1] if len(split_line) >= 2 else None
         p2 = split_line[2] if len(split_line) >= 3 else None
         # print(cmd, p1)
+        rs1_bits = '0' * 5
+        rs2_bits = '0' * 5
+        imm1_bits = '0' * 7
+        funct3_bits = '0' * 3
+        rd_bits = '0' * 5
+        opcode_bits = '0' * 7
         if cmd == 'out':
+            print('p1', p1)
             if p1.endswith('x'):
                 p1 = p1[:-1]
             else:
                 raise ValueError("param " + p1 + " not recognized")
-            hex_line = '0000' + '01' + p1
+            imm_bits = int_to_binary(int(p1, 16), 7)
+            op_bits = int_to_binary(1, 7)
+            instr_bits = f'{imm_bits}{"0" * 18}{op_bits}'
+            print('instr_bits', instr_bits)
+            # hex_line = '0000' + '01' + p1
+            assert len(instr_bits) == 32
+            hex_line = hex(int(instr_bits, 2))[2:]
             hex_lines.append(hex_line)
         elif cmd == 'outloc':
-            if p1.endswith('x'):
-                p1 = p1[:-1]
-            else:
-                raise ValueError("param " + p1 + " not recognized")
-            hex_line = '0000' + '02' + p1
+            # if p1.endswith('x'):
+            #     p1 = p1[:-1]
+            # else:
+            #     raise ValueError("param " + p1 + " not recognized")
+            imm_bits = hex_to_binary(p1, 7)
+            print('p1', p1)
+            print('imm_bits', imm_bits)
+            op_bits = int_to_binary(2, 7)
+            instr_bits = f'{imm_bits}{"0" * 18}{op_bits}'
+            assert len(instr_bits) == 32
+            hex_line = bits_to_hex(instr_bits)
+            # hex_line = '0000' + '02' + p1
             hex_lines.append(hex_line)
         elif cmd == 'li':
-            if p2.endswith('x'):
-                p2 = p2[:-1]
-            else:
-                raise ValueError("param " + p2 + " not recognized")
-            binary_op = '0011'
-            assert p1.startswith('x') and len(p1) == 2
-            reg_select = int(p1[1:])
-            binary_reg = format(reg_select, '04b')
-            print('binary reg', binary_reg, 'binary op', binary_op, 'p2', p2)
-            hex_line = '0000' + hex(int(binary_reg + binary_op, 2))[2:] + p2
+            assert p1.startswith('x')
+            p1 = p1[1:]
+            assert p2.endswith('x')
+            p2 = p2[:-1]
+
+            op_bits = int_to_binary(3, 7)
+            imm_bits = int_to_binary(int(p2, 16), 7)
+            assert len(imm_bits) == 7
+            reg_select_bits = int_to_binary(int(p1, 16), 5)
+            assert len(reg_select_bits) == 5
+            # binary_reg = format(reg_select, '04b')
+            # print('binary reg', binary_reg, 'binary op', binary_op, 'p2', p2)
+            # hex_line = '0000' + hex(int(binary_reg + binary_op, 2))[2:] + p2
             # hex_line = '03' + p1
+            instr_bits = f'{imm_bits}{"0" * 13}{reg_select_bits}{op_bits}'
+            print(instr_bits, len(instr_bits))
+            assert len(instr_bits) == 32
+            hex_line = bits_to_hex(instr_bits)
             hex_lines.append(hex_line)
         elif cmd == 'outr':
-            assert p1.startswith('x') and len(p1) == 2
-            reg_select = p1[1:]
-            hex_line = '0000' + reg_select + '400'
+            assert p1.startswith('x')
+            rd_str = p1[1:] + 'x'
+            # assert p1.startswith('x') and len(p1) == 2
+            # reg_select = p1[1:]
+            rd_bits = hex_to_binary(rd_str, 5)
+            op_bits = int_to_binary(4, 7)
+            instr_bits = f'{"0" * 20}{rd_bits}{op_bits}'
+            assert len(instr_bits) == 32
+            # hex_line = '0000' + reg_select + '400'
+            hex_line = hex(int(instr_bits, 2))[2:]
             hex_lines.append(hex_line)
         elif cmd == 'half':
             assert p1.endswith('x')
@@ -63,7 +113,7 @@ def run(args):
             cmd = cmd[:-1]
             assert cmd.endswith('x')
             cmd = cmd[:-1]
-            location = int(cmd, 16) // 2
+            location = int(cmd, 16) // 4
             while len(hex_lines) < location:
                 hex_lines.append('00000000')
         else:
