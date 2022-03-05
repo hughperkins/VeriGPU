@@ -4,26 +4,26 @@ module comp(
     input clk,
     input rst,
 
-    input [15:0] oob_wr_addr,
-    input [15:0] oob_wr_data,
+    input [31:0] oob_wr_addr,
+    input [31:0] oob_wr_data,
     input oob_wen,
 
     output mem_d_req, mem_wr_req,
     output mem_busy,
     output mem_ack,
 
-    output [15:0] out,
+    output [31:0] out,
     output [3:0] op,
     output [3:0] reg_select,
     output [7:0] p1,
     output [7:0] x1,
-    output [15:0] pc,
+    output [31:0] pc,
     output [4:0] state,
     output halt,
     output outen
 );
-    reg [15:0] mem_addr;
-    reg [15:0] mem_rd_data, mem_wr_data;
+    reg [31:0] mem_addr;
+    reg [31:0] mem_rd_data, mem_wr_data;
 
     mem_delayed mem1(
         .clk(clk),

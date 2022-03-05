@@ -2,6 +2,9 @@
 - matrix multiplication
 - gpu structure
 - opencl
+- change bits of data to 32-bit, to match risc-v 32I
+- change bits of address to 64-bit, to allow 16GB+ of memory
+- migrate to risc-v instruction layout (opcode in [6:0], rd in [11:7], rs1 in [19:15], rs2 in [24:20], immediate in [31:20])
 - create register file
 - start create ALU functions, eg add
 - measure timing/maximum clock speed somehow
@@ -16,3 +19,11 @@ done:
 - constants for ops and names
 - add delay to memory module, to simulate wire latency
 - comp
+
+
+notes:
+- I-type: register-immediate, rs1 . imm => rd (includes loads, where address is rs1 + signed offset)
+- R-type: register-register operations, rs1 . rs2 => rd
+- J-type: jumps. address in register + immediate offset
+- B-type: conditional branches (offsets are in multiples of 2 bytes); based on rs1 and rs2; funct specifies eg BEQ, or BNE
+- S-type: stores; rs2 is copied into memory. address is from rs1 + signed offset.

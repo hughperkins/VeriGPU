@@ -13,5 +13,5 @@ outr x2
 halt
 
 20x:
-short deadx
-short beefx
+word 0000deadx
+word 0000beefx

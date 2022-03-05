@@ -3,8 +3,8 @@ module comp_driver(
     reg rst;
     reg clk;
 
-    wire [15:0] out;
-    wire [15:0] pc;
+    wire [31:0] out;
+    wire [31:0] pc;
     wire [3:0] op;
     wire [3:0] reg_select;
     wire [7:0] p1;
@@ -12,11 +12,11 @@ module comp_driver(
     wire [4:0] state;
     wire outen;
 
-    reg [15:0] oob_wr_addr;
-    reg [15:0] oob_wr_data;
+    reg [31:0] oob_wr_addr;
+    reg [31:0] oob_wr_data;
     reg oob_wen;
 
-    reg [15:0] mem_load [256];
+    reg [31:0] mem_load [256];
 
     reg [7:0] outmem [32];
     reg [4:0] outpos;

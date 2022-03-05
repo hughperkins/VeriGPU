@@ -1,16 +1,17 @@
 module mem_delayed(
     input clk,  rst, input wr_req, input rd_req,
     output reg busy, output reg ack,
-    input [15:0] addr, output reg [15:0] rd_data,
-    input [15:0] wr_data,
+    input [31:0] addr,
+    output reg [31:0] rd_data,
+    input [31:0] wr_data,
 
-    input [15:0] oob_wr_addr,
-    input [15:0] oob_wr_data,
+    input [31:0] oob_wr_addr,
+    input [31:0] oob_wr_data,
     input oob_wen
 );
-    reg [15:0] mem[256];
-    reg [15:0] received_addr;
-    reg [15:0] received_data;
+    reg [31:0] mem[256];
+    reg [31:0] received_addr;
+    reg [31:0] received_data;
     reg received_rd_req;
     reg received_wr_req;
     reg [4:0] clks_to_wait;

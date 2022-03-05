@@ -1,33 +1,33 @@
 // represents processor
 module proc(
     input rst, clk,
-    output reg [15:0] out,
+    output reg [31:0] out,
     output reg [3:0] op,
     output reg [3:0] reg_select,
     output reg [7:0] p1,
     output [7:0] x1,
-    output reg [15:0] pc,
+    output reg [31:0] pc,
     output reg [4:0] state,
     output reg outen,
 
-    output reg [15:0] mem_addr,
-    input [15:0] mem_rd_data,
-    output reg [15:0] mem_wr_data,
+    output reg [31:0] mem_addr,
+    input [31:0] mem_rd_data,
+    output reg [31:0] mem_wr_data,
     output reg mem_wr_req,
     output reg mem_rd_req,
     input mem_ack,
     input mem_busy,
     output reg halt
 );
-    reg [7:0] regs[16];
-    reg [15:0] instruction;
+    reg [31:0] regs[32];
+    reg [31:0] instruction;
     typedef enum bit[4:0] {
         C1,
         C2
     } e_state;
 
     wire [3:0] c1_op;
-    wire [3:0] c1_reg_select;
+    wire [4:0] c1_reg_select;
     wire [7:0] c1_p1;
 
     typedef enum bit[3:0] {
@@ -38,7 +38,7 @@ module proc(
         HALT = 5
     } e_op;
 
-    task read_next_instr([15:0] instr_addr);
+    task read_next_instr([31:0] instr_addr);
         mem_addr <= instr_addr;
         mem_rd_req <= 1;
         state <= C1;
@@ -62,7 +62,7 @@ module proc(
                 state <= C2;
             end
             LI: begin
-               regs[c1_reg_select] <= c1_p1;
+                regs[c1_reg_select] <= c1_p1;
                 read_next_instr(pc + 1);
             end
             OUTR: begin

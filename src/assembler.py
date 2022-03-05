@@ -22,14 +22,14 @@ def run(args):
                 p1 = p1[:-1]
             else:
                 raise ValueError("param " + p1 + " not recognized")
-            hex_line = '01' + p1
+            hex_line = '0000' + '01' + p1
             hex_lines.append(hex_line)
         elif cmd == 'outloc':
             if p1.endswith('x'):
                 p1 = p1[:-1]
             else:
                 raise ValueError("param " + p1 + " not recognized")
-            hex_line = '02' + p1
+            hex_line = '0000' + '02' + p1
             hex_lines.append(hex_line)
         elif cmd == 'li':
             if p2.endswith('x'):
@@ -41,27 +41,31 @@ def run(args):
             reg_select = int(p1[1:])
             binary_reg = format(reg_select, '04b')
             print('binary reg', binary_reg, 'binary op', binary_op, 'p2', p2)
-            hex_line = hex(int(binary_reg + binary_op, 2))[2:] + p2
+            hex_line = '0000' + hex(int(binary_reg + binary_op, 2))[2:] + p2
             # hex_line = '03' + p1
             hex_lines.append(hex_line)
         elif cmd == 'outr':
             assert p1.startswith('x') and len(p1) == 2
             reg_select = p1[1:]
-            hex_line = reg_select + '400'
+            hex_line = '0000' + reg_select + '400'
             hex_lines.append(hex_line)
-        elif cmd == 'short':
+        elif cmd == 'half':
+            assert p1.endswith('x')
+            hex_line = p1[:-1]
+            hex_lines.append('0000' + hex_line)
+        elif cmd == 'word':
             assert p1.endswith('x')
             hex_line = p1[:-1]
             hex_lines.append(hex_line)
         elif cmd == 'halt':
-            hex_lines.append('0500')
+            hex_lines.append('0000' + '0500')
         elif cmd.endswith(':'):
             cmd = cmd[:-1]
             assert cmd.endswith('x')
             cmd = cmd[:-1]
             location = int(cmd, 16) // 2
             while len(hex_lines) < location:
-                hex_lines.append('0000')
+                hex_lines.append('00000000')
         else:
             raise Exception('cmd ' + cmd + ' not recognized')
         # print('hex_line', hex_line)
