@@ -11,15 +11,12 @@ def run(args):
     with open('build/comp_driver.sv', 'w') as f:
         f.write(comp_driver)
     os.system(f'cat examples/{args.name}.asm')
-    # mem_mod = 'src/mem_delayed.sv' if args.delayed_mem else 'src/mem.sv'
     assert os.system('iverilog -g2012 src/proc.sv src/comp.sv src/mem_delayed.sv build/comp_driver.sv') == 0
     os.system('./a.out | tee /tmp/out.txt')
     if os.path.exists(f'examples/{args.name}_expected.txt'):
         with open('/tmp/out.txt') as f:
             output = f.read()
             output = '\n'.join([line for line in output.split('\n') if line.startswith('out')])
-        # print('')
-        # print(output)
         with open(f'examples/{args.name}_expected.txt') as f:
             expected = f.read().strip()
         if expected != output:
@@ -34,6 +31,5 @@ def run(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--name', type=str, required=True, help='eg prog5')
-    # parser.add_argument('--delayed-mem', action='store_true', help='use delayed memory')
     args = parser.parse_args()
     run(args)
