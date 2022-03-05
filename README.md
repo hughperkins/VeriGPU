@@ -57,3 +57,9 @@ verilator -sv --cc src/proc.sv src/mem.sv src/comp.sv -Isrc
 yosys -s src/yosys.tacl
 # some sta command here that I haven't figure out yet :)
 ```
+
+# Recent updates
+
+- migrated instruction layout to be compatible Risk-V
+- migrated data and address buses to 32-bit, to be compatible with RV32
+- created regression tests
