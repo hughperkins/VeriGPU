@@ -1,7 +1,6 @@
-- factorize proc a bit better, so not so many indentation levels...
 - add halt
 - jmp
-- add asserts to progs somehow (maybe create test runners for each prog?)
+- add asserts to progs somehow (maybe create test runners for each prog? or add an assert instruction? or use normal systemverilog driver/tests?)
 - comp
 - matrix multiplication
 - gpu structure
@@ -13,6 +12,7 @@
 - use actual memory module?
 
 done:
+- factorize proc a bit better, so not so many indentation levels...
 - fix prog3
 - constants for ops and names
 - add delay to memory module, to simulate wire latency

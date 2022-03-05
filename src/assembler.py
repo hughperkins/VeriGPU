@@ -53,6 +53,8 @@ def run(args):
             assert p1.endswith('x')
             hex_line = p1[:-1]
             hex_lines.append(hex_line)
+        elif cmd == 'halt':
+            hex_lines.append('0500')
         elif cmd.endswith(':'):
             cmd = cmd[:-1]
             assert cmd.endswith('x')

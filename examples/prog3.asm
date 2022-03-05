@@ -7,6 +7,7 @@ outloc 22x
 outloc 20x
 outloc 22x
 outloc 21x
+halt
 
 20x:
 short deadx

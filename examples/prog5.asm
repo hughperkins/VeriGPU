@@ -10,6 +10,7 @@ li x1 dex
 outr x1
 li x1 adx
 outr x1
+halt
 
 20x:
 short deadx

@@ -19,6 +19,7 @@ module comp(
     output [7:0] x1,
     output [15:0] pc,
     output [4:0] state,
+    output halt,
     output outen
 );
     reg [15:0] mem_addr;
@@ -40,7 +41,7 @@ module comp(
         .rst(rst), .clk(clk), .out(out), .op(op), .p1(p1), .pc(pc),
         .reg_select(reg_select),
         .x1(x1),
-        .state(state), .outen(outen),
+        .state(state), .outen(outen), .halt(halt),
 
         .mem_addr(mem_addr),
         .mem_rd_data(mem_rd_data), .mem_wr_data(mem_wr_data),

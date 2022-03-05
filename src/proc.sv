@@ -16,15 +16,14 @@ module proc(
     output reg mem_wr_req,
     output reg mem_rd_req,
     input mem_ack,
-    input mem_busy
+    input mem_busy,
+    output reg halt
 );
     reg [7:0] regs[16];
     reg [15:0] instruction;
     typedef enum bit[4:0] {
-        RESET,
-        AWAITING_INSTR,
-        GOT_INSTR,
-        GOT_INSTR2
+        C1,
+        C2
     } e_state;
 
     wire [3:0] c1_op;
@@ -35,13 +34,15 @@ module proc(
         OUT = 1,
         OUTLOC = 2,
         LI = 3,
-        OUTR = 4
+        OUTR = 4,
+        HALT = 5
     } e_op;
 
     task read_next_instr([15:0] instr_addr);
         mem_addr <= instr_addr;
         mem_rd_req <= 1;
-        state <= AWAITING_INSTR;
+        state <= C1;
+        pc <= instr_addr;
     endtask
 
     task write_out([7:0] _out);
@@ -53,24 +54,24 @@ module proc(
         case (c1_op)
             OUT: begin
                 write_out(c1_p1);
-                pc <= pc + 1;
                 read_next_instr(pc + 1);
             end
             OUTLOC: begin
                 mem_addr <= {8'b0, 1'b0, c1_p1[7:1]};
                 mem_rd_req <= 1;
-                state <= GOT_INSTR;
+                state <= C2;
             end
             LI: begin
                regs[c1_reg_select] <= c1_p1;
-                pc <= pc + 1;
                 read_next_instr(pc + 1);
             end
             OUTR: begin
                 mem_wr_req <= 0;
                 write_out(regs[c1_reg_select]);
-                pc <= pc + 1;
                 read_next_instr(pc + 1);
+           end
+           HALT: begin
+               halt <= 1;
            end
            default: out <= '0;
         endcase
@@ -80,7 +81,6 @@ module proc(
         case (op)
             OUTLOC: begin
                 write_out(mem_rd_data);
-                pc <= pc + 1;
                 read_next_instr(pc + 1);
             end
         endcase
@@ -88,22 +88,16 @@ module proc(
 
     always @(posedge clk or posedge rst) begin
         if (rst) begin
-            out <= '0;
-            pc <= '0;
-            state <= RESET;
+            halt <= 0;
+            outen <= 0;
+            read_next_instr(0);
         end
         else begin
-            out <= '0;
             mem_rd_req <= 0;
             mem_wr_req <= 0;
             outen <= 0;
             case(state)
-                RESET: begin
-                    mem_addr <= pc;
-                    mem_rd_req <= 1;
-                    state <= AWAITING_INSTR;
-                end
-                AWAITING_INSTR: begin
+                C1: begin
                     mem_rd_req <= 0;
                     if(mem_ack) begin
                         instr_c1();
@@ -113,7 +107,7 @@ module proc(
                         p1 <= mem_rd_data[7:0];
                     end
                 end
-                GOT_INSTR: begin
+                C2: begin
                     if(mem_ack) begin
                         instr_c2();
                     end
