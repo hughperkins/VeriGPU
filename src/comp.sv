@@ -21,8 +21,6 @@ module comp(
     output [4:0] state,
     output outen
 );
-    // wire mem_we;
-
     reg [15:0] mem_addr;
     reg [15:0] mem_rd_data, mem_wr_data;
 
