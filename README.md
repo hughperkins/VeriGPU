@@ -28,7 +28,7 @@ Under the hood, this will run `iverilog`, and execute it, see [run.py](https://g
 bash src/reg_test.sh
 ```
 
-- under the hood, this will run many of the examples in [examples](examples), and check the outputs against the expected outputs.
+- under the hood, this will run many of the examples in [examples](examples), and check the outputs against the expected outputs, which are in the paired files, with suffix `_expected.txt`, also in [examples](examples) folder.
 
 # To compile with verilator
 
