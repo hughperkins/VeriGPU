@@ -4,9 +4,13 @@ module comp(
     input clk,
     input rst,
 
-    input [15:0] oob_write_addr,
-    input [15:0] oob_write_data,
-    input oob_mem_wen,
+    input [15:0] oob_wr_addr,
+    input [15:0] oob_wr_data,
+    input oob_wen,
+
+    output mem_d_req, mem_wr_req,
+    output mem_busy,
+    output mem_ack,
 
     output [15:0] out,
     output [3:0] op,
@@ -17,19 +21,21 @@ module comp(
     output [4:0] state,
     output outen
 );
-    wire mem_we;
+    // wire mem_we;
 
-    reg [15:0] mem_read_addr, mem_write_addr;
-    reg [15:0] mem_read_data, mem_write_data;
+    reg [15:0] mem_addr;
+    reg [15:0] mem_rd_data, mem_wr_data;
 
-    mem mem1(
-        .clk(clk), .we(mem_we),
+    mem_delayed mem1(
+        .clk(clk),
 
-        .read_addr(mem_read_addr), .write_addr(mem_write_addr),
-        .read_data(mem_read_data), .write_data(mem_write_data),
+        .addr(mem_addr),
+        .wr_req(mem_wr_req), .rd_req(mem_rd_req),
+        .rd_data(mem_rd_data), .wr_data(mem_wr_data),
+        .busy(mem_busy), .ack(mem_ack),
 
-        .oob_write_addr(oob_write_addr), .oob_write_data(oob_write_data),
-        .oob_wen(oob_mem_wen)
+        .oob_wr_addr(oob_wr_addr), .oob_wr_data(oob_wr_data),
+        .oob_wen(oob_wen)
     );
 
     proc proc1(
@@ -37,9 +43,12 @@ module comp(
         .reg_select(reg_select),
         .x1(x1),
         .state(state), .outen(outen),
-        .mem_read_addr(mem_read_addr), .mem_write_addr(mem_write_addr),
-        .mem_read_data(mem_read_data), .mem_write_data(mem_write_data),
-        .mem_we(mem_we)
+
+        .mem_addr(mem_addr),
+        .mem_rd_data(mem_rd_data), .mem_wr_data(mem_wr_data),
+        .mem_ack(mem_ack), .mem_busy(mem_busy),
+        .mem_rd_req(mem_rd_req), .mem_wr_req(mem_wr_req)
+        //.mem_we(mem_we)
     );
 
 endmodule

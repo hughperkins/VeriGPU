@@ -5,3 +5,4 @@
 - factorize proc a bit better, so not so many indentation levels...
 - add delay to memory module, to simulate wire latency
 - use actual memory module?
+- add halt

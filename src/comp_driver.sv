@@ -12,9 +12,10 @@ module comp_driver(
     wire [4:0] state;
     wire outen;
 
-    reg [15:0] oob_write_addr;
-    reg [15:0] oob_write_data;
-    reg oob_mem_wen;
+    reg [15:0] oob_wr_addr;
+    reg [15:0] oob_wr_data;
+    reg oob_wen;
+
     reg [15:0] mem_load [256];
 
     reg [7:0] outmem [32];
@@ -25,9 +26,9 @@ module comp_driver(
         .pc(pc), .op(op), .reg_select(reg_select),
         .x1(x1), .p1(p1), .state(state),
         .out(out), .outen(outen),
-        .oob_write_addr(oob_write_addr),
-        .oob_write_data(oob_write_data),
-        .oob_mem_wen(oob_mem_wen)
+        .oob_wr_addr(oob_wr_addr),
+        .oob_wr_data(oob_wr_data),
+        .oob_wen(oob_wen)
     );
 
     initial begin
@@ -44,12 +45,12 @@ module comp_driver(
         $readmemh("build/{PROG}.hex", mem_load);
         for(int i = 0; i < 255; i++) begin
             #10
-            oob_mem_wen = 1;
-            oob_write_addr = i;
-            oob_write_data = mem_load[i];
+            oob_wen = 1;
+            oob_wr_addr = i;
+            oob_wr_data = mem_load[i];
         end
         #10
-        oob_mem_wen = 0;
+        oob_wen = 0;
         outpos = 0;
         #10
 
@@ -58,7 +59,7 @@ module comp_driver(
             $time(), rst, pc, out,  op,   p1,   reg_select, x1, state);
         rst = 1;
         #10 rst = 0;
-        #400
+        #1000
         for(int i = 0; i < outpos; i++) begin
             $display("out %h %h", i, outmem[i]);
         end

@@ -1,8 +1,12 @@
-module mem_delayed2(
+module mem_delayed(
     input clk,  rst, input wr_req, input rd_req,
     output reg busy, output reg ack,
     input [15:0] addr, output reg [15:0] rd_data,
-    input [15:0] wr_data
+    input [15:0] wr_data,
+
+    input [15:0] oob_wr_addr,
+    input [15:0] oob_wr_data,
+    input oob_wen
 );
     reg [15:0] mem[256];
     reg [15:0] received_addr;
@@ -15,6 +19,8 @@ module mem_delayed2(
             received_rd_req <= 0;
             received_wr_req <= 0;
             busy <= 0;
+        end else if(oob_wen) begin
+            mem[oob_wr_addr] <= oob_wr_data;
         end else begin
             if (received_rd_req) begin
                 if (clks_to_wait == 0) begin
