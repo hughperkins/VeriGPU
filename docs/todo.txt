@@ -5,7 +5,6 @@
 - factorize proc a bit better, so not so many indentation levels...
 - use actual memory module?
 - add halt
-- constants for ops and names
 - matrix multiplication
 - jmp
 - comp
@@ -13,4 +12,6 @@
 - opencl
 
 done:
+- fix prog3
+- constants for ops and names
 - add delay to memory module, to simulate wire latency
