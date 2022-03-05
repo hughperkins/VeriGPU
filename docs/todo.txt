@@ -3,6 +3,14 @@
 - measure timing/maximum clock speed somehow
 - load/store in memory
 - factorize proc a bit better, so not so many indentation levels...
-- add delay to memory module, to simulate wire latency
 - use actual memory module?
 - add halt
+- constants for ops and names
+- matrix multiplication
+- jmp
+- comp
+- gpu structure
+- opencl
+
+done:
+- add delay to memory module, to simulate wire latency
