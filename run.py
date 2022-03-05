@@ -3,6 +3,7 @@ import argparse
 
 
 def run(args):
+    args.name = args.name.replace('.asm', '').replace('src/', '')
     assert os.system(f'python src/assembler.py --in-asm examples/{args.name}.asm --out-hex build/{args.name}.hex') == 0
     with open('src/comp_driver.sv') as f:
         comp_driver = f.read()

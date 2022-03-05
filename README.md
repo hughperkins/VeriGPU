@@ -14,7 +14,17 @@ Play with building a toy processor from scratch, in verilog
 python run.py --name [progname, e.g. prog5]
 ```
 
-Under the hood, this will run `iverilog`, and execute it, see [run.py](https://github.com/hughperkins/toy_proc/blob/main/run.py)
+Under the hood, this will run `iverilog`, and execute it, see [run.py](https://github.com/hughperkins/toy_proc/blob/main/run.py).
+
+`progname` is the name of a `.asm` file in `examples`, e.g. `prog2` (without suffix).
+
+# To run self-tests
+
+```
+bash src/reg_test.sh
+```
+
+- under the hood, this will run many of the examples in [examples](examples), and check the outputs against the expected outputs.
 
 # To compile with verilator
 
