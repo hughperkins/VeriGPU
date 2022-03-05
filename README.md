@@ -14,6 +14,8 @@ Play with building a toy processor from scratch, in verilog
 python run.py --name [progname, e.g. prog5]
 ```
 
+Under the hood, this will run `iverilog`, and execute it, see [run.py](https://github.com/hughperkins/toy_proc/blob/main/run.py)
+
 # To compile with verilator
 
 (there is no runner for verilator currently, but the modules do compile)
