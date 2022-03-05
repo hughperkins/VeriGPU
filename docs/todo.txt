@@ -1,7 +1,4 @@
-- add halt
 - jmp
-- add asserts to progs somehow (maybe create test runners for each prog? or add an assert instruction? or use normal systemverilog driver/tests?)
-- comp
 - matrix multiplication
 - gpu structure
 - opencl
@@ -9,10 +6,13 @@
 - start create ALU functions, eg add
 - measure timing/maximum clock speed somehow
 - load/store in memory
-- use actual memory module?
+- (use actual memory module?)
 
 done:
+- add asserts to progs somehow (maybe create test runners for each prog? or add an assert instruction? or use normal systemverilog driver/tests?)
+- add halt
 - factorize proc a bit better, so not so many indentation levels...
 - fix prog3
 - constants for ops and names
 - add delay to memory module, to simulate wire latency
+- comp
