@@ -1,6 +1,10 @@
 # toy_proc
 Play with building a toy processor from scratch, in verilog
 
+# Vision
+
+Experiment with writing some very simple toy processor, maybe GPU, targeting ASIC synthesis. I don't actually intend to run synthesis myself, but I intend to do what I can to verify somehow that synthesis would work ok, timings ok, etc.
+
 # To run / simulate
 
 ## prerequisites
