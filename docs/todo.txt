@@ -1,15 +1,16 @@
+- factorize proc a bit better, so not so many indentation levels...
+- add halt
+- jmp
+- add asserts to progs somehow (maybe create test runners for each prog?)
+- comp
+- matrix multiplication
+- gpu structure
+- opencl
 - create register file
 - start create ALU functions, eg add
 - measure timing/maximum clock speed somehow
 - load/store in memory
-- factorize proc a bit better, so not so many indentation levels...
 - use actual memory module?
-- add halt
-- matrix multiplication
-- jmp
-- comp
-- gpu structure
-- opencl
 
 done:
 - fix prog3
