@@ -76,6 +76,9 @@ yosys -s src/yosys.tacl
 SW rs2, offset(rs1)
 LW rd, offset(rs1)
 ADDI rd, rs1, immediate
+BEQ rs1, rs2, location
+BNE rs1, rs2, location
+location:
 ```
 
 ## Pseudoinstructions
