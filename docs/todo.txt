@@ -1,3 +1,4 @@
+- modify format of immediate hex values sliughlty, from abx to 0xab
 - load/store in memory
 - migrate away from `out` instructions
 - migrate instructions to use risc-v op codes

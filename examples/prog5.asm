@@ -1,17 +1,17 @@
-out 1bx
-out 2dx
-out 32x
-out 44x
-li x1 01x
+out 0x1b
+out 0x2d
+out 0x32
+out 0x44
+li x1 0x01
 outr x1
-li x1 02x
+li x1 0x02
 outr x1
-li x1 1ex
+li x1 0x1e
 outr x1
-li x1 2dx
+li x1 0x2d
 outr x1
 halt
 
-40x:
-word 0000deadx
-word 0000beefx
+0x40:
+word 0x0000dead
+word 0x0000beef

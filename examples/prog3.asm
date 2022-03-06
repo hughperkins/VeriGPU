@@ -1,13 +1,13 @@
-out 1bx
-out 2dx
-out 32x
-out 44x
-outloc 40x
-outloc 44x
-outloc 40x
-outloc 44x
+out 0x1b
+out 0x2d
+out 0x32
+out 0x44
+outloc 0x40
+outloc 0x44
+outloc 0x40
+outloc 0x44
 halt
 
-40x:
-word 0000deadx
-word 0000beefx
+0x40:
+word 0x0000dead
+word 0x0000beef
