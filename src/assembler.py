@@ -110,15 +110,11 @@ def run(args):
                 assert len(instr_bits) == 32
                 hex_lines.append(bits_to_hex(instr_bits))
             elif cmd == 'li':
-                # e.g.: li x1 01x
+                # e.g.: li x1 0x12
+                # virtual command; convert to e.g. addi x1, x0, 0x12
 
-                op_bits = int_to_binary(3, 7)
-                imm_bits = int_str_to_bits(p2, 7)
-                rd_bits = reg_str_to_bits(p1, 5)
-
-                instr_bits = f'{imm_bits}{"0" * 13}{rd_bits}{op_bits}'
-                assert len(instr_bits) == 32
-                hex_lines.append(bits_to_hex(instr_bits))
+                asm_cmds.appendleft(f'addi {p1}, x0, {p2}')
+                continue
             elif cmd == 'outr':
                 # virtual instruction. map to storing to location 1000
 
