@@ -13,6 +13,7 @@
 - (use actual memory module?)
 
 done:
+- allow commas in instructions
 - handle different immediate int types (hex, dec)
 - modify format of immediate hex values sliughlty, from abx to 0xab
 - migrate to risc-v instruction layout (opcode in [6:0], rd in [11:7], rs1 in [19:15], rs2 in [24:20], immediate in [31:20])

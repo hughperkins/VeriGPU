@@ -53,6 +53,7 @@ def run(args):
         if line.strip() == '':
             continue
 
+        line = line.replace(',', ' ').replace('  ', ' ')
         split_line = line.split()
         cmd = split_line[0].lower()
         p1 = split_line[1] if len(split_line) >= 2 else None
