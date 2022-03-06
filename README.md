@@ -122,7 +122,7 @@ Memory access is via a mock memory controller, which will wait several cycles be
 - then, if reading, read the value from `rd_data`
 - in either case, can immediately submit new request, on same clock cycle
 
-No caching of any sort is implemented currently (no level1, no level2, no level2, not even instruction cache :P ). Since I intend to target creating a GPU, which has a different cache mechanism than CPU, I'll think about this once it starts to look more like a GPU.
+No caching of any sort is implemented currently (no level1, no level2, no level3, not even instruction cache :P ). Since I intend to target creating a GPU, which has a different cache mechanism than CPU, I'll think about this once it starts to look more like a GPU.
 
 ## I/O
 
