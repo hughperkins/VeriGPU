@@ -5,7 +5,5 @@ out 0x44
 out 50
 out 60
 halt
-
-0xf0:
-word 0x0000dead
-word 0x0000beef
+out 70
+out 80

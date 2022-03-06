@@ -75,9 +75,17 @@ yosys -s src/yosys.tacl
 ```
 SW rs2, offset(rs1)
 LW rd, offset(rs1)
-LI rd, immediate
 ADDI rd, rs1, immediate
-HALT  # (HALT is not RISC-V)
+```
+
+## Virtual instructions
+
+```
+LI rd, immediate  # loads immediate into register rd
+HALT              # halts simulation
+OUT immediate     # sends immediate to stdout, via writing to mem location 1000
+OUTR rd           # sends contents of register rd to stdout
+OUTLOC immediate  # sends contents of memory location at immediate to stdout
 ```
 
 ## Memory
@@ -96,6 +104,7 @@ Memory access is via a mock memory controller, which will wait several cycles be
 ## I/O
 
 - any word written to location 1000 will be considered to have been sent to a memory-mapped i/o device, which will write this value out, in our case to stdout, via the test bench code.
+- writing any word to location 1004 halts the simulation.
 
 # Recent updates
 

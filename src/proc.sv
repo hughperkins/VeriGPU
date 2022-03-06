@@ -39,7 +39,6 @@ module proc(
     wire signed [11:0] c1_load_offset;
 
     typedef enum bit[6:0] {
-        HALT = 5,
         STORE =    7'b0100011,
         OPIMM =    7'b0010011,
         LOAD =     7'b0000011
@@ -89,15 +88,14 @@ module proc(
                 if (regs[c1_rs1] + c1_store_offset == 1000) begin
                     write_out(regs[c1_rs2]);
                     read_next_instr(pc + 1);
+                end else if(regs[c1_rs1] + c1_store_offset == 1004) begin
+                    halt <= 1;
                 end else begin
                     mem_addr <= (regs[c1_rs1] + c1_store_offset) >> 2;
                     mem_wr_req <= 1;
                     mem_wr_data <= regs[c1_rs2];
                     state <= C2;
                 end
-            end
-            HALT: begin
-                halt <= 1;
             end
             default: halt <= 1;
         endcase

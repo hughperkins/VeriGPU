@@ -1,8 +1,10 @@
 - branch
 - jmp
+- allow non-zero offset in store and load
 - maybe use a C/C++ -> RISC-V compiler, instead of writing assembler?
 - loop from 1 to 10?
 - sum of integers from 1 to 10?
+- floats: regs, mul, div, modulus, add, sub, beq, glt
 - factorial calculator
 - prime numbers calculator
 - matrix multiplication
@@ -17,6 +19,7 @@
 - (use actual memory module?)
 
 done:
+- migrate HALT to be a virtual instruction that writes to location 1004
 - migrate instructions to use risc-v op codes
 - migrate away from `out` instructions
 - load
@@ -38,6 +41,11 @@ done:
 - add delay to memory module, to simulate wire latency
 - comp
 
+things for gpu:
+- get_local_id(), get_global_id()
+- barrier
+- global mem
+- local mem
 
 notes:
 - I-type: register-immediate, rs1 . imm => rd (includes loads, where address is rs1 + signed offset)

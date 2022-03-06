@@ -52,7 +52,6 @@ def run(args):
     asm_cmds = deque(assembly.split('\n'))
     hex_lines = []
     while len(asm_cmds) > 0:
-     # for line in assembly.split('\n'):
         line = asm_cmds.popleft()
         if line.strip() == '':
             continue
@@ -149,10 +148,11 @@ def run(args):
                 assert len(bits) == 32
                 hex_lines.append(bits_to_hex(bits, num_bytes=4))
             elif cmd == 'halt':
-                op_bits = int_to_binary(5, 7)
-                instr_bits = f'{"0" * 25}{op_bits}'
-                assert len(instr_bits) == 32
-                hex_lines.append(bits_to_hex(instr_bits))
+                # virtual instruction
+                # write to location 1001 instead
+                asm_cmds.appendleft('sw x30, 0(x31)')
+                asm_cmds.appendleft('addi x31, x0, 1004')
+                continue
             elif cmd.endswith(':'):
                 cmd = cmd[:-1]
                 loc_int = int_str_to_int(cmd)
