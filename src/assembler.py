@@ -14,8 +14,28 @@ def hex_to_binary(hex_value, num_bits):
     return bits
 
 
-def bits_to_hex(bits):
-    return hex(int(bits, 2))[2:]
+def int_str_to_bits(int_str, num_bits):
+    if int_str.startswith('0x'):
+        int_value = int(int_str[2:], 16)
+    else:
+        int_value = int(int_str)
+    bits = int_to_binary(int_value, num_bits)
+    assert len(bits) == num_bits
+    return bits
+
+
+def reg_str_to_bits(reg_str, num_bits: int = 5):
+    assert reg_str.startswith('x')
+    reg_str = reg_str[1:]
+    bits = int_str_to_bits(reg_str, num_bits=num_bits)
+    return bits
+
+
+def bits_to_hex(bits, num_bytes: int = 4):
+    hex_str = hex(int(bits, 2))[2:]
+    hex_str = hex_str.rjust(num_bytes * 2, "0")
+    assert len(hex_str) == num_bytes * 2
+    return hex_str
 
 
 def run(args):
@@ -37,13 +57,13 @@ def run(args):
             if cmd == 'out':
                 # e.g.: out 1bx
 
-                imm_bits = hex_to_binary(p1, 7)
+                imm_bits = int_str_to_bits(p1, 7)
                 op_bits = int_to_binary(1, 7)
                 instr_bits = f'{imm_bits}{"0" * 18}{op_bits}'
                 assert len(instr_bits) == 32
                 hex_lines.append(bits_to_hex(instr_bits))
             elif cmd == 'outloc':
-                imm_bits = hex_to_binary(p1, 7)
+                imm_bits = int_str_to_bits(p1, 7)
                 op_bits = int_to_binary(2, 7)
                 instr_bits = f'{imm_bits}{"0" * 18}{op_bits}'
                 assert len(instr_bits) == 32
@@ -51,34 +71,27 @@ def run(args):
             elif cmd == 'li':
                 # e.g.: li x1 01x
 
-                assert p1.startswith('x')
-                p1 = '0' + p1
 
                 op_bits = int_to_binary(3, 7)
-                imm_bits = hex_to_binary(p2, 7)
-                rd_bits = hex_to_binary(p1, 5)
+                imm_bits = int_str_to_bits(p2, 7)
+                rd_bits = reg_str_to_bits(p1, 5)
 
                 instr_bits = f'{imm_bits}{"0" * 13}{rd_bits}{op_bits}'
                 assert len(instr_bits) == 32
                 hex_lines.append(bits_to_hex(instr_bits))
             elif cmd == 'outr':
-                assert p1.startswith('x')
-                rd_str = '0' + p1
-                rd_bits = hex_to_binary(rd_str, 5)
+                rd_bits = reg_str_to_bits(p1, 5)
                 op_bits = int_to_binary(4, 7)
                 instr_bits = f'{"0" * 20}{rd_bits}{op_bits}'
                 assert len(instr_bits) == 32
                 hex_lines.append(bits_to_hex(instr_bits))
             elif cmd == 'half':
-                assert p1.startswith('0x')
-                hex_line = p1[2:]
-                assert len(hex_line) == 4
-                hex_lines.append('0000' + hex_line)
+                bits = int_str_to_bits(p1, 16)
+                hex_lines.append("0000" + bits_to_hex(bits, num_bytes=2))
             elif cmd == 'word':
-                assert p1.startswith('0x')
-                hex_line = p1[2:]
-                assert len(hex_line) == 8
-                hex_lines.append(hex_line)
+                bits = int_str_to_bits(p1, 32)
+                assert len(bits) == 32
+                hex_lines.append(bits_to_hex(bits, num_bytes=4))
             elif cmd == 'halt':
                 op_bits = int_to_binary(5, 7)
                 instr_bits = f'{"0" * 25}{op_bits}'

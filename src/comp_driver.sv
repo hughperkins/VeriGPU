@@ -68,7 +68,7 @@ module comp_driver(
 
         // #1000
         for(int i = 0; i < outpos; i++) begin
-            $display("out %h %h", i, outmem[i]);
+            $display("out %0d %h %0d", i, outmem[i], outmem[i]);
         end
         $finish();
     end

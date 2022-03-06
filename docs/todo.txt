@@ -1,4 +1,3 @@
-- modify format of immediate hex values sliughlty, from abx to 0xab
 - load/store in memory
 - migrate away from `out` instructions
 - migrate instructions to use risc-v op codes
@@ -14,6 +13,8 @@
 - (use actual memory module?)
 
 done:
+- handle different immediate int types (hex, dec)
+- modify format of immediate hex values sliughlty, from abx to 0xab
 - migrate to risc-v instruction layout (opcode in [6:0], rd in [11:7], rs1 in [19:15], rs2 in [24:20], immediate in [31:20])
 - change bits of address to 32-bit
 - change bits of data to 32-bit, to match risc-v 32I
