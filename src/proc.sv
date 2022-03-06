@@ -78,7 +78,7 @@ module proc(
         case(_funct)
             ADDI: begin
                 regs[_rd] <= regs[_rs1] + _i_imm;
-                read_next_instr(pc + 1);
+                read_next_instr(pc + 4);
             end
             default: begin
             end
@@ -104,9 +104,9 @@ module proc(
         endcase
 
         if (branch) begin
-            read_next_instr(pc + {_offset[31], _offset[31:1]});
+            read_next_instr(pc + {_offset[30:0], 1'b0});
         end else begin
-            read_next_instr(pc + 1);
+            read_next_instr(pc + 4);
         end
     endtask
 
@@ -118,7 +118,7 @@ module proc(
             LOAD: begin
                 // read from memory
                 // lw rd, offset(rs1)
-                mem_addr <= (regs[c1_rs1] + c1_load_offset) >> 2;
+                mem_addr <= (regs[c1_rs1] + c1_load_offset);
                 mem_rd_req <= 1;
                 state <= C2;
             end
@@ -127,11 +127,11 @@ module proc(
                 // sw rs2, offset(rs1)
                 if (regs[c1_rs1] + c1_store_offset == 1000) begin
                     write_out(regs[c1_rs2]);
-                    read_next_instr(pc + 1);
+                    read_next_instr(pc + 4);
                 end else if(regs[c1_rs1] + c1_store_offset == 1004) begin
                     halt <= 1;
                 end else begin
-                    mem_addr <= (regs[c1_rs1] + c1_store_offset) >> 2;
+                    mem_addr <= (regs[c1_rs1] + c1_store_offset);
                     mem_wr_req <= 1;
                     mem_wr_data <= regs[c1_rs2];
                     state <= C2;
@@ -150,12 +150,12 @@ module proc(
             LOAD: begin
                 if(mem_ack) begin
                     regs[rd] <= mem_rd_data;
-                    read_next_instr(pc + 1);
+                    read_next_instr(pc + 4);
                 end
             end
             STORE: begin
                 if(mem_ack) begin
-                    read_next_instr(pc + 1);
+                    read_next_instr(pc + 4);
                 end
             end
             default: begin

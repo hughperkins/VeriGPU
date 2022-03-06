@@ -21,6 +21,7 @@ module mem_delayed_test();
         [4:0] expected_cycles
     );
         reg [4:0] cycles;
+        $display("check read addr=%h exp_data=%h", tgt_addr, expected_data);
         cycles = 0;
         assert (~busy);
         addr = tgt_addr;
@@ -87,13 +88,22 @@ module mem_delayed_test();
         check_read(16'h10, 16'hcd, 5);
         check_read(16'h8, 16'hab, 5);
 
-        write(16'h12, 16'h11, 5);
-        write(16'h14, 16'h22, 5);
-        check_read(16'h12, 16'h11, 5);
-        check_read(16'h14, 16'h22, 5);
+        write(16'h14, 16'h11, 5);
+        write(16'h18, 16'h22, 5);
+        check_read(16'h14, 16'h11, 5);
+        check_read(16'h18, 16'h22, 5);
 
         check_read(16'h10, 16'hcd, 5);
         check_read(16'h8, 16'hab, 5);
+
+        write(16'd8, 16'hab, 5);
+        write(16'd11, 16'hcd, 5);
+        check_read(16'd8, 16'hcd, 5);
+
+        write(16'd8, 16'hab, 5);
+        write(16'd12, 16'hcd, 5);
+        check_read(16'd8, 16'hab, 5);
+        check_read(16'd12, 16'hcd, 5);
 
         #200 $finish();
     end

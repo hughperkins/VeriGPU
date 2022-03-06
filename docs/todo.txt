@@ -1,7 +1,5 @@
-- migraet to use byte-addressing everywher (instead of word-addressing, eg for pc, and mem module instructions)
 - mv pseudoinstruction
 - maybe use a C/C++ -> RISC-V compiler, instead of writing assembler?
-- loop from 1 to 10?
 - sum of integers from 1 to 10?
 - floats: regs, mul, div, modulus, add, sub, beq, glt
 - factorial calculator
@@ -18,6 +16,8 @@
 - (use actual memory module?)
 
 done:
+- migraet to use byte-addressing everywher (instead of word-addressing, eg for pc, and mem module instructions)
+- loop from 5 to 0
 - branch
 - allow negative immediate for addi, and negative offset for store and load
 - allow non-zero offset in store and load

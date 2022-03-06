@@ -26,7 +26,7 @@ module mem_delayed(
             if (received_rd_req) begin
                 if (clks_to_wait == 0) begin
                     ack <= 1;
-                    rd_data <= mem[received_addr];
+                    rd_data <= mem[{2'b0, received_addr[31:2]}];
                     received_rd_req <= 0;
                     received_wr_req <= 0;
                     busy <= 0;
@@ -36,7 +36,7 @@ module mem_delayed(
             end else if(received_wr_req) begin
                 if (clks_to_wait == 0) begin
                     ack <= 1;
-                    mem[received_addr] <= received_data;
+                    mem[{2'b0, received_addr[31:2]}] <= received_data;
                     received_rd_req <= 0;
                     received_wr_req <= 0;
                     busy <= 0;
