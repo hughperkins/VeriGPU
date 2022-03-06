@@ -98,6 +98,11 @@ HALT              # halts simulation
 OUT immediate     # sends immediate to stdout, via writing to mem location 1000
 OUTR rd           # sends contents of register rd to stdout
 OUTLOC immediate  # sends contents of memory location at immediate to stdout
+NOP
+MV rd, rs
+NEG rd, rs
+BEQZ rs, offset
+BNEZ rs, offset
 ```
 
 ## Memory
