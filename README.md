@@ -70,7 +70,7 @@ yosys -s src/yosys.tacl
 
 # Progress so far
 
-## Implemented instructions
+## Technical details
 
 ```
 SW rs2, offset(rs1)
