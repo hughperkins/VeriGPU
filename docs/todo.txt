@@ -1,3 +1,4 @@
+- use to write to memory location 0x1000 as 'out' command
 - load
 - migrate away from `out` instructions
 - migrate instructions to use risc-v op codes
@@ -13,6 +14,7 @@
 - (use actual memory module?)
 
 done:
+- addi
 - add store to memory (without offset)
 - allow commas in instructions
 - handle different immediate int types (hex, dec)

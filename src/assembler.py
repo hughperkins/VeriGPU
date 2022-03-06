@@ -76,6 +76,17 @@ def run(args):
                 assert offset_int == 0
                 instr_bits = f'{offset1_bits}{rs2_bits}{rs1_bits}000{offset2_bits}{op_bits}'
                 hex_lines.append(bits_to_hex(instr_bits))
+            elif cmd == 'addi':
+                # e.g.
+                # addi x1,    x2,    123
+                #      rd     rs1    imm
+                op_bits = "0010011"
+                imm_bits = int_str_to_bits(p3, 12)
+                rd_bits = reg_str_to_bits(p1)
+                rs1_bits = reg_str_to_bits(p2)
+                funct_bits = '000'
+                instr_bits = f'{imm_bits}{rs1_bits}{funct_bits}{rd_bits}{op_bits}'
+                hex_lines.append(bits_to_hex(instr_bits))
             elif cmd == 'out':
                 # e.g.: out 1bx
 
