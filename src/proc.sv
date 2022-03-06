@@ -172,7 +172,7 @@ module proc(
                 regs[_rd] <= regs[_rs1] >> regs[_rs2][4:0];
             end
         endcase
-        read_next_instr(pc + 1);
+        read_next_instr(pc + 4);
     endtask
 
     task instr_c1();

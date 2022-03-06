@@ -293,6 +293,7 @@ def run(args):
                 instr_bits = f'{funct_bits[:7]}{rs2_bits}{rs1_bits}{funct_bits[-3:]}{rd_bits}{op_bits}'
                 # print('instr_bits', instr_bits, len(instr_bits))
                 # instr_bits = instr_bits.replace(',', '')
+                print('add', p1, p2, p3)
                 hex_lines.append(bits_to_hex(instr_bits))
             elif cmd == 'location':
                 # non risc-v command, to continue writing our assembler output at a new
