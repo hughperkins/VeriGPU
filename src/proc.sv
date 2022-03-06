@@ -35,19 +35,31 @@ module proc(
     wire [4:0] c1_rs1;
     wire [4:0] c1_rs2;
     wire [6:0] c1_imm1;
+
     wire signed [31:0] c1_store_offset;
     wire signed [31:0] c1_load_offset;
     wire signed [31:0] c1_i_imm;
+    wire signed [31:0] c1_branch_offset;
 
     typedef enum bit[6:0] {
         STORE =    7'b0100011,
         OPIMM =    7'b0010011,
-        LOAD =     7'b0000011
+        LOAD =     7'b0000011,
+        BRANCH =   7'b1100011
     } e_op;
 
     typedef enum bit[2:0] {
         ADDI = 3'b000
     } e_funct;
+
+    typedef enum bit[2:0] {
+        BEQ = 3'b000,
+        BNE = 3'b001,
+        BLT = 3'b100,
+        BGE = 3'b101,
+        BLTU = 3'b110,
+        BGEU = 3'b111
+    } e_funct_branch;
 
     task read_next_instr([31:0] instr_addr);
         mem_addr <= instr_addr;
@@ -68,7 +80,34 @@ module proc(
                 regs[_rd] <= regs[_rs1] + _i_imm;
                 read_next_instr(pc + 1);
             end
+            default: begin
+            end
         endcase
+    endtask
+
+    task op_branch([2:0] _funct, [4:0] _rs1, [4:0] _rs2, signed [31:0] _offset);
+        reg branch;
+        branch = 0;
+        case(_funct)
+            BEQ: begin
+                if (regs[_rs1] == regs[_rs2]) begin
+                    branch = 1;
+                end
+            end
+            BNE: begin
+                if (regs[_rs1] != regs[_rs2]) begin
+                    branch = 1;
+                end
+            end
+            default: begin
+            end
+        endcase
+
+        if (branch) begin
+            read_next_instr(pc + {_offset[31], _offset[31:1]});
+        end else begin
+            read_next_instr(pc + 1);
+        end
     endtask
 
     task instr_c1();
@@ -98,6 +137,10 @@ module proc(
                     state <= C2;
                 end
             end
+            BRANCH: begin
+                // e.g. beq rs1, rs2, offset
+                op_branch(c1_funct, c1_rs1, c1_rs2, c1_branch_offset);
+            end
             default: halt <= 1;
         endcase
     endtask
@@ -114,6 +157,8 @@ module proc(
                 if(mem_ack) begin
                     read_next_instr(pc + 1);
                 end
+            end
+            default: begin
             end
         endcase
     endtask
@@ -158,5 +203,6 @@ module proc(
     assign c1_store_offset = {{20{mem_rd_data[31]}}, mem_rd_data[31:25], mem_rd_data[11:7]};
     assign c1_load_offset = {{20{mem_rd_data[31]}}, mem_rd_data[31:20]};
     assign c1_i_imm = {{20{mem_rd_data[31]}}, mem_rd_data[31:20]};
+    assign c1_branch_offset = {{20{mem_rd_data[31]}}, mem_rd_data[31], mem_rd_data[7], mem_rd_data[30:25], mem_rd_data[11:8]};
     assign x1 = regs[1];
 endmodule

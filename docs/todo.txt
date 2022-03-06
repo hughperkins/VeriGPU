@@ -1,6 +1,5 @@
-- branch
+- migraet to use byte-addressing everywher (instead of word-addressing, eg for pc, and mem module instructions)
 - mv pseudoinstruction
-- jmp
 - maybe use a C/C++ -> RISC-V compiler, instead of writing assembler?
 - loop from 1 to 10?
 - sum of integers from 1 to 10?
@@ -19,6 +18,7 @@
 - (use actual memory module?)
 
 done:
+- branch
 - allow negative immediate for addi, and negative offset for store and load
 - allow non-zero offset in store and load
 - migrate HALT to be a virtual instruction that writes to location 1004
@@ -30,18 +30,6 @@ done:
 - addi
 - add store to memory (without offset)
 - allow commas in instructions
-- handle different immediate int types (hex, dec)
-- modify format of immediate hex values sliughlty, from abx to 0xab
-- migrate to risc-v instruction layout (opcode in [6:0], rd in [11:7], rs1 in [19:15], rs2 in [24:20], immediate in [31:20])
-- change bits of address to 32-bit
-- change bits of data to 32-bit, to match risc-v 32I
-- add asserts to progs somehow (maybe create test runners for each prog? or add an assert instruction? or use normal systemverilog driver/tests?)
-- add halt
-- factorize proc a bit better, so not so many indentation levels...
-- fix prog3
-- constants for ops and names
-- add delay to memory module, to simulate wire latency
-- comp
 
 things for gpu:
 - get_local_id(), get_global_id()

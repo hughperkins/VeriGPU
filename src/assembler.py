@@ -55,6 +55,7 @@ def run(args):
         assembly = f.read()
     asm_cmds = deque(assembly.split('\n'))
     hex_lines = []
+    label_pos_by_name = {}
     while len(asm_cmds) > 0:
         line = asm_cmds.popleft()
         if line.strip() == '' or line.strip().startswith('#'):
@@ -96,21 +97,15 @@ def run(args):
                 instr_bits = f'{offset_bits}{rs1_bits}010{rd_bits}{op_bits}'
                 hex_lines.append(bits_to_hex(instr_bits))
             elif cmd == 'addi':
-                print('addi', p1, p2, p3)
                 # e.g.
                 # addi x1,    x2,    123
                 #      rd     rs1    imm
                 op_bits = "0010011"
                 imm_bits = int_str_to_bits(p3, 12)
-                print('p3', p3)
-                print('imm_bits', imm_bits)
                 rd_bits = reg_str_to_bits(p1)
                 rs1_bits = reg_str_to_bits(p2)
                 funct_bits = '000'
-                instr_bits = f'{imm_bits},{rs1_bits},{funct_bits},{rd_bits},{op_bits}'
-                print('instr_bits', instr_bits)
-                instr_bits = instr_bits.replace(',', '')
-                print('len(instr_bits)', len(instr_bits))
+                instr_bits = f'{imm_bits}{rs1_bits}{funct_bits}{rd_bits}{op_bits}'
                 hex_lines.append(bits_to_hex(instr_bits))
             elif cmd == 'out':
                 # e.g.: out 0x1b
@@ -158,13 +153,47 @@ def run(args):
                 asm_cmds.appendleft('sw x30, 0(x31)')
                 asm_cmds.appendleft('addi x31, x0, 1004')
                 continue
-            elif cmd.endswith(':'):
-                cmd = cmd[:-1]
-                loc_int = int_str_to_int(cmd)
+            elif cmd in ['beq', 'bne', 'blt', 'bge', 'bltu', 'bgeu']:
+                # beq rs1, rs2, immed
+                op_bits = "1100011"
+                funct_bits = {
+                    'beq': '000',
+                    'bne': '001',
+                    'blt': '100',
+                    'bge': '101',
+                    'bltu': '110',
+                    'bgeu': '111'
+                }[cmd]
+                rs1_bits = reg_str_to_bits(p1)
+                rs2_bits = reg_str_to_bits(p2)
+                label = p3
+                label_pos = label_pos_by_name[label]
+                pc = len(hex_lines) * 4
+                label_offset = label_pos - pc
+                print('label_pos', label_pos, pc, label_offset)
+                label_offset_bits = int_to_binary(label_offset // 2, 12)
+                l_bits_12 = label_offset_bits[-12]
+                l_bits_11 = label_offset_bits[-11]
+                l_bits_10_5 = label_offset_bits[-10:-4]
+                l_bits_4_1 = label_offset_bits[-4:]
+                instr_bits = f'{l_bits_12}{l_bits_10_5}{rs2_bits}{rs1_bits}{funct_bits}{l_bits_4_1}{l_bits_11}{op_bits}'
+                print('instr_bits', instr_bits)
+                hex_lines.append(bits_to_hex(instr_bits))
+            elif cmd == 'location':
+                # non risc-v command, to continue writing our assembler output at a new
+                # location
+                assert p1.endswith(':')
+                # cmd = cmd[:-1]
+                loc_int = int_str_to_int(p1[:-1])
                 location = loc_int // 4
                 assert len(hex_lines) <= location
                 while len(hex_lines) < location:
                     hex_lines.append('00000000')
+            elif cmd.endswith(':') and p1 is None:
+                # label
+                label = cmd.strip().replace(':', '')
+                label_pos_by_name[label] = len(hex_lines) * 4
+                print('label', label, label_pos_by_name[label])
             else:
                 raise Exception('cmd ' + cmd + ' not recognized')
         except Exception as e:

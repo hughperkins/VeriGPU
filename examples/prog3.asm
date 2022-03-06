@@ -14,11 +14,11 @@ outloc 258
 outloc 262
 halt
 
-0xf0:
+location 0xf0:
 word 0x0000dead
 word 0x0000beef
 
-250:
+location 250:
 word 0x00001111
 word 0x00002222
 word 15
