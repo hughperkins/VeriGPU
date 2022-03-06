@@ -87,7 +87,7 @@ module proc(
         SRA =  10'b0100000101
     } e_funct_op;
 
-    task read_next_instr([31:0] instr_addr);
+    task read_next_instr(input [31:0] instr_addr);
         mem_addr <= instr_addr;
         mem_rd_req <= 1;
         state <= C1;
@@ -95,12 +95,12 @@ module proc(
         regs[0] <= '0;
     endtask
 
-    task write_out([31:0] _out);
+    task write_out(input [31:0] _out);
         out[31:0] <= _out;
         outen <= 1;
     endtask
 
-    task op_imm([2:0] _funct, [4:0] _rd, [4:0] _rs1, [31:0] _i_imm);
+    task op_imm(input [2:0] _funct, input [4:0] _rd, input [4:0] _rs1, input [31:0] _i_imm);
         case(_funct)
             ADDI: begin
                 regs[_rd] <= regs[_rs1] + _i_imm;
@@ -111,7 +111,7 @@ module proc(
         endcase
     endtask
 
-    task op_branch([2:0] _funct, [4:0] _rs1, [4:0] _rs2, signed [31:0] _offset);
+    task op_branch(input [2:0] _funct, input [4:0] _rs1, input [4:0] _rs2, input [31:0] _offset);
         reg branch;
         branch = 0;
         case(_funct)
@@ -136,7 +136,7 @@ module proc(
         end
     endtask
 
-    task op_op([9:0] _funct, [4:0] _rd, [4:0] _rs1, [4:0] _rs2);
+    task op_op(input [9:0] _funct, input [4:0] _rd, input [4:0] _rs1, input [4:0] _rs2);
         case(_funct)
             ADD: begin
                 regs[_rd] <= regs[_rs1] + regs[_rs2];
