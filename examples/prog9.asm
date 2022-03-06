@@ -1,3 +1,5 @@
+# test writing to 1000 as stdout
+
 addi x31, x0, 1000
 
 li x1, 123

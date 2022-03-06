@@ -1,3 +1,6 @@
+# test li with different registers, using outr
+# (also test outr)
+
 out 0x1b
 out 0x2d
 out 0x32

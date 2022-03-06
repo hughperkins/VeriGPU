@@ -106,8 +106,6 @@ Memory access is via a mock memory controller, which will wait several cycles be
 - any word written to location 1000 will be considered to have been sent to a memory-mapped i/o device, which will write this value out, in our case to stdout, via the test bench code.
 - writing any word to location 1004 halts the simulation.
 
-# Recent updates
+# Short-term plan
 
-- migrated instruction layout to be compatible RISC-V
-- migrated data and address buses to 32-bit, to be compatible with RV32
-- created regression tests
+For long-term plan, see section Vision above. For short-term plan, see [todo.txt](docs/todo.txt)

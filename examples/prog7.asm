@@ -1,3 +1,5 @@
+# test sw
+
 li x2, 0xf0
 li x1, 123
 outr x1

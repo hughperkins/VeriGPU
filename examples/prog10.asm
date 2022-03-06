@@ -1,3 +1,5 @@
+# test lw
+
 addi x31, x0, 1000
 
 li x1, 123

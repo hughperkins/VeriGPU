@@ -1,3 +1,5 @@
+# test addi
+
 addi x1, x0, 22
 outr x1
 

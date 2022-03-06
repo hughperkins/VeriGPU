@@ -1,3 +1,6 @@
+# not sure why I wrote this :P
+# seems identical to prog5?
+
 out 0x1b
 out 0x2d
 out 0x32

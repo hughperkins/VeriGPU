@@ -53,7 +53,7 @@ def run(args):
     hex_lines = []
     while len(asm_cmds) > 0:
         line = asm_cmds.popleft()
-        if line.strip() == '':
+        if line.strip() == '' or line.strip().startswith('#'):
             continue
 
         line = line.replace(',', ' ').replace("(", " ").replace(")", " ").replace(
@@ -73,11 +73,11 @@ def run(args):
                 op_bits = "0100011"
                 rs1_bits = reg_str_to_bits(p3)
                 rs2_bits = reg_str_to_bits(p1)
-                offset_int = int_str_to_int(p2)
+                # offset_int = int_str_to_int(p2)
                 offset_bits = int_str_to_bits(p2, 12)
                 offset1_bits = offset_bits[:7]
                 offset2_bits = offset_bits[7:]
-                assert offset_int == 0
+                # assert offset_int == 0
                 instr_bits = f'{offset1_bits}{rs2_bits}{rs1_bits}010{offset2_bits}{op_bits}'
                 hex_lines.append(bits_to_hex(instr_bits))
             elif cmd == 'lw':
@@ -88,12 +88,8 @@ def run(args):
                 op_bits = "0000011"
                 rs1_bits = reg_str_to_bits(p3)
                 rd_bits = reg_str_to_bits(p1)
-                offset_int = int_str_to_int(p2)
                 offset_bits = int_str_to_bits(p2, 12)
-                # offset1_bits = offset_bits[:7]
-                # offset2_bits = offset_bits[7:]
-                assert offset_int == 0
-                instr_bits = f'{offset_bits}{"0" * 5}{rs1_bits}010{rd_bits}{op_bits}'
+                instr_bits = f'{offset_bits}{rs1_bits}010{rd_bits}{op_bits}'
                 hex_lines.append(bits_to_hex(instr_bits))
             elif cmd == 'addi':
                 print('addi', p1, p2, p3)
