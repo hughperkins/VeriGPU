@@ -178,6 +178,60 @@ def run(args):
 
                 asm_cmds.appendleft(f'addi {p1}, x0, {p2}')
                 continue
+            elif cmd == 'mv':
+                # e.g.
+                # mv rd, rs
+                # pseudoinstruction
+                asm_cmds.appendleft(f'addi {p1} {p2} 0')
+                continue
+            elif cmd == 'nop':
+                asm_cmds.appendleft('addi x0 x0 0')
+                continue
+            elif cmd == 'neg':
+                # neg rd, rs
+                #     p1  p2
+                asm_cmds.appendleft(f'sub {p1} x0 {p2}')
+                continue
+            elif cmd == 'beqz':
+                # beqz rs, offset
+                asm_cmds.appendleft(f'beq {p1} x0 {p2}')
+                continue
+            elif cmd == 'bnez':
+                # beqz rs, offset
+                asm_cmds.appendleft(f'bne {p1} x0 {p2}')
+                continue
+            elif cmd == 'blez':
+                # blez rs, offset
+                asm_cmds.appendleft(f'bge x0 {p1} {p2}')
+                continue
+            elif cmd == 'bgez':
+                # bgez rs, offset
+                asm_cmds.appendleft(f'bge {p1} x0 {p2}')
+                continue
+            elif cmd == 'bltz':
+                # bltz rs, offset
+                asm_cmds.appendleft(f'blt {p1} x0 {p2}')
+                continue
+            elif cmd == 'blgz':
+                # blgz rs, offset
+                asm_cmds.appendleft(f'blt x0 {p1} {p2}')
+                continue
+            elif cmd == 'bgt':
+                # bgt rs, rt offset
+                asm_cmds.appendleft(f'blt {p2} {p2} {p3}')
+                continue
+            elif cmd == 'ble':
+                # bge rs, rt offset
+                asm_cmds.appendleft(f'bge {p2} {p2} {p3}')
+                continue
+            elif cmd == 'bgtu':
+                # bge rs, rt offset
+                asm_cmds.appendleft(f'bltu {p2} {p2} {p3}')
+                continue
+            elif cmd == 'bleu':
+                # bge rs, rt offset
+                asm_cmds.appendleft(f'bgeu {p2} {p2} {p3}')
+                continue
             elif cmd == 'outr':
                 # virtual instruction. map to storing to location 1000
 
