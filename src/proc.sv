@@ -36,15 +36,17 @@ module proc(
     wire [4:0] c1_rs2;
     wire [6:0] c1_imm1;
     wire signed [11:0] c1_store_offset;
+    wire signed [11:0] c1_load_offset;
 
     typedef enum bit[6:0] {
-        OUT = 1,
+        // OUT = 1,
         OUTLOC = 2,
-        LI = 3,
-        OUTR = 4,
+        // LI = 3,
+        // OUTR = 4,
         HALT = 5,
         STORE =    7'b0100011,
-        OPIMM = 7'b0010011
+        OPIMM =    7'b0010011,
+        LOAD =     7'b0000011
     } e_op;
 
     typedef enum bit[2:0] {
@@ -78,6 +80,13 @@ module proc(
             OPIMM: begin
                 op_imm(c1_funct, c1_rd, c1_rs1, c1_rs2, c1_imm1);
             end
+            LOAD: begin
+                // read from memory
+                // lw rd, offset(rs1)
+                mem_addr <= (regs[c1_rs1] + c1_load_offset) >> 2;
+                mem_rd_req <= 1;
+                state <= C2;
+            end
             STORE: begin
                 // write to memory
                 // sw rs2, offset(rs1)
@@ -91,15 +100,18 @@ module proc(
                     state <= C2;
                 end
             end
+            /*
             OUT: begin
                 write_out(c1_imm1);
                 read_next_instr(pc + 1);
             end
+            */
             OUTLOC: begin
                 mem_addr <= {8'b0, 2'b0, c1_imm1[6:2]};
                 mem_rd_req <= 1;
                 state <= C2;
             end
+            /*
             LI: begin
                 regs[c1_rd] <= c1_imm1;
                 read_next_instr(pc + 1);
@@ -108,16 +120,23 @@ module proc(
                 mem_wr_req <= 0;
                 write_out(regs[c1_rd]);
                 read_next_instr(pc + 1);
-           end
-           HALT: begin
-               halt <= 1;
-           end
-           default: halt <= 1;
+            end
+            */
+            HALT: begin
+                halt <= 1;
+            end
+            default: halt <= 1;
         endcase
     endtask
 
     task instr_c2();
         case (op)
+            LOAD: begin
+                if(mem_ack) begin
+                    regs[rd] <= mem_rd_data;
+                    read_next_instr(pc + 1);
+                end
+            end
             STORE: begin
                 if(mem_ack) begin
                     read_next_instr(pc + 1);
@@ -172,5 +191,6 @@ module proc(
     // assign c1_imm1 = { {20{1'b0}}, mem_rd_data[31:25] };
     assign c1_imm1 = mem_rd_data[31:25];
     assign c1_store_offset = {mem_rd_data[31:25], mem_rd_data[11:7]};
+    assign c1_load_offset = mem_rd_data[31:20];
     assign x1 = regs[1];
 endmodule

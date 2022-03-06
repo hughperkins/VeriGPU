@@ -79,7 +79,22 @@ def run(args):
                 offset1_bits = offset_bits[:7]
                 offset2_bits = offset_bits[7:]
                 assert offset_int == 0
-                instr_bits = f'{offset1_bits}{rs2_bits}{rs1_bits}000{offset2_bits}{op_bits}'
+                instr_bits = f'{offset1_bits}{rs2_bits}{rs1_bits}010{offset2_bits}{op_bits}'
+                hex_lines.append(bits_to_hex(instr_bits))
+            elif cmd == 'lw':
+                # e.g.
+                # lw x2,  0      (x3)
+                #    rd   offset rs1
+                print('lw', p1, p2, p3)
+                op_bits = "0000011"
+                rs1_bits = reg_str_to_bits(p3)
+                rd_bits = reg_str_to_bits(p1)
+                offset_int = int_str_to_int(p2)
+                offset_bits = int_str_to_bits(p2, 12)
+                # offset1_bits = offset_bits[:7]
+                # offset2_bits = offset_bits[7:]
+                assert offset_int == 0
+                instr_bits = f'{offset_bits}{"0" * 5}{rs1_bits}010{rd_bits}{op_bits}'
                 hex_lines.append(bits_to_hex(instr_bits))
             elif cmd == 'addi':
                 print('addi', p1, p2, p3)
