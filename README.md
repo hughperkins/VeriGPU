@@ -32,6 +32,10 @@ Example output:
 
 ![Example output](https://raw.githubusercontent.com/hughperkins/toy_proc/main/img/example_output.png)
 
+# Some example programs that run ok
+
+- sum integers from 0 to 5 [examples/prog16.asm](examples/prog16.asm)
+
 # To run self-tests
 
 ```
