@@ -14,11 +14,16 @@ def hex_to_binary(hex_value, num_bits):
     return bits
 
 
-def int_str_to_bits(int_str, num_bits):
+def int_str_to_int(int_str):
     if int_str.startswith('0x'):
         int_value = int(int_str[2:], 16)
     else:
         int_value = int(int_str)
+    return int_value
+
+
+def int_str_to_bits(int_str, num_bits):
+    int_value = int_str_to_int(int_str)
     bits = int_to_binary(int_value, num_bits)
     assert len(bits) == num_bits
     return bits
@@ -71,7 +76,6 @@ def run(args):
             elif cmd == 'li':
                 # e.g.: li x1 01x
 
-
                 op_bits = int_to_binary(3, 7)
                 imm_bits = int_str_to_bits(p2, 7)
                 rd_bits = reg_str_to_bits(p1, 5)
@@ -99,9 +103,8 @@ def run(args):
                 hex_lines.append(bits_to_hex(instr_bits))
             elif cmd.endswith(':'):
                 cmd = cmd[:-1]
-                assert cmd.startswith('0x')
-                cmd = cmd[2:]
-                location = int(cmd, 16) // 4
+                loc_int = int_str_to_int(cmd)
+                location = loc_int // 4
                 while len(hex_lines) < location:
                     hex_lines.append('00000000')
             else:

@@ -6,8 +6,18 @@ outloc 0x40
 outloc 0x44
 outloc 0x40
 outloc 0x44
+outloc 100
+outloc 104
+outloc 108
+outloc 112
 halt
 
 0x40:
 word 0x0000dead
 word 0x0000beef
+
+100:
+word 0x00001111
+word 0x00002222
+word 15
+word 21
