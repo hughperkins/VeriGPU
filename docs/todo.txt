@@ -16,6 +16,7 @@
 - (use actual memory module?)
 
 done:
+- add 2 registers (and various other OP ops, such as shifts, and logical operators)
 - migraet to use byte-addressing everywher (instead of word-addressing, eg for pc, and mem module instructions)
 - loop from 5 to 0
 - branch

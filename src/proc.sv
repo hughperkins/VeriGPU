@@ -45,7 +45,20 @@ module proc(
         STORE =    7'b0100011,
         OPIMM =    7'b0010011,
         LOAD =     7'b0000011,
-        BRANCH =   7'b1100011
+        BRANCH =   7'b1100011,
+        OP =       7'b0110011,
+        LUI =      7'b0110111,
+        MADD =     7'b1000011,
+        LOADFP =   7'b0000111,
+        STOREFP =  7'b0100111,
+        MSUB =     7'b1000111,
+        JALR =     7'b1100111,
+        NMSUB =    7'b1001011,
+        NMADD =    7'b1001111,
+        OPFP =     7'b1010011,
+        AUIPC =    7'b0010111,
+        OP32 =     7'b0111011,
+        OPIMM32 =  7'b0011011
     } e_op;
 
     typedef enum bit[2:0] {
@@ -60,6 +73,19 @@ module proc(
         BLTU = 3'b110,
         BGEU = 3'b111
     } e_funct_branch;
+
+    typedef enum bit[9:0] {
+        ADD =  10'b0000000000,
+        SLT =  10'b0000000010,
+        SLTU = 10'b0000000011,
+        AND =  10'b0000000111,
+        OR =   10'b0000000110,
+        XOR =  10'b0000000100,
+        SLL =  10'b0000000001,
+        SRL =  10'b0000000101,
+        SUB =  10'b0100000000,
+        SRA =  10'b0100000101
+    } e_funct_op;
 
     task read_next_instr([31:0] instr_addr);
         mem_addr <= instr_addr;
@@ -110,10 +136,49 @@ module proc(
         end
     endtask
 
+    task op_op([9:0] _funct, [4:0] _rd, [4:0] _rs1, [4:0] _rs2);
+        case(_funct)
+            ADD: begin
+                regs[_rd] <= regs[_rs1] + regs[_rs2];
+            end
+            SLT: begin
+                // this is actually unsigned. Need to fix...
+                regs[_rd] <= regs[_rs1] < regs[_rs2] ? '1 : '0;
+            end
+            SLTU: begin
+                regs[_rd] <= regs[_rs1] < regs[_rs2] ? '1 : '0;
+            end
+            AND: begin
+                regs[_rd] <= regs[_rs1] & regs[_rs2];
+            end
+            OR: begin
+                regs[_rd] <= regs[_rs1] | regs[_rs2];
+            end
+            XOR: begin
+                regs[_rd] <= regs[_rs1] ^ regs[_rs2];
+            end
+            SLL: begin
+                regs[_rd] <= regs[_rs1] << regs[_rs2][4:0];
+            end
+            SRL: begin
+                regs[_rd] <= regs[_rs1] >> regs[_rs2][4:0];
+            end
+            SUB: begin
+                regs[_rd] <= regs[_rs1] - regs[_rs2];
+            end
+            SRA: begin
+                // not sure what an 'arithmetic' shift is
+                // need to fix...
+                regs[_rd] <= regs[_rs1] >> regs[_rs2][4:0];
+            end
+        endcase
+        read_next_instr(pc + 1);
+    endtask
+
     task instr_c1();
         case (c1_op)
             OPIMM: begin
-                op_imm(c1_funct, c1_rd, c1_rs1, c1_i_imm);
+                op_imm(c1_op_funct, c1_rd, c1_rs1, c1_i_imm);
             end
             LOAD: begin
                 // read from memory
@@ -141,7 +206,12 @@ module proc(
                 // e.g. beq rs1, rs2, offset
                 op_branch(c1_funct, c1_rs1, c1_rs2, c1_branch_offset);
             end
-            default: halt <= 1;
+            OP: begin
+                op_op(c1_funct, c1_rd, c1_rs1, c1_rs2);
+            end
+            default: begin
+                halt <= 1;
+            end
         endcase
     endtask
 
@@ -204,5 +274,6 @@ module proc(
     assign c1_load_offset = {{20{mem_rd_data[31]}}, mem_rd_data[31:20]};
     assign c1_i_imm = {{20{mem_rd_data[31]}}, mem_rd_data[31:20]};
     assign c1_branch_offset = {{20{mem_rd_data[31]}}, mem_rd_data[31], mem_rd_data[7], mem_rd_data[30:25], mem_rd_data[11:8]};
+    assign c1_op_funct = {mem_rd_data[31:25], mem_rd_data[14:12]};
     assign x1 = regs[1];
 endmodule

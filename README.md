@@ -76,9 +76,18 @@ yosys -s src/yosys.tacl
 SW rs2, offset(rs1)
 LW rd, offset(rs1)
 ADDI rd, rs1, immediate
-BEQ rs1, rs2, location
-BNE rs1, rs2, location
-location:
+BEQ  rs1, rs2, location
+BNE  rs1, rs2, location
+ADD  rd, rs1, rs2
+SUB  rd, rs1, rs2
+SLL  rd, rs1, rs2
+SRL  rd, rs1, rs2
+AND  rd, rs1, rs2
+OR   rd, rs1, rs2
+XOR  rd, rs1, rs2
+SLTU rd, rs1, rs2
+location:  # to label a location that we will branch conditionally to
+           # (for now, must precede the branch instruction)
 ```
 
 ## Pseudoinstructions

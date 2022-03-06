@@ -4,6 +4,51 @@ import math
 from collections import deque
 
 
+op_bits_by_op = {
+    'STORE':    '0100011',
+    'OPIMM':    '0010011',
+    'LOAD':     '0000011',
+    'BRANCH':   '1100011',
+    'OP':       '0110011',
+    'LUI':      '0110111',
+    'MADD':     '1000011',
+    'LOADFP':   '0000111',
+    'STOREFP':  '0100111',
+    'MSUB':     '1000111',
+    'JALR':     '1100111',
+    'NMSUB':    '1001011',
+    'NMADD':    '1001111',
+    'OPFP':     '1010011',
+    'AUIPC':    '0010111',
+    'OP32':     '0111011',
+    'OPIMM32':  '0011011'
+}
+
+
+funct_bits_branch = {
+    'BEQ':  'b000',
+    'BNE':  'b001',
+    'BLT':  'b100',
+    'BGE':  'b101',
+    'BLTU': 'b110',
+    'BGEU': 'b111'
+}
+
+
+funct_bits_op = {
+    'ADD':  '0000000000',
+    'SLT':  '0000000010',
+    'SLTU': '0000000011',
+    'AND':  '0000000111',
+    'OR':   '0000000110',
+    'XOR':  '0000000100',
+    'SLL':  '0000000001',
+    'SRL':  '0000000101',
+    'SUB':  '0100000000',
+    'SRA':  '0100000101'
+}
+
+
 def int_to_binary(int_value, num_bits):
     if int_value < 0:
         offset = int(math.pow(2, num_bits))
@@ -22,6 +67,8 @@ def hex_to_binary(hex_value, num_bits):
 def int_str_to_int(int_str):
     if int_str.startswith('0x'):
         int_value = int(int_str[2:], 16)
+    elif int_str.startswith('0b'):
+        int_value = int(int_str[2:], 2)
     else:
         int_value = int(int_str)
     return int_value
@@ -75,7 +122,7 @@ def run(args):
                 # sw x2,  0      (x3)
                 #    rs2  offset rs1
                 print('sw', p1, p2, p3)
-                op_bits = "0100011"
+                op_bits = op_bits_by_op['STORE']  # "0100011"
                 rs1_bits = reg_str_to_bits(p3)
                 rs2_bits = reg_str_to_bits(p1)
                 # offset_int = int_str_to_int(p2)
@@ -90,7 +137,7 @@ def run(args):
                 # lw x2,  0      (x3)
                 #    rd   offset rs1
                 print('lw', p1, p2, p3)
-                op_bits = "0000011"
+                op_bits = op_bits_by_op['LOAD']  # "0000011"
                 rs1_bits = reg_str_to_bits(p3)
                 rd_bits = reg_str_to_bits(p1)
                 offset_bits = int_str_to_bits(p2, 12)
@@ -100,7 +147,7 @@ def run(args):
                 # e.g.
                 # addi x1,    x2,    123
                 #      rd     rs1    imm
-                op_bits = "0010011"
+                op_bits = op_bits_by_op['OPIMM']  # "0010011"
                 imm_bits = int_str_to_bits(p3, 12)
                 rd_bits = reg_str_to_bits(p1)
                 rs1_bits = reg_str_to_bits(p2)
@@ -155,7 +202,7 @@ def run(args):
                 continue
             elif cmd in ['beq', 'bne', 'blt', 'bge', 'bltu', 'bgeu']:
                 # beq rs1, rs2, immed
-                op_bits = "1100011"
+                op_bits = op_bits_by_op['BRANCH']  # "1100011"
                 funct_bits = {
                     'beq': '000',
                     'bne': '001',
@@ -178,6 +225,20 @@ def run(args):
                 l_bits_4_1 = label_offset_bits[-4:]
                 instr_bits = f'{l_bits_12}{l_bits_10_5}{rs2_bits}{rs1_bits}{funct_bits}{l_bits_4_1}{l_bits_11}{op_bits}'
                 print('instr_bits', instr_bits)
+                hex_lines.append(bits_to_hex(instr_bits))
+            elif cmd in ['add', 'slt', 'sltu', 'and', 'or', 'xor', 'sll', 'srl', 'sub', 'sra']:
+                # e.g.
+                # add rd, rs1, rs2
+                op_bits = op_bits_by_op['OP']  # "0110011"
+                funct_bits = funct_bits_op[cmd.upper()]
+
+                # print(cmd, p1, p2, p3)
+                rd_bits = reg_str_to_bits(p1)
+                rs1_bits = reg_str_to_bits(p2)
+                rs2_bits = reg_str_to_bits(p3)
+                instr_bits = f'{funct_bits[:7]}{rs2_bits}{rs1_bits}{funct_bits[-3:]}{rd_bits}{op_bits}'
+                # print('instr_bits', instr_bits, len(instr_bits))
+                # instr_bits = instr_bits.replace(',', '')
                 hex_lines.append(bits_to_hex(instr_bits))
             elif cmd == 'location':
                 # non risc-v command, to continue writing our assembler output at a new
