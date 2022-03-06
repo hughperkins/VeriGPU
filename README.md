@@ -28,6 +28,8 @@ Under the hood, this will run `python assembler.py` to assemble the `.asm` file 
 
 `progname` is the name of a `.asm` file in [examples](examples), e.g. `prog2` (without suffix).
 
+![Example output](https://raw.githubusercontent.com/hughperkins/toy_proc/main/img/example_output.png)
+
 # To run self-tests
 
 ```
