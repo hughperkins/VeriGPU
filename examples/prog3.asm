@@ -2,21 +2,21 @@ out 0x1b
 out 0x2d
 out 0x32
 out 0x44
-outloc 0x60
-outloc 0x64
-outloc 0x60
-outloc 0x64
-outloc 112
-outloc 116
-outloc 120
-outloc 124
+outloc 0xf0
+outloc 0xf4
+outloc 0xf0
+outloc 0xf4
+outloc 250
+outloc 254
+outloc 258
+outloc 262
 halt
 
-0x60:
+0xf0:
 word 0x0000dead
 word 0x0000beef
 
-112:
+250:
 word 0x00001111
 word 0x00002222
 word 15

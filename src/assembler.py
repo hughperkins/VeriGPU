@@ -119,11 +119,13 @@ def run(args):
                 asm_cmds.appendleft('addi x31, x0, 1000')
                 continue
             elif cmd == 'outloc':
-                imm_bits = int_str_to_bits(p1, 7)
-                op_bits = int_to_binary(2, 7)
-                instr_bits = f'{imm_bits}{"0" * 18}{op_bits}'
-                assert len(instr_bits) == 32
-                hex_lines.append(bits_to_hex(instr_bits))
+                # e.g. outloc 0x20
+                # virtual command, maps to li followed by sw to location 1000
+                asm_cmds.appendleft('sw x30, 0(x31)')
+                asm_cmds.appendleft('addi x31, x0, 1000')
+                asm_cmds.appendleft(f'lw x30, 0(x31)')
+                asm_cmds.appendleft(f'li x31, {p1}')
+                continue
             elif cmd == 'li':
                 # e.g.: li x1 0x12
                 # virtual command; convert to e.g. addi x1, x0, 0x12
@@ -155,6 +157,7 @@ def run(args):
                 cmd = cmd[:-1]
                 loc_int = int_str_to_int(cmd)
                 location = loc_int // 4
+                assert len(hex_lines) <= location
                 while len(hex_lines) < location:
                     hex_lines.append('00000000')
             else:

@@ -39,10 +39,6 @@ module proc(
     wire signed [11:0] c1_load_offset;
 
     typedef enum bit[6:0] {
-        // OUT = 1,
-        OUTLOC = 2,
-        // LI = 3,
-        // OUTR = 4,
         HALT = 5,
         STORE =    7'b0100011,
         OPIMM =    7'b0010011,
@@ -100,28 +96,6 @@ module proc(
                     state <= C2;
                 end
             end
-            /*
-            OUT: begin
-                write_out(c1_imm1);
-                read_next_instr(pc + 1);
-            end
-            */
-            OUTLOC: begin
-                mem_addr <= {8'b0, 2'b0, c1_imm1[6:2]};
-                mem_rd_req <= 1;
-                state <= C2;
-            end
-            /*
-            LI: begin
-                regs[c1_rd] <= c1_imm1;
-                read_next_instr(pc + 1);
-            end
-            OUTR: begin
-                mem_wr_req <= 0;
-                write_out(regs[c1_rd]);
-                read_next_instr(pc + 1);
-            end
-            */
             HALT: begin
                 halt <= 1;
             end
@@ -139,12 +113,6 @@ module proc(
             end
             STORE: begin
                 if(mem_ack) begin
-                    read_next_instr(pc + 1);
-                end
-            end
-            OUTLOC: begin
-                if(mem_ack) begin
-                    write_out(mem_rd_data);
                     read_next_instr(pc + 1);
                 end
             end
@@ -172,7 +140,6 @@ module proc(
                         rd <= mem_rd_data[11:7];
                         rs1 <= mem_rd_data[19:15];
                         rs2 <= mem_rd_data[24:20];
-                        // imm1 <= { {20{1'b0}}, mem_rd_data[31:25] };
                         imm1 <= mem_rd_data[31:25];
                     end
                 end
@@ -188,7 +155,6 @@ module proc(
     assign c1_rs1 = mem_rd_data[19:15];
     assign c1_rs2 = mem_rd_data[24:20];
     assign c1_funct = mem_rd_data[14:12];
-    // assign c1_imm1 = { {20{1'b0}}, mem_rd_data[31:25] };
     assign c1_imm1 = mem_rd_data[31:25];
     assign c1_store_offset = {mem_rd_data[31:25], mem_rd_data[11:7]};
     assign c1_load_offset = mem_rd_data[31:20];

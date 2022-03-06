@@ -11,7 +11,3 @@ li x1 0x78
 outr x1
 outr x2
 halt
-
-0x40:
-word 0x0000dead
-word 0x0000beef

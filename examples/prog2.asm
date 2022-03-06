@@ -6,6 +6,6 @@ out 50
 out 60
 halt
 
-0x40:
+0xf0:
 word 0x0000dead
 word 0x0000beef

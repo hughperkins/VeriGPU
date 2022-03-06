@@ -1,4 +1,3 @@
-- load
 - migrate away from `out` instructions
 - migrate instructions to use risc-v op codes
 - check endian-ness relative to risc-v spec
@@ -13,6 +12,7 @@
 - (use actual memory module?)
 
 done:
+- load
 - migrate out and outr to be virtual insturctions that store to 1000 instead
 - use to write to memory location 1000 as 'out' command
 - addi
