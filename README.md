@@ -7,7 +7,7 @@ Experiment with writing some very simple toy processor, maybe GPU, targeting ASI
 
 Loosely based to be compliant with RISC-V ISA (but some initial scaffolding instructions, and where being RV compliant would increase the workload a lot, starting with simpler instructions (e.g. implementing a loosely implemented `LI` for now, rather than `LUI` with `ADDI`).
 
-# Workflow
+# Simulation Workflow
 
 ![toy proc workflow](https://raw.githubusercontent.com/hughperkins/toy_proc/main/img/toy_proc_workflow.png)
 
