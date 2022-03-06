@@ -78,7 +78,7 @@ LW rd, offset(rs1)
 ADDI rd, rs1, immediate
 ```
 
-## Virtual instructions
+## RISC-V instructions
 
 ```
 LI rd, immediate  # loads immediate into register rd
