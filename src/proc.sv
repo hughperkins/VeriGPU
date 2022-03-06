@@ -4,6 +4,8 @@ module proc(
     output reg [31:0] out,
     output reg [6:0] op,
     output reg [4:0] rd,
+    output reg [4:0] rs1,
+    output reg [4:0] rs2,
     output reg [6:0] imm1,
     output [31:0] x1,
     output reg [31:0] pc,
@@ -28,14 +30,18 @@ module proc(
 
     wire [6:0] c1_op;
     wire [4:0] c1_rd;
+    wire [4:0] c1_rs1;
+    wire [4:0] c1_rs2;
     wire [31:0] c1_imm1;
+    wire signed [11:0] c1_store_offset;
 
-    typedef enum bit[3:0] {
+    typedef enum bit[6:0] {
         OUT = 1,
         OUTLOC = 2,
         LI = 3,
         OUTR = 4,
-        HALT = 5
+        HALT = 5,
+        SW = 7'b0100011
     } e_op;
 
     task read_next_instr([31:0] instr_addr);
@@ -52,6 +58,14 @@ module proc(
 
     task instr_c1();
         case (c1_op)
+            SW: begin
+                // write to memory
+                // sw rs2, offset(rs1)
+                mem_addr <= (regs[c1_rs1] + c1_store_offset + c1_store_offset[0]) >> 2;
+                mem_wr_req <= 1;
+                mem_wr_data <= regs[c1_rs2];
+                state <= C2;
+            end
             OUT: begin
                 write_out(c1_imm1);
                 read_next_instr(pc + 1);
@@ -79,9 +93,17 @@ module proc(
 
     task instr_c2();
         case (op)
+            SW: begin
+                $strobe("C2.SW");
+                if(mem_ack) begin
+                    read_next_instr(pc + 1);
+                end
+            end
             OUTLOC: begin
-                write_out(mem_rd_data);
-                read_next_instr(pc + 1);
+                if(mem_ack) begin
+                    write_out(mem_rd_data);
+                    read_next_instr(pc + 1);
+                end
             end
         endcase
     endtask
@@ -104,13 +126,13 @@ module proc(
                         instruction <= mem_rd_data;
                         op <= mem_rd_data[6:0];
                         rd <= mem_rd_data[11:7];
+                        rs1 = mem_rd_data[19:15];
+                        rs2 = mem_rd_data[24:20];
                         imm1 <= { {20{1'b0}}, mem_rd_data[31:25] };
                     end
                 end
                 C2: begin
-                    if(mem_ack) begin
-                        instr_c2();
-                    end
+                    instr_c2();
                 end
                 default: halt <= 1;
             endcase
@@ -118,6 +140,9 @@ module proc(
     end
     assign c1_op = mem_rd_data[6:0];
     assign c1_rd = mem_rd_data[11:7];
+    assign c1_rs1 = mem_rd_data[19:15];
+    assign c1_rs2 = mem_rd_data[24:20];
     assign c1_imm1 = { {20{1'b0}}, mem_rd_data[31:25] };
+    assign c1_store_offset = {mem_rd_data[31:25], mem_rd_data[11:7]};
     assign x1 = regs[1];
 endmodule

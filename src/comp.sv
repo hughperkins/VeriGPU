@@ -8,7 +8,7 @@ module comp(
     input [31:0] oob_wr_data,
     input oob_wen,
 
-    output mem_d_req, mem_wr_req,
+    output mem_rd_req, mem_wr_req,
     output mem_busy,
     output mem_ack,
 

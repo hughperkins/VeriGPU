@@ -1,4 +1,4 @@
-- load/store in memory
+- load
 - migrate away from `out` instructions
 - migrate instructions to use risc-v op codes
 - check endian-ness relative to risc-v spec
@@ -13,6 +13,7 @@
 - (use actual memory module?)
 
 done:
+- add store to memory (without offset)
 - allow commas in instructions
 - handle different immediate int types (hex, dec)
 - modify format of immediate hex values sliughlty, from abx to 0xab

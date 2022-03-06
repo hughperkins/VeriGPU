@@ -57,8 +57,8 @@ module comp_driver(
         #10
 
         $monitor(
-            "t=%d rst=%b pc=%h, out=%h op=%h imm1=%h rd=%h x1=%h state=%d",
-            $time(), rst, pc, out,  op,   imm1,   rd, x1, state);
+            "t=%d rst=%b pc=%0h, out=%h op=%h imm1=%h %0d rd=%0d x1=%h state=%d",
+            $time(), rst, pc, out,  op,   imm1, imm1,   rd, x1, state);
         rst = 1;
         #10 rst = 0;
 

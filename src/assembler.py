@@ -53,14 +53,30 @@ def run(args):
         if line.strip() == '':
             continue
 
-        line = line.replace(',', ' ').replace('  ', ' ')
+        line = line.replace(',', ' ').replace("(", " ").replace(")", " ").replace(
+            '  ', ' ').replace("  ", " ")
         split_line = line.split()
         cmd = split_line[0].lower()
         p1 = split_line[1] if len(split_line) >= 2 else None
         p2 = split_line[2] if len(split_line) >= 3 else None
+        p3 = split_line[3] if len(split_line) >= 4 else None
 
         try:
-            if cmd == 'out':
+            if cmd == 'sw':
+                # e.g.
+                # sw x2,  0      (x3)
+                #    rs2  offset rs1
+                op_bits = "0100011"
+                rs1_bits = reg_str_to_bits(p3)
+                rs2_bits = reg_str_to_bits(p1)
+                offset_int = int_str_to_int(p2)
+                offset_bits = int_str_to_bits(p2, 12)
+                offset1_bits = offset_bits[:7]
+                offset2_bits = offset_bits[7:]
+                assert offset_int == 0
+                instr_bits = f'{offset1_bits}{rs2_bits}{rs1_bits}000{offset2_bits}{op_bits}'
+                hex_lines.append(bits_to_hex(instr_bits))
+            elif cmd == 'out':
                 # e.g.: out 1bx
 
                 imm_bits = int_str_to_bits(p1, 7)
