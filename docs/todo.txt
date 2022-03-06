@@ -19,6 +19,7 @@
 - (use actual memory module?)
 
 done:
+- allow negative immediate for addi, and negative offset for store and load
 - allow non-zero offset in store and load
 - migrate HALT to be a virtual instruction that writes to location 1004
 - migrate instructions to use risc-v op codes
