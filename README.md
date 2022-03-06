@@ -68,6 +68,35 @@ yosys -s src/yosys.tacl
 # some sta command here that I haven't figure out yet :)
 ```
 
+# Progress so far
+
+## Implemented instructions
+
+```
+SW rs2, offset(rs1)
+LW rd, offset(rs1)
+LI rd, immediate
+ADDI rd, rs1, immediate
+HALT  # (HALT is not RISC-V)
+```
+
+## Memory
+
+Memory access is via a mock memory controller, which will wait several cycles before returning or writing data. A single word at a time can be read or written currently. Protocol is:
+
+- set `addr` to read/write address
+- if writing, set `wr_data` to data to write
+- set `wr_req` or `rd_req` to 1, according to writing or reading, respectively
+- (wait one cycle)
+- set `wr_req` and `rd_req` to 0
+- (wait cycles for `ack` to be set to 1)
+- then, if reading, read the value from `rd_data`
+- in either case, can immediately submit new request, on same clock cycle
+
+## I/O
+
+- any word written to location 1000 will be considered to have been sent to a memory-mapped i/o device, which will write this value out, in our case to stdout, via the test bench code.
+
 # Recent updates
 
 - migrated instruction layout to be compatible RISC-V
