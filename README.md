@@ -9,7 +9,7 @@ Loosely based to be compliant with RISC-V ISA (but some initial scaffolding inst
 
 # Workflow
 
-![toy proc workflow](img/toy_proc_workflow.jpg?raw=true "Workflow")
+![toy proc workflow](https://raw.githubusercontent.com/hughperkins/toy_proc/main/img/toy_proc_workflow.png)
 
 # To run / simulate
 
