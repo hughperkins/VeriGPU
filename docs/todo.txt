@@ -1,11 +1,18 @@
-- check endian-ness relative to risc-v spec
+- branch
 - jmp
+- maybe use a C/C++ -> RISC-V compiler, instead of writing assembler?
+- loop from 1 to 10?
+- sum of integers from 1 to 10?
+- factorial calculator
+- prime numbers calculator
 - matrix multiplication
+- check endian-ness relative to risc-v spec
+- check spir-v vs risc-v
 - gpu structure
 - opencl
 - change bits of address to 64-bit, to allow 16GB+ of memory
 - create register file
-- start create ALU functions, eg add
+- start create ALU functions, eg mul, div
 - measure timing/maximum clock speed somehow
 - (use actual memory module?)
 
