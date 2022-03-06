@@ -24,7 +24,7 @@ Loosely based to be compliant with RISC-V ISA (but some initial scaffolding inst
 python run.py --name [progname, e.g. prog5]
 ```
 
-Under the hood, this will run `iverilog`, and execute it, see [run.py](https://github.com/hughperkins/toy_proc/blob/main/run.py).
+Under the hood, this will run `python assembler.py` to assemble the `.asm` file into a `.hex` byte-code file. Then, it will run `iverilog`, and execute the resulting object code. See [run.py](https://github.com/hughperkins/toy_proc/blob/main/run.py).
 
 `progname` is the name of a `.asm` file in [examples](examples), e.g. `prog2` (without suffix).
 
