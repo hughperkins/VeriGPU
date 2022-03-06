@@ -5,7 +5,7 @@ Play with building a toy processor from scratch, in verilog
 
 Experiment with writing some very simple toy processor, maybe GPU, targeting ASIC synthesis. I don't actually intend to run synthesis myself, but I intend to do what I can to verify somehow that synthesis would work ok, timings ok, etc.
 
-Loosely based to be compliant with RISC-V ISA.
+Loosely compliant with RISC-V ISA.
 
 # Simulation Workflow
 
