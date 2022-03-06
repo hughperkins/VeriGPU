@@ -1,9 +1,13 @@
 import argparse
 import os
+import math
 from collections import deque
 
 
 def int_to_binary(int_value, num_bits):
+    if int_value < 0:
+        offset = int(math.pow(2, num_bits))
+        int_value += offset
     return format(int_value, f'#0{num_bits + 2}b')[2:]
 
 
@@ -98,10 +102,15 @@ def run(args):
                 #      rd     rs1    imm
                 op_bits = "0010011"
                 imm_bits = int_str_to_bits(p3, 12)
+                print('p3', p3)
+                print('imm_bits', imm_bits)
                 rd_bits = reg_str_to_bits(p1)
                 rs1_bits = reg_str_to_bits(p2)
                 funct_bits = '000'
-                instr_bits = f'{imm_bits}{rs1_bits}{funct_bits}{rd_bits}{op_bits}'
+                instr_bits = f'{imm_bits},{rs1_bits},{funct_bits},{rd_bits},{op_bits}'
+                print('instr_bits', instr_bits)
+                instr_bits = instr_bits.replace(',', '')
+                print('len(instr_bits)', len(instr_bits))
                 hex_lines.append(bits_to_hex(instr_bits))
             elif cmd == 'out':
                 # e.g.: out 0x1b

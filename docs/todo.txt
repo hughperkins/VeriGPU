@@ -1,4 +1,5 @@
 - branch
+- mv pseudoinstruction
 - jmp
 - maybe use a C/C++ -> RISC-V compiler, instead of writing assembler?
 - loop from 1 to 10?

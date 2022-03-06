@@ -35,8 +35,9 @@ module proc(
     wire [4:0] c1_rs1;
     wire [4:0] c1_rs2;
     wire [6:0] c1_imm1;
-    wire signed [11:0] c1_store_offset;
-    wire signed [11:0] c1_load_offset;
+    wire signed [31:0] c1_store_offset;
+    wire signed [31:0] c1_load_offset;
+    wire signed [31:0] c1_i_imm;
 
     typedef enum bit[6:0] {
         STORE =    7'b0100011,
@@ -61,10 +62,10 @@ module proc(
         outen <= 1;
     endtask
 
-    task op_imm([2:0] _funct, [4:0] _rd, [4:0] _rs1, [4:0] _rs2, [6:0] _imm1);
+    task op_imm([2:0] _funct, [4:0] _rd, [4:0] _rs1, [31:0] _i_imm);
         case(_funct)
             ADDI: begin
-                regs[_rd] <= regs[_rs1] + {_imm1, _rs2};
+                regs[_rd] <= regs[_rs1] + _i_imm;
                 read_next_instr(pc + 1);
             end
         endcase
@@ -73,7 +74,7 @@ module proc(
     task instr_c1();
         case (c1_op)
             OPIMM: begin
-                op_imm(c1_funct, c1_rd, c1_rs1, c1_rs2, c1_imm1);
+                op_imm(c1_funct, c1_rd, c1_rs1, c1_i_imm);
             end
             LOAD: begin
                 // read from memory
@@ -154,7 +155,8 @@ module proc(
     assign c1_rs2 = mem_rd_data[24:20];
     assign c1_funct = mem_rd_data[14:12];
     assign c1_imm1 = mem_rd_data[31:25];
-    assign c1_store_offset = {mem_rd_data[31:25], mem_rd_data[11:7]};
-    assign c1_load_offset = mem_rd_data[31:20];
+    assign c1_store_offset = {{20{mem_rd_data[31]}}, mem_rd_data[31:25], mem_rd_data[11:7]};
+    assign c1_load_offset = {{20{mem_rd_data[31]}}, mem_rd_data[31:20]};
+    assign c1_i_imm = {{20{mem_rd_data[31]}}, mem_rd_data[31:20]};
     assign x1 = regs[1];
 endmodule

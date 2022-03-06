@@ -68,9 +68,9 @@ yosys -s src/yosys.tacl
 # some sta command here that I haven't figure out yet :)
 ```
 
-# Progress so far
+# Technical details
 
-## Technical details
+## RISC-V instructions
 
 ```
 SW rs2, offset(rs1)
@@ -78,7 +78,7 @@ LW rd, offset(rs1)
 ADDI rd, rs1, immediate
 ```
 
-## RISC-V instructions
+## Pseudoinstructions
 
 ```
 LI rd, immediate  # loads immediate into register rd
