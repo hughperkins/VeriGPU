@@ -81,10 +81,15 @@ module proc(
             STORE: begin
                 // write to memory
                 // sw rs2, offset(rs1)
-                mem_addr <= (regs[c1_rs1] + c1_store_offset + c1_store_offset[0]) >> 2;
-                mem_wr_req <= 1;
-                mem_wr_data <= regs[c1_rs2];
-                state <= C2;
+                if (regs[c1_rs1] + c1_store_offset == 1000) begin
+                    write_out(regs[c1_rs2]);
+                    read_next_instr(pc + 1);
+                end else begin
+                    mem_addr <= (regs[c1_rs1] + c1_store_offset) >> 2;
+                    mem_wr_req <= 1;
+                    mem_wr_data <= regs[c1_rs2];
+                    state <= C2;
+                end
             end
             OUT: begin
                 write_out(c1_imm1);
@@ -114,7 +119,6 @@ module proc(
     task instr_c2();
         case (op)
             STORE: begin
-                $strobe("C2.SW");
                 if(mem_ack) begin
                     read_next_instr(pc + 1);
                 end

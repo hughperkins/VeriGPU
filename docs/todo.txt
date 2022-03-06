@@ -1,4 +1,3 @@
-- use to write to memory location 0x1000 as 'out' command
 - load
 - migrate away from `out` instructions
 - migrate instructions to use risc-v op codes
@@ -14,6 +13,8 @@
 - (use actual memory module?)
 
 done:
+- migrate out and outr to be virtual insturctions that store to 1000 instead
+- use to write to memory location 1000 as 'out' command
 - addi
 - add store to memory (without offset)
 - allow commas in instructions

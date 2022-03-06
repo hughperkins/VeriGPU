@@ -1,5 +1,6 @@
 import argparse
 import os
+from collections import deque
 
 
 def int_to_binary(int_value, num_bits):
@@ -48,8 +49,11 @@ def run(args):
         os.makedirs('build')
     with open(args.in_asm) as f:
         assembly = f.read()
+    asm_cmds = deque(assembly.split('\n'))
     hex_lines = []
-    for line in assembly.split('\n'):
+    while len(asm_cmds) > 0:
+     # for line in assembly.split('\n'):
+        line = asm_cmds.popleft()
         if line.strip() == '':
             continue
 
@@ -66,6 +70,7 @@ def run(args):
                 # e.g.
                 # sw x2,  0      (x3)
                 #    rs2  offset rs1
+                print('sw', p1, p2, p3)
                 op_bits = "0100011"
                 rs1_bits = reg_str_to_bits(p3)
                 rs2_bits = reg_str_to_bits(p1)
@@ -77,6 +82,7 @@ def run(args):
                 instr_bits = f'{offset1_bits}{rs2_bits}{rs1_bits}000{offset2_bits}{op_bits}'
                 hex_lines.append(bits_to_hex(instr_bits))
             elif cmd == 'addi':
+                print('addi', p1, p2, p3)
                 # e.g.
                 # addi x1,    x2,    123
                 #      rd     rs1    imm
@@ -88,13 +94,15 @@ def run(args):
                 instr_bits = f'{imm_bits}{rs1_bits}{funct_bits}{rd_bits}{op_bits}'
                 hex_lines.append(bits_to_hex(instr_bits))
             elif cmd == 'out':
-                # e.g.: out 1bx
+                # e.g.: out 0x1b
+                # virtual instruction. map to storing to location 1000
 
-                imm_bits = int_str_to_bits(p1, 7)
-                op_bits = int_to_binary(1, 7)
-                instr_bits = f'{imm_bits}{"0" * 18}{op_bits}'
-                assert len(instr_bits) == 32
-                hex_lines.append(bits_to_hex(instr_bits))
+                # migrate to use store at location 1000
+                # need to push store in first, since we are pushing in reverse order
+                asm_cmds.appendleft('sw x30, 0(x31)')
+                asm_cmds.appendleft(f'addi x30, x0, {p1}')
+                asm_cmds.appendleft('addi x31, x0, 1000')
+                continue
             elif cmd == 'outloc':
                 imm_bits = int_str_to_bits(p1, 7)
                 op_bits = int_to_binary(2, 7)
@@ -112,11 +120,14 @@ def run(args):
                 assert len(instr_bits) == 32
                 hex_lines.append(bits_to_hex(instr_bits))
             elif cmd == 'outr':
-                rd_bits = reg_str_to_bits(p1, 5)
-                op_bits = int_to_binary(4, 7)
-                instr_bits = f'{"0" * 20}{rd_bits}{op_bits}'
-                assert len(instr_bits) == 32
-                hex_lines.append(bits_to_hex(instr_bits))
+                # virtual instruction. map to storing to location 1000
+
+                # migrate to use store at location 1000, with load before that
+                # need to push store in first, since we are pushing in reverse order
+
+                asm_cmds.appendleft(f'sw {p1}, 0(x31)')
+                asm_cmds.appendleft('addi x31, x0, 1000')
+                continue
             elif cmd == 'half':
                 bits = int_str_to_bits(p1, 16)
                 hex_lines.append("0000" + bits_to_hex(bits, num_bytes=2))
