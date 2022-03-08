@@ -1,0 +1,15 @@
+# from https://web.engr.oregonstate.edu/~traylor/ece474/reading/SAED_Cell_Lib_Rev1_4_20_1.pdf
+# Sinopsys 90nm digital standard cell library
+# 90nm
+invx1 38ps
+nand 2x1 51ps
+nor2x1 64ps
+nor3x1 136ps
+or2x1 85ps
+xor2x1 133ps
+xnor2x1 136ps
+aoi21x1 136ps
+
+mux
+full adder 1 bit
+DFF
