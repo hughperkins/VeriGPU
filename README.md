@@ -44,20 +44,6 @@ bash src/reg_test.sh
 
 - under the hood, this will run many of the examples in [examples](examples), and check the outputs against the expected outputs, which are in the paired files, with suffix `_expected.txt`, also in [examples](examples) folder.
 
-# To compile with verilator
-
-(there is no runner for verilator currently, but I do test sometimes that the modules do compile; verilator is great for catching mismatches between bus sizes, and some other errors).
-
-## prerequisites
-
-- verilator (e.g. `brew install verilator`)
-
-## procedure
-
-```
-verilator -sv --cc src/proc.sv src/mem.sv src/comp.sv -Isrc
-```
-
 # Timing
 
 ## Timing based on gate-level netlist
@@ -107,22 +93,6 @@ $ python src/timing.py --in-verilog prot/mul.sv
 output max delay: 82.8 nand units
 $ python src/timing.py --in-verilog prot/div.sv 
 output max delay: 1215.8 nand units
-```
-
-## Timing after running full layout
-
-[This section in progress]
-
-### Prequisites
-
-- yosys (e.g. `brew install yosys`, or see [http://bygone.clairexen.net/yosys/](http://bygone.clairexen.net/yosys/))
-- opensroad/sta (build from source, see https://github.com/The-OpenROAD-Project/OpenSTA )
-
-### Procedure
-
-```
-yosys -s src/yosys.tacl
-# some sta command here that I haven't figure out yet :)
 ```
 
 # Technical details
