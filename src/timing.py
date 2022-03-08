@@ -16,11 +16,8 @@ Will use 'unit times' for timings, which will look something like:
 - shr: 0 (it's just rewiring)
 """
 import argparse
-import os
-import time
 from collections import deque, defaultdict
 import networkx as nx
-import matplotlib.pyplot as plt
 
 
 g_cell_times = {
@@ -68,26 +65,9 @@ class Cell:
 def run(args):
     with open(args.in_netlist) as f:
         netlist = f.read()
-    # print(netlist)
-    # inputs = []
-    # outputs = []
     cells = []
     input_cell = Cell('START', 'START', [], [], output_delay=0)
     output_cell = Cell('END', 'END', [], [], output_delay=0)
-    # input_cell = {
-    #     'cell_inputs': [],
-    #     'cell_outputs': [],
-    #     'cell_type': 'START',
-    #     'cell_name': 'START',
-    #     'prop_delay_to_outputs': 0,
-    # }
-    # output_cell = {
-    #     'cell_inputs': [],
-    #     'cell_outputs': [],
-    #     'cell_type': 'END',
-    #     'cell_name': 'END',
-    #     'prop_delay_to_outputs': None,
-    # }
     cells.append(input_cell)
     cells.append(output_cell)
     input_cell_idx = 0
@@ -101,18 +81,10 @@ def run(args):
     cell_type = ''
     cell_name = ''
     for line in netlist.split('\n'):
-        # print(line)
         line = line.strip()
         if in_declaration:
             if line.strip() == ');':
                 cell = Cell(cell_type, cell_name, cell_inputs, cell_outputs)
-                # cell = {
-                #     'cell_inputs': cell_inputs,
-                #     'cell_outputs': cell_outputs,
-                #     'cell_type': cell_type,
-                #     'cell_name': cell_name,
-                #     'prop_delay_to_outputs': None,
-                # }
                 cell_idx = len(cells)
                 cells.append(cell)
                 cellidx_by_cell_name[cell_name] = cell_idx
@@ -134,7 +106,6 @@ def run(args):
                 if dims.startswith('['):
                     start = int(dims.split('[')[1].split(':')[0])
                     end = int(dims.split(':')[1].split(']')[0])
-                    # print('start', start, 'end', end)
                     step = 1
                     if end < start:
                         step = -1
@@ -165,12 +136,7 @@ def run(args):
                 cell_type, cell_name, _ = line.split()
                 cell_inputs = {}
                 cell_outputs = {}
-    # print('inputs', inputs)
-    # print('outputs', outputs)
-    # for cell in cells:
-        # print(cell)
     print('loaded data from netlist')
-    print('')
 
     G = nx.Graph()
     for i, cell in enumerate(cells):
@@ -178,34 +144,22 @@ def run(args):
     for to_idx, to_cell in enumerate(cells):
         to_name = to_cell.cell_name
         for cell_input in to_cell.cell_inputs:
-            # to_idx = i
             from_idx = cellidx_by_output[cell_input]
             from_cell = cells[from_idx]
             from_name = from_cell.cell_name
-            # cell_time = g_cell_times[cell.cell_type]
-            # output_names = cell.cell_outputs
-            # from_idx = cellidx_by_output[output_names[0]]
             G.add_edge(from_name, to_name, name=cell_input)
-    # print('G', G)
-    # nx.draw(G)
-    # plt.show()
-    # time.sleep(5)
     nx.nx_pydot.write_dot(G, '/tmp/netlist.dot')
-    # os.system('xdot /tmp/netlist.dot')
 
     # walk graph, starting from inputs
     # we are looking for longest path through the graph
     to_process = deque(input_cell.cell_outputs)
-    # for wire_name in to_process:
     while len(to_process) > 0:
         wire_name = to_process.popleft()
-        # print('wire_name', wire_name)
         from_idx = cellidx_by_output[wire_name]
         to_idxs = cellidxs_by_input[wire_name]
         for to_idx in to_idxs:
             from_cell = cells[from_idx]
             to_cell = cells[to_idx]
-            # print('from', from_cell.cell_name, 'to', to_cell.cell_name)
             delay = from_cell.output_delay
             assert delay is not None
             to_cell.connect_input(wire_name, delay)
@@ -213,8 +167,6 @@ def run(args):
                 for wire in to_cell.cell_outputs:
                     to_process.append(wire)
 
-    # for cell in cells:
-        # print(cell)
     print('output max delay %.3f' % output_cell.output_delay)
 
 
