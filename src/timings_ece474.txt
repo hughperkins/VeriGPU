@@ -2,13 +2,15 @@
 # Sinopsys 90nm digital standard cell library
 # 90nm
 INVX1 38ps
-NAND 2x1 51ps
+NAND2X1 51ps
 NOR2X1 64ps
 NOR3X1 136ps
 OR2X1 85ps
 XOR2X1 133ps
 XNOR2X1 136ps
 AOI21X1 136ps
+AOI22X1 154ps
+OAI22X1 159ps
 
 mux
 full adder 1 bit

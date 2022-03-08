@@ -34,6 +34,9 @@ g_cell_times = {
     'AND2X1': 1.6,
     'OAI21X1': 2,
     'AOI21X1': 2.6,
+    'AOI22X1': 3,
+    'OAI22X1': 3,
+    'OR2X1': 1.6,
     'START': 0,
     'END': 0
 }
