@@ -19,6 +19,7 @@ import argparse
 import os
 from collections import deque, defaultdict
 import networkx as nx
+import subprocess
 
 
 g_cell_times = {
@@ -67,7 +68,11 @@ class Cell:
 def run(args):
     if args.in_verilog is not None:
         # first need to synthesize
-        os.system(f'python src/tools/run_yosys.py --verilog {args.in_verilog}')
+        # use check output, so we can suppress output (less spammy...)
+        subprocess.check_output([
+            'python', 'src/tools/run_yosys.py', '--verilog', args.in_verilog
+        ])
+        # os.system(f'python src/tools/run_yosys.py --verilog {args.in_verilog}')
         args.in_netlist = 'build/netlist.v'
 
     with open(args.in_netlist) as f:
