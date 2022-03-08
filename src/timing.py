@@ -103,11 +103,9 @@ def run(args):
                 if cell_type.startswith('DFF'):
                     # let's treat dff ports as input and output ports of the module
                     for cell_input in cell_inputs.keys():
-                        print('cell_input', cell_input)
                         output_cell.cell_inputs.append(cell_input)
                         cellidxs_by_input[cell_input].append(output_cell_idx)
                     for cell_output in cell_outputs.keys():
-                        print('cell_output', cell_output)
                         input_cell.cell_outputs.append(cell_output)
                         cellidx_by_output[cell_output] = input_cell_idx
                 else:
@@ -116,16 +114,13 @@ def run(args):
                     cells.append(cell)
                     cellidx_by_cell_name[cell_name] = cell_idx
                     for cell_input in cell_inputs.keys():
-                        print('cell_input', cell_input)
                         cellidxs_by_input[cell_input].append(cell_idx)
                     for cell_output in cell_outputs.keys():
-                        print('cell_output', cell_output)
                         cellidx_by_output[cell_output] = cell_idx
                 in_declaration = False
             else:
                 port_name = line.split('.')[1].split('(')[0]
                 port_line = line.split('(')[1].split(')')[0]
-                print('port', port_name, port_line)
                 # ignore immediate numbers
                 if port_line[0] in '0123456789':
                     continue
@@ -145,7 +140,6 @@ def run(args):
                 except Exception as e:
                     print('line ', line)
                     raise e
-                print(dims, name)
                 if dims is not None and dims.startswith('['):
                     start = int(dims.split('[')[1].split(':')[0])
                     end = int(dims.split(':')[1].split(']')[0])
@@ -163,7 +157,6 @@ def run(args):
                     cellidx_by_output[f'{name}'] = input_cell_idx
             if line.startswith('output '):
                 _, dims, name = line[:-1].split()
-                print(dims, name)
                 if dims.startswith('['):
                     start = int(dims.split('[')[1].split(':')[0])
                     end = int(dims.split(':')[1].split(']')[0])
@@ -182,11 +175,6 @@ def run(args):
                 cell_type, cell_name, _ = line.split()
                 cell_inputs = {}
                 cell_outputs = {}
-
-    for cell in cells:
-        print(cell)
-    for output, cell_idx in cellidx_by_output.items():
-        print(output, cell_idx)
 
     G = nx.Graph()
     for i, cell in enumerate(cells):
@@ -225,7 +213,16 @@ def run(args):
                 for wire in to_cell.cell_outputs:
                     to_process.append(wire)
 
-    print('output max delay: %.1f nand units' % output_cell.output_delay)
+    print('')
+    print('Propagation delay is between any pair of combinatorially connected')
+    print('inputs and outputs, drawn from:')
+    print('    - module inputs')
+    print('    - module outputs,')
+    print('    - flip-flop outputs (treated as inputs), and')
+    print('    - flip-flop inputs (treated as outputs)')
+    print('')
+    print('max propagation delay: %.1f nand units' % output_cell.output_delay)
+    print('')
 
 
 if __name__ == '__main__':

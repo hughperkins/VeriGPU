@@ -1,6 +1,6 @@
 module test_clocked_counter();
     reg rst, clk;
-    reg [2:0] cnt;
+    reg [31:0] cnt;
     clocked_counter dut(.clk(clk), .rst(rst), .cnt(cnt));
 
     initial begin

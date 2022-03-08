@@ -58,10 +58,11 @@ bash src/reg_test.sh
     - an AND gate is 1.6 (it's a NAND followed by a NOT)
     - we assume that all cells only have a single output currently
 - the cell propagation delays are loosely based on those in https://web.engr.oregonstate.edu/~traylor/ece474/reading/SAED_Cell_Lib_Rev1_4_20_1.pdf , which is a 90nm spec sheet, but could be representative of relative timings, which are likely architecture-independent
-
-### Constraints
-
-- currently only works on fully combinatorial modules
+- when there are flip-flops in the circuit, propagation delay is the max of those between all pairs of connected inputs and outputs, where inputs and outputs are drawn from:
+    - module inputs
+    - module outputs
+    - flip-flop inputs (treated as outputs)
+    - flip-flop outputs (treated as inputs)
 
 ### Prerequities
 
@@ -83,6 +84,7 @@ python src/timing.py --in-verilog prot/add_one_2chunks.sv
 ### Example outputs
 
 ```
+# pure combinatorial models:
 $ python src/timing.py --in-verilog prot/add_one.sv 
 output max delay: 37.4 nand units
 $ python src/timing.py --in-verilog prot/add_one_chunked.sv 
@@ -93,6 +95,10 @@ $ python src/timing.py --in-verilog prot/mul.sv
 output max delay: 82.8 nand units
 $ python src/timing.py --in-verilog prot/div.sv 
 output max delay: 1215.8 nand units
+
+# flip-flop modules:
+$ python src/timing.py --in-verilog prot/clocked_counter.sv 
+max propagation delay: 37.4 nand units
 ```
 
 # Technical details
