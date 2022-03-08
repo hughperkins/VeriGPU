@@ -100,26 +100,53 @@ def run(args):
         line = line.strip()
         if in_declaration:
             if line.strip() == ');':
-                cell = Cell(cell_type, cell_name, cell_inputs, cell_outputs)
-                cell_idx = len(cells)
-                cells.append(cell)
-                cellidx_by_cell_name[cell_name] = cell_idx
-                for cell_input in cell_inputs.keys():
-                    cellidxs_by_input[cell_input].append(cell_idx)
-                for cell_output in cell_outputs.keys():
-                    cellidx_by_output[cell_output] = cell_idx
+                if cell_type.startswith('DFF'):
+                    # let's treat dff ports as input and output ports of the module
+                    for cell_input in cell_inputs.keys():
+                        print('cell_input', cell_input)
+                        output_cell.cell_inputs.append(cell_input)
+                        cellidxs_by_input[cell_input].append(output_cell_idx)
+                    for cell_output in cell_outputs.keys():
+                        print('cell_output', cell_output)
+                        input_cell.cell_outputs.append(cell_output)
+                        cellidx_by_output[cell_output] = input_cell_idx
+                else:
+                    cell = Cell(cell_type, cell_name, cell_inputs, cell_outputs)
+                    cell_idx = len(cells)
+                    cells.append(cell)
+                    cellidx_by_cell_name[cell_name] = cell_idx
+                    for cell_input in cell_inputs.keys():
+                        print('cell_input', cell_input)
+                        cellidxs_by_input[cell_input].append(cell_idx)
+                    for cell_output in cell_outputs.keys():
+                        print('cell_output', cell_output)
+                        cellidx_by_output[cell_output] = cell_idx
                 in_declaration = False
             else:
                 port_name = line.split('.')[1].split('(')[0]
                 port_line = line.split('(')[1].split(')')[0]
-                if port_name in ['A', 'B', 'C', 'D', 'S']:
+                print('port', port_name, port_line)
+                # ignore immediate numbers
+                if port_line[0] in '0123456789':
+                    continue
+                if port_name in ['A', 'B', 'C', 'D', 'R', 'S']:
                     cell_inputs[port_line] = port_line
                 else:
                     cell_outputs[port_line] = port_line
         else:
             if line.startswith('input '):
-                _, dims, name = line[:-1].split()
-                if dims.startswith('['):
+                try:
+                    split_line = line[:-1].split()
+                    if len(split_line) == 3:
+                        _, dims, name = split_line
+                    else:
+                        _, name = split_line
+                        dims = None
+                except Exception as e:
+                    print('line ', line)
+                    raise e
+                print(dims, name)
+                if dims is not None and dims.startswith('['):
                     start = int(dims.split('[')[1].split(':')[0])
                     end = int(dims.split(':')[1].split(']')[0])
                     step = 1
@@ -131,9 +158,12 @@ def run(args):
                     for wire in range(start, end, step):
                         input_cell.cell_outputs.append(f'{name}[{wire}]')
                         cellidx_by_output[f'{name}[{wire}]'] = input_cell_idx
-
+                else:
+                    input_cell.cell_outputs.append(f'{name}')
+                    cellidx_by_output[f'{name}'] = input_cell_idx
             if line.startswith('output '):
                 _, dims, name = line[:-1].split()
+                print(dims, name)
                 if dims.startswith('['):
                     start = int(dims.split('[')[1].split(':')[0])
                     end = int(dims.split(':')[1].split(']')[0])
@@ -153,13 +183,22 @@ def run(args):
                 cell_inputs = {}
                 cell_outputs = {}
 
+    for cell in cells:
+        print(cell)
+    for output, cell_idx in cellidx_by_output.items():
+        print(output, cell_idx)
+
     G = nx.Graph()
     for i, cell in enumerate(cells):
         G.add_node(cell.cell_name)
     for to_idx, to_cell in enumerate(cells):
         to_name = to_cell.cell_name
         for cell_input in to_cell.cell_inputs:
-            from_idx = cellidx_by_output[cell_input]
+            try:
+                from_idx = cellidx_by_output[cell_input]
+            except Exception as e:
+                print('to_idx', to_idx, to_cell.cell_name, 'cell_input', cell_input)
+                raise e
             from_cell = cells[from_idx]
             from_name = from_cell.cell_name
             G.add_edge(from_name, to_name, name=cell_input)
