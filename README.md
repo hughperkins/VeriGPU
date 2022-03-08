@@ -72,6 +72,10 @@ verilator -sv --cc src/proc.sv src/mem.sv src/comp.sv -Isrc
     - an AND gate is 1.6 (it's a NAND followed by an AND)
 - the cell propagation delays are loosely based on those in https://web.engr.oregonstate.edu/~traylor/ece474/reading/SAED_Cell_Lib_Rev1_4_20_1.pdf , which is a 90nm spec sheet, but hopefully approximately representative of timings in general, since we are only reporting relative timings, which should be fairly architecture-independent
 
+### Constraints
+
+- currently only works on fully combinatorial modules
+
 ### Prerequities
 
 - python3

@@ -17,6 +17,7 @@
 - (use actual memory module?)
 
 done:
+- made a script to measure gate-level propagation delay for combinatorial module
 - mv pseudoinstruction
 - sum of integers from 0 to 5
 - add 2 registers (and various other OP ops, such as shifts, and logical operators)
