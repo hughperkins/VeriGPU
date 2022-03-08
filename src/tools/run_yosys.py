@@ -24,7 +24,8 @@ stat
 """)
         if args.show:
             f.write('show\n')
-    os.system('yosys -s build/yosys.tcl')
+    if os.system('yosys -s build/yosys.tcl') != 0:
+        raise Exception("Failed")
     # os.system('subl build/rtlil.rtl')
     # os.system('subl build/netlist.v')
 
