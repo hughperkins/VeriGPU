@@ -105,6 +105,8 @@ $ python src/timing.py --in-verilog prot/add_one_2chunks.sv
 output max delay: 24.6 nand units
 $ python src/timing.py --in-verilog prot/mul.sv 
 output max delay: 82.8 nand units
+$ python src/timing.py --in-verilog prot/div.sv 
+output max delay: 1215.8 nand units
 ```
 
 ## Timing after running full layout

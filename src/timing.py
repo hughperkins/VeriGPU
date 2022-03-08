@@ -37,6 +37,8 @@ g_cell_times = {
     'AOI22X1': 3,
     'OAI22X1': 3,
     'OR2X1': 1.6,
+    'MUX2X1': 2,
+    'MUX4X1': 3,
     'START': 0,
     'END': 0
 }
@@ -110,7 +112,7 @@ def run(args):
             else:
                 port_name = line.split('.')[1].split('(')[0]
                 port_line = line.split('(')[1].split(')')[0]
-                if port_name in ['A', 'B', 'C', 'D']:
+                if port_name in ['A', 'B', 'C', 'D', 'S']:
                     cell_inputs[port_line] = port_line
                 else:
                     cell_outputs[port_line] = port_line
@@ -175,7 +177,11 @@ def run(args):
             to_cell = cells[to_idx]
             delay = from_cell.output_delay
             assert delay is not None
-            to_cell.connect_input(wire_name, delay)
+            try:
+                to_cell.connect_input(wire_name, delay)
+            except Exception as e:
+                print(from_cell.cell_name, wire_name, to_cell.cell_name, delay)
+                raise e
             if to_cell.output_delay is not None:
                 for wire in to_cell.cell_outputs:
                     to_process.append(wire)
