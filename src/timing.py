@@ -16,6 +16,7 @@ Will use 'unit times' for timings, which will look something like:
 - shr: 0 (it's just rewiring)
 """
 import argparse
+import os
 from collections import deque, defaultdict
 import networkx as nx
 
@@ -32,6 +33,7 @@ g_cell_times = {
     'NOR3X1': 2,
     'AND2X1': 1.6,
     'OAI21X1': 2,
+    'AOI21X1': 2.6,
     'START': 0,
     'END': 0
 }
@@ -63,6 +65,11 @@ class Cell:
 
 
 def run(args):
+    if args.in_verilog is not None:
+        # first need to synthesize
+        os.system(f'python src/tools/run_yosys.py --verilog {args.in_verilog}')
+        args.in_netlist = 'build/netlist.v'
+
     with open(args.in_netlist) as f:
         netlist = f.read()
     cells = []
@@ -167,11 +174,16 @@ def run(args):
                 for wire in to_cell.cell_outputs:
                     to_process.append(wire)
 
+    print('')
     print('output max delay %.3f' % output_cell.output_delay)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--in-netlist', type=str, required=True, help='path to gate netlist verilog file')
+    parser.add_argument('--in-netlist', type=str, help='path to gate netlist verilog file')
+    parser.add_argument('--in-verilog', type=str, help='path to original verilog file')
     args = parser.parse_args()
+    # we should have one argument only
+    assert args.in_netlist is not None or args.in_verilog is not None
+    assert args.in_netlist is None or args.in_verilog is None
     run(args)

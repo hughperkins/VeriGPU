@@ -24,9 +24,9 @@ stat
 """)
         if args.show:
             f.write('show\n')
-    os.system('subl build/rtlil.rtl')
-    os.system('subl build/netlist.v')
     os.system('yosys -s build/yosys.tcl')
+    # os.system('subl build/rtlil.rtl')
+    # os.system('subl build/netlist.v')
 
 
 if __name__ == '__main__':
