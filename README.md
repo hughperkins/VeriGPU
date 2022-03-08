@@ -70,6 +70,7 @@ verilator -sv --cc src/proc.sv src/mem.sv src/comp.sv -Isrc
     - the delay units are in `nand` propagation units, where a `nand` propagation unit is defined as the time to propagate through a single nand gate
     - a NOT gate is 0.6
     - an AND gate is 1.6 (it's a NAND followed by an AND)
+    - we assume that all cells only have a single output currently
 - the cell propagation delays are loosely based on those in https://web.engr.oregonstate.edu/~traylor/ece474/reading/SAED_Cell_Lib_Rev1_4_20_1.pdf , which is a 90nm spec sheet, but hopefully approximately representative of timings in general, since we are only reporting relative timings, which should be fairly architecture-independent
 
 ### Constraints
@@ -97,17 +98,11 @@ python src/timing.py --in-verilog prot/add_one_2chunks.sv
 
 ```
 $ python src/timing.py --in-verilog prot/add_one.sv 
-loaded data from netlist
-
-output max delay 37.400
+output max delay: 37.4 nand units
 $ python src/timing.py --in-verilog prot/add_one_chunked.sv 
-loaded data from netlist
-
-output max delay 27.200
+output max delay: 27.2 nand units
 $ python src/timing.py --in-verilog prot/add_one_2chunks.sv 
-loaded data from netlist
-
-output max delay 24.600
+output max delay: 24.6 nand units
 ```
 
 ## Timing after running full layout

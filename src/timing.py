@@ -147,7 +147,6 @@ def run(args):
                 cell_type, cell_name, _ = line.split()
                 cell_inputs = {}
                 cell_outputs = {}
-    print('loaded data from netlist')
 
     G = nx.Graph()
     for i, cell in enumerate(cells):
@@ -178,8 +177,7 @@ def run(args):
                 for wire in to_cell.cell_outputs:
                     to_process.append(wire)
 
-    print('')
-    print('output max delay %.3f' % output_cell.output_delay)
+    print('output max delay: %.1f nand units' % output_cell.output_delay)
 
 
 if __name__ == '__main__':
