@@ -16,7 +16,6 @@ Will use 'unit times' for timings, which will look something like:
 - shr: 0 (it's just rewiring)
 """
 import argparse
-import os
 from collections import deque, defaultdict
 import networkx as nx
 import subprocess

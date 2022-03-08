@@ -46,7 +46,7 @@ bash src/reg_test.sh
 
 # To compile with verilator
 
-(there is no runner for verilator currently, but the modules do compile)
+(there is no runner for verilator currently, but I do test sometimes that the modules do compile; verilator is great for catching mismatches between bus sizes, and some other errors).
 
 ## prerequisites
 
@@ -58,14 +58,64 @@ bash src/reg_test.sh
 verilator -sv --cc src/proc.sv src/mem.sv src/comp.sv -Isrc
 ```
 
-# To determine maximum clockspeed / timing
+# Timing
+
+## Timing based on gate-level netlist
+
+### Concept
+
+- we first use [yosys](http://bygone.clairexen.net/yosys/) to synthesize our verilog file to a gate-level netlist
+    - a gate-level netlist is also a verilog file, but with the behavioral bits (`always`, etc.) removed, and operations such as `+`, `-` etc all replaced by calls to standard cells, such as `NOR2X1`, `NAND2X1`, etc
+- then we use a custom script [src/timing.py](src/timing.py) to walk the graph of the resulting netlist, and find the longest propagation delay from the inputs to the outputs
+    - the delay units are in `nand` propagation units, where a `nand` propagation unit is defined as the time to propagate through a single nand gate
+    - a NOT gate is 0.6
+    - an AND gate is 1.6 (it's a NAND followed by an AND)
+- the cell propagation delays are loosely based on those in https://web.engr.oregonstate.edu/~traylor/ece474/reading/SAED_Cell_Lib_Rev1_4_20_1.pdf , which is a 90nm spec sheet, but hopefully approximately representative of timings in general, since we are only reporting relative timings, which should be fairly architecture-independent
+
+### Prerequities
+
+- python3
+- [yosys](http://bygone.clairexen.net/yosys/)
+- have installed the following packages
+```
+pip install networkx 
+```
+
+### Procedure
+
+e.g. for the module at [prot/add_one_2chunks.sv](prot/add_one_2chunks.sv), run:
+
+```
+python src/timing.py --in-verilog prot/add_one_2chunks.sv
+```
+
+### Example outputs
+
+```
+$ python src/timing.py --in-verilog prot/add_one.sv 
+loaded data from netlist
+
+output max delay 37.400
+$ python src/timing.py --in-verilog prot/add_one_chunked.sv 
+loaded data from netlist
+
+output max delay 27.200
+$ python src/timing.py --in-verilog prot/add_one_2chunks.sv 
+loaded data from netlist
+
+output max delay 24.600
+```
+
+## Timing after running full layout
 
 [This section in progress]
 
-## prequisites
+### Prequisites
 
-- yosys (e.g. `brew install yosys`, or see http://bygone.clairexen.net/yosys/ )
+- yosys (e.g. `brew install yosys`, or see [http://bygone.clairexen.net/yosys/](http://bygone.clairexen.net/yosys/))
 - opensroad/sta (build from source, see https://github.com/The-OpenROAD-Project/OpenSTA )
+
+### Procedure
 
 ```
 yosys -s src/yosys.tacl
@@ -132,3 +182,7 @@ No caching of any sort is implemented currently (no level1, no level2, no level3
 # Short-term plan
 
 For long-term plan, see section Vision above. For short-term plan, see [todo.txt](docs/todo.txt)
+
+# Recent changes
+
+- created script timing.py, that measures longest propagation time, for combinatorial modules, based on gate-level netlist
