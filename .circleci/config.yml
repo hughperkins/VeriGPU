@@ -18,14 +18,14 @@ jobs:
           name: "Say hello"
           command: |
             echo Hello World
-            iverilog -g2012 src/proc.sv
-            verilator -sv --cc src/proc.sv
-            python -V
-            pip freeze
-            yosys -V
-            python run.py --name prog2
-            pip install networkx
-            python src/timing.py --in-verlog src/proc.sv
+            iverilog -g2012 src/proc.sv > /dev/stderr
+            verilator -sv --cc src/proc.sv > /dev/stderr
+            python -V > /dev/stderr
+            pip freeze > /dev/stderr
+            yosys -V > /dev/stderr
+            python run.py --name prog2 > /dev/stderr
+            pip install networkx > /dev/stderr
+            python src/timing.py --in-verlog src/proc.sv > /dev/stderr
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
