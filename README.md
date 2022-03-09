@@ -123,6 +123,7 @@ AND  rd, rs1, rs2
 OR   rd, rs1, rs2
 XOR  rd, rs1, rs2
 SLTU rd, rs1, rs2
+MUL  rs, rs1, rs2
 location:  # to label a location that we will branch conditionally to
            # (for now, must precede the branch instruction)
 ```
