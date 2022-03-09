@@ -9,8 +9,8 @@ jobs:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
     docker:
-      # - image: hughperkins/toy_proc:0.1
-      - image: cimg/python:3.10.1
+      - image: hughperkins/toy_proc:0.1
+      # - image: cimg/python:3.10.1
     # Add steps to the job
     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     steps:
@@ -24,12 +24,12 @@ jobs:
             pwd
             iverilog -g2012 src/proc.sv > /dev/stderr
             verilator -sv --cc src/proc.sv > /dev/stderr
-            python -V > /dev/stderr
-            pip freeze > /dev/stderr
+            python3 -V > /dev/stderr
+            pip3 freeze > /dev/stderr
             yosys -V > /dev/stderr
-            python run.py --name prog2 > /dev/stderr
-            pip install networkx > /dev/stderr
-            python src/timing.py --in-verlog src/proc.sv > /dev/stderr
+            python3 run.py --name prog2 > /dev/stderr
+            pip3 install networkx > /dev/stderr
+            python3 src/timing.py --in-verlog src/proc.sv > /dev/stderr
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
