@@ -54,6 +54,8 @@ class Cell:
         self.cell_input_delay_by_name = {}
         self.cell_delay = g_cell_times[cell_type]
         self.output_delay = output_delay
+        if output_delay == 0:
+            print('cell_name', cell_name, 'output delay 0')
 
     def connect_input(self, input_name: str, delay: float):
         assert input_name not in self.cell_input_delay_by_name
@@ -134,6 +136,10 @@ def run(args):
     in_declaration = False
     cell_type = ''
     cell_name = ''
+    # for empty cells that we should walk from straight away, since we know their
+    # output_delay is 0
+    empty_cells = []
+
     # each value is a tuple of (start_dim, end_dim_excl, step)
     # that we could feed to range(start, end_excl, step)
     vector_dims_by_name = {}
@@ -239,8 +245,6 @@ def run(args):
 
                 output_delay = None
                 if len(cell_inputs) == 0:
-                    print('no cell inputs:')
-                    print('    ', line)
                     output_delay = 0
                 cell = Cell(
                     cell_type='ASSIGN',
@@ -255,6 +259,8 @@ def run(args):
                     cellidxs_by_input[cell_input].append(cell_idx)
                 for cell_output in cell_outputs:
                     cellidx_by_output[cell_output] = cell_idx
+                if len(cell_inputs) == 0:
+                    empty_cells += cell_outputs
             elif line.startswith('wire'):
                 if '[' in line:
                     _, dims, name = line[:-1].split()
@@ -268,10 +274,6 @@ def run(args):
                 cell_type, cell_name, _ = line.split()
                 cell_inputs = {}
                 cell_outputs = {}
-
-    print('vectors:')
-    for name, dims in vector_dims_by_name.items():
-        print('    ', name, dims)
 
     G = nx.Graph()
     for i, cell in enumerate(cells):
@@ -294,6 +296,7 @@ def run(args):
     # walk graph, starting from inputs
     # we are looking for longest path through the graph
     to_process = deque(input_cell.cell_outputs)
+    to_process += empty_cells
     while len(to_process) > 0:
         wire_name = to_process.popleft()
         from_idx = cellidx_by_output[wire_name]
@@ -317,6 +320,20 @@ def run(args):
             if to_cell.output_delay is not None:
                 for wire in to_cell.cell_outputs:
                     to_process.append(wire)
+
+    # check for unprocessed nodes
+    printed_prologue = False
+    for cell in cells:
+        if cell.output_delay is None:
+            if not printed_prologue:
+                print('output delay not known:')
+                printed_prologue = True
+            print(cell)
+            for name in cell.cell_inputs:
+                if name not in cell.cell_input_delay_by_name:
+                    print('    missing', name)
+    if printed_prologue:
+        return
 
     print('')
     print('Propagation delay is between any pair of combinatorially connected')
