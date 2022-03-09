@@ -19,6 +19,7 @@ import argparse
 from collections import deque, defaultdict
 import networkx as nx
 import subprocess
+import sys
 
 
 g_cell_times = {
@@ -112,7 +113,7 @@ def run(args):
         # first need to synthesize
         # use check output, so we can suppress output (less spammy...)
         subprocess.check_output([
-            'python', 'src/tools/run_yosys.py', '--verilog', args.in_verilog
+            sys.executable, 'src/tools/run_yosys.py', '--verilog', args.in_verilog
         ])
         # os.system(f'python src/tools/run_yosys.py --verilog {args.in_verilog}')
         args.in_netlist = 'build/netlist.v'
