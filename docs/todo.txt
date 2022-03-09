@@ -1,6 +1,5 @@
-- int multiplication
-- factorial calculator
 - lui
+- change time units to clock cycles
 - int division
 - int modulus
 - prime numbers calculator
@@ -23,6 +22,8 @@
 - (use actual memory module?)
 
 done:
+- factorial calculator
+- int multiplication
 - measure timing/maximum clock speed somehow
 - handle assigns in timing.py
 - handle vector declarations in timing.py

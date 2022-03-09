@@ -185,8 +185,6 @@ module proc(
 
             // RV32M
             MUL: begin
-                $display("mul rs1 %0d rs2 %0d rd %0d", _rs1, _rs2, _rd);
-                $display("mul regs rs1 %0d regs rs2 %0d mul %0d", regs[_rs1], regs[_rs2], regs[_rs1] * regs[_rs2]);
                 regs[_rd] <= regs[_rs1] * regs[_rs2];
             end
             REM: begin

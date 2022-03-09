@@ -35,6 +35,7 @@ Example output:
 # Some example programs that run ok
 
 - sum integers from 0 to 5 [examples/prog16.asm](examples/prog16.asm)
+- factorial of integers 0 to 5 [examples/prog18.asm](examples/prog18.asm)
 
 # To run self-tests
 
