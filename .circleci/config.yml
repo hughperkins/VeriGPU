@@ -22,6 +22,7 @@ jobs:
             verilator -sv --cc src/proc.sv
             python -V
             pip freeze
+            yosys -V
             python run.py --name prog2
 
 # Invoke jobs via workflows
