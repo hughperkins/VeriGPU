@@ -9,7 +9,8 @@ jobs:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
     docker:
-      - image: hughperkins/toy_proc:0.1
+      # - image: hughperkins/toy_proc:0.1
+      - image: cimg/python:3.10.1
     # Add steps to the job
     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     steps:
@@ -18,6 +19,9 @@ jobs:
           name: "Say hello"
           command: |
             echo Hello World
+            echo foo bar
+            ls
+            pwd
             iverilog -g2012 src/proc.sv > /dev/stderr
             verilator -sv --cc src/proc.sv > /dev/stderr
             python -V > /dev/stderr
