@@ -237,11 +237,17 @@ def run(args):
                 cell_outputs = lhs_names
                 cell_inputs = rhs_names
 
+                output_delay = None
+                if len(cell_inputs) == 0:
+                    print('no cell inputs:')
+                    print('    ', line)
+                    output_delay = 0
                 cell = Cell(
                     cell_type='ASSIGN',
                     cell_name='assign' + str(len(cells)),
                     inputs=cell_inputs,
-                    outputs=cell_outputs
+                    outputs=cell_outputs,
+                    output_delay=output_delay
                 )
                 cell_idx = len(cells)
                 cells.append(cell)
