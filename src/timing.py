@@ -54,8 +54,6 @@ class Cell:
         self.cell_input_delay_by_name = {}
         self.cell_delay = g_cell_times[cell_type]
         self.output_delay = output_delay
-        if output_delay == 0:
-            print('cell_name', cell_name, 'output delay 0')
 
     def connect_input(self, input_name: str, delay: float):
         assert input_name not in self.cell_input_delay_by_name
