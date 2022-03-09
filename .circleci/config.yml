@@ -24,6 +24,7 @@ jobs:
             pip freeze
             yosys -V
             python run.py --name prog2
+            pip install networkx
             python src/timing.py --in-verlog src/proc.sv
 
 # Invoke jobs via workflows
