@@ -30,7 +30,8 @@ module proc(
     } e_state;
 
     wire [6:0] c1_op;
-    wire [2:0] c1_funct;
+    wire [2:0] c1_funct3;
+    wire [9:0] c1_op_funct;
     wire [4:0] c1_rd;
     wire [4:0] c1_rs1;
     wire [4:0] c1_rs2;
@@ -171,6 +172,8 @@ module proc(
                 // need to fix...
                 regs[_rd] <= regs[_rs1] >> regs[_rs2][4:0];
             end
+            default: begin
+            end
         endcase
         read_next_instr(pc + 4);
     endtask
@@ -178,7 +181,7 @@ module proc(
     task instr_c1();
         case (c1_op)
             OPIMM: begin
-                op_imm(c1_op_funct, c1_rd, c1_rs1, c1_i_imm);
+                op_imm(c1_funct3, c1_rd, c1_rs1, c1_i_imm);
             end
             LOAD: begin
                 // read from memory
@@ -204,10 +207,10 @@ module proc(
             end
             BRANCH: begin
                 // e.g. beq rs1, rs2, offset
-                op_branch(c1_funct, c1_rs1, c1_rs2, c1_branch_offset);
+                op_branch(c1_funct3, c1_rs1, c1_rs2, c1_branch_offset);
             end
             OP: begin
-                op_op(c1_funct, c1_rd, c1_rs1, c1_rs2);
+                op_op(c1_op_funct, c1_rd, c1_rs1, c1_rs2);
             end
             default: begin
                 halt <= 1;
@@ -268,7 +271,7 @@ module proc(
     assign c1_rd = mem_rd_data[11:7];
     assign c1_rs1 = mem_rd_data[19:15];
     assign c1_rs2 = mem_rd_data[24:20];
-    assign c1_funct = mem_rd_data[14:12];
+    assign c1_funct3 = mem_rd_data[14:12];
     assign c1_imm1 = mem_rd_data[31:25];
     assign c1_store_offset = {{20{mem_rd_data[31]}}, mem_rd_data[31:25], mem_rd_data[11:7]};
     assign c1_load_offset = {{20{mem_rd_data[31]}}, mem_rd_data[31:20]};
