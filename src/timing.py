@@ -71,6 +71,39 @@ class Cell:
 
 
 def run(args):
+    def str_to_names(names_str: str):
+        """
+        example of names_str:
+        some_name
+        some_name[2:15]
+        {some_name, another_name[2:15]}
+
+        any of these names can be found in vectors lookup dict, and should then be converted
+        into a list of names, using the vector definition
+        """
+        names = []
+        names_str = names_str.strip()
+        if names_str.startswith('{'):
+            # it's a concatenation
+            split_names_str = names_str[1:-1].split(',')
+            for child_name_str in split_names_str:
+                names += str_to_names(child_name_str)
+        elif names_str in vector_dims_by_name:
+            start, end, step = vector_dims_by_name[names_str]
+            names += [f'{names_str}[{i}]' for i in range(start, end, step)]
+        elif ':' in names_str:
+            # it's already a vector...
+            # split into names
+            basename = names_str.split('[')[0]
+            start = int(names_str.split('[')[1].split(':')[0])
+            end = int(names_str.split(':')[1].split(']')[0])
+            step = 1 if end >= start else -1
+            end_excl = end + step
+            names += [f'{basename}[{i}]' for i in range(start, end_excl, step)]
+        else:
+            names.append(names_str)
+        return names
+
     if args.in_verilog is not None:
         # first need to synthesize
         # use check output, so we can suppress output (less spammy...)
@@ -160,57 +193,57 @@ def run(args):
                     input_cell.cell_outputs.append(f'{name}')
                     cellidx_by_output[f'{name}'] = input_cell_idx
             if line.startswith('output '):
-                _, dims, name = line[:-1].split()
-                if dims.startswith('['):
-                    start = int(dims.split('[')[1].split(':')[0])
-                    end = int(dims.split(':')[1].split(']')[0])
-                    # print('start', start, 'end', end)
-                    step = 1
-                    if end < start:
-                        step = -1
-                        end -= 1
+                try:
+                    split_line = line[:-1].split()
+                    if len(split_line) == 3:
+                        _, dims, name = split_line
                     else:
-                        end += 1
-                    for wire in range(start, end, step):
-                        output_cell.cell_inputs.append(f'{name}[{wire}]')
-                        cellidxs_by_input[f'{name}[{wire}]'].append(output_cell_idx)
+                        _, name = split_line
+                        dims = None
+                    if dims is not None and dims.startswith('['):
+                        start = int(dims.split('[')[1].split(':')[0])
+                        end = int(dims.split(':')[1].split(']')[0])
+                        # print('start', start, 'end', end)
+                        step = 1
+                        if end < start:
+                            step = -1
+                            end -= 1
+                        else:
+                            end += 1
+                        for wire in range(start, end, step):
+                            output_cell.cell_inputs.append(f'{name}[{wire}]')
+                            cellidxs_by_input[f'{name}[{wire}]'].append(output_cell_idx)
+                    else:
+                        output_cell.cell_inputs.append(f'{name}')
+                        cellidxs_by_input[f'{name}'].append(output_cell_idx)
+                except Exception as e:
+                    print(line)
+                    raise e
             elif line.startswith('assign'):
                 print(line)
                 # eg
                 # assign a = b;
-                _, left, _, right = line.split()
-                right = right[:-1]
-                print(left, right)
-                if left in vector_dims_by_name:
-                    start, end, step = vector_dims_by_name[left]
-                    # left = left + f'[{start}:{end - step}]'
-                    cell_outputs = [f'{left}[{i}]' for i in range(start, end, step)]
-                else:
-                    cell_outputs = [left]
-                if right in vector_dims_by_name:
-                    start, end, step = vector_dims_by_name[right]
-                    # right = right + f'[{start}:{end - step}]'
-                    cell_inputs = [f'{right}[{i}]' for i in range(start, end, step)]
-                else:
-                    cell_inputs = [right]
-                print(left, right)
-                print(cell_inputs)
-                print(cell_outputs)
-                # cell_type, cell_name, inputs, outputs, output_delay: float = None
+                line = line.replace('assign ', '').strip()
+                line = line[:-1]
+                lhs, _, rhs = line.partition(' = ')
+                lhs_names = str_to_names(lhs)
+                rhs_names = str_to_names(rhs)
+
+                cell_outputs = lhs_names
+                cell_inputs = rhs_names
+
                 cell = Cell(
                     cell_type='ASSIGN',
                     cell_name='assign' + str(len(cells)),
                     inputs=cell_inputs,
                     outputs=cell_outputs
                 )
-                print('cell', cell)
                 cell_idx = len(cells)
                 cells.append(cell)
                 for cell_input in cell_inputs:
                     cellidxs_by_input[cell_input].append(cell_idx)
                 for cell_output in cell_outputs:
                     cellidx_by_output[cell_output] = cell_idx
-                # adfadsf
             elif line.startswith('wire'):
                 if '[' in line:
                     _, dims, name = line[:-1].split()
