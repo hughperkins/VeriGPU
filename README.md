@@ -99,6 +99,10 @@ output max delay: 1215.8 nand units
 # flip-flop modules:
 $ python src/timing.py --in-verilog prot/clocked_counter.sv 
 max propagation delay: 37.4 nand units
+
+# the processor module itself :)
+$ python src/timing.py --in-verilog src/proc.sv
+max propagation delay: 101.6 nand units
 ```
 
 # Technical details
@@ -164,4 +168,4 @@ For long-term plan, see section Vision above. For short-term plan, see [todo.txt
 
 # Recent changes
 
-- created script timing.py, that measures longest propagation time, for combinatorial modules, based on gate-level netlist
+- created script timing.py, that measures longest propagation time, for combinatorial modules, based on gate-level netlist. Update: including works on src/proc.sv now
