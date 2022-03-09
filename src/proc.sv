@@ -85,7 +85,17 @@ module proc(
         SLL =  10'b0000000001,
         SRL =  10'b0000000101,
         SUB =  10'b0100000000,
-        SRA =  10'b0100000101
+        SRA =  10'b0100000101,
+
+        // RV32M
+        MUL =    10'b0000001000,
+        MULH =   10'b0000001001,
+        MULHSU = 10'b0000001010,
+        MULHU =  10'b0000001011,
+        DIV =    10'b0000001100,
+        DIVU =   10'b0000001101,
+        REM =    10'b0000001110,
+        REMU =   10'b0000001111
     } e_funct_op;
 
     task read_next_instr(input [31:0] instr_addr);
@@ -172,6 +182,16 @@ module proc(
                 // need to fix...
                 regs[_rd] <= regs[_rs1] >> regs[_rs2][4:0];
             end
+
+            // RV32M
+            MUL: begin
+                $display("mul rs1 %0d rs2 %0d rd %0d", _rs1, _rs2, _rd);
+                $display("mul regs rs1 %0d regs rs2 %0d mul %0d", regs[_rs1], regs[_rs2], regs[_rs1] * regs[_rs2]);
+                regs[_rd] <= regs[_rs1] * regs[_rs2];
+            end
+            REM: begin
+            end
+
             default: begin
             end
         endcase

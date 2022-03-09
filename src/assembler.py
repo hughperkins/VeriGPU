@@ -45,7 +45,17 @@ funct_bits_op = {
     'SLL':  '0000000001',
     'SRL':  '0000000101',
     'SUB':  '0100000000',
-    'SRA':  '0100000101'
+    'SRA':  '0100000101',
+
+    # RV32M extension:
+    'MUL':    '0000001000',
+    'MULH':   '0000001001',
+    'MULHSU': '0000001010',
+    'MULHU':  '0000001011',
+    'DIV':    '0000001100',
+    'DIVU':   '0000001101',
+    'REM':    '0000001110',
+    'REMU':   '0000001111'
 }
 
 
@@ -280,7 +290,10 @@ def run(args):
                 instr_bits = f'{l_bits_12}{l_bits_10_5}{rs2_bits}{rs1_bits}{funct_bits}{l_bits_4_1}{l_bits_11}{op_bits}'
                 print('instr_bits', instr_bits)
                 hex_lines.append(bits_to_hex(instr_bits))
-            elif cmd in ['add', 'slt', 'sltu', 'and', 'or', 'xor', 'sll', 'srl', 'sub', 'sra']:
+            elif cmd in [
+                 'add', 'slt', 'sltu', 'and', 'or', 'xor', 'sll', 'srl', 'sub', 'sra',
+                 'mul', 'mulh', 'mulhsu', 'mulhu', 'div', 'divu', 'rem', 'remu'
+            ]:
                 # e.g.
                 # add rd, rs1, rs2
                 op_bits = op_bits_by_op['OP']  # "0110011"
