@@ -121,7 +121,7 @@ def run(args):
         netlist = f.read()
     cells = []
     input_cell = Cell('START', 'START', [], [], output_delay=0)
-    output_cell = Cell('END', 'END', [], [], output_delay=0)
+    output_cell = Cell('END', 'END', [], [])
     cells.append(input_cell)
     cells.append(output_cell)
     input_cell_idx = 0
