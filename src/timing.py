@@ -40,7 +40,8 @@ g_cell_times = {
     'MUX2X1': 2,
     'MUX4X1': 3,
     'START': 0,
-    'END': 0
+    'END': 0,
+    'ASSIGN': 0
 }
 
 
@@ -96,6 +97,9 @@ def run(args):
     in_declaration = False
     cell_type = ''
     cell_name = ''
+    # each value is a tuple of (start_dim, end_dim_excl, step)
+    # that we could feed to range(start, end_excl, step)
+    vector_dims_by_name = {}
     for line in netlist.split('\n'):
         line = line.strip()
         if in_declaration:
@@ -170,11 +174,63 @@ def run(args):
                     for wire in range(start, end, step):
                         output_cell.cell_inputs.append(f'{name}[{wire}]')
                         cellidxs_by_input[f'{name}[{wire}]'].append(output_cell_idx)
+            elif line.startswith('assign'):
+                print(line)
+                # eg
+                # assign a = b;
+                _, left, _, right = line.split()
+                right = right[:-1]
+                print(left, right)
+                if left in vector_dims_by_name:
+                    start, end, step = vector_dims_by_name[left]
+                    # left = left + f'[{start}:{end - step}]'
+                    cell_outputs = [f'{left}[{i}]' for i in range(start, end, step)]
+                else:
+                    cell_outputs = [left]
+                if right in vector_dims_by_name:
+                    start, end, step = vector_dims_by_name[right]
+                    # right = right + f'[{start}:{end - step}]'
+                    cell_inputs = [f'{right}[{i}]' for i in range(start, end, step)]
+                else:
+                    cell_inputs = [right]
+                print(left, right)
+                print(cell_inputs)
+                print(cell_outputs)
+                # cell_type, cell_name, inputs, outputs, output_delay: float = None
+                cell = Cell(
+                    cell_type='ASSIGN',
+                    cell_name='assign' + str(len(cells)),
+                    inputs=cell_inputs,
+                    outputs=cell_outputs
+                )
+                print('cell', cell)
+                cell_idx = len(cells)
+                cells.append(cell)
+                for cell_input in cell_inputs:
+                    cellidxs_by_input[cell_input].append(cell_idx)
+                for cell_output in cell_outputs:
+                    cellidx_by_output[cell_output] = cell_idx
+                # adfadsf
+            elif line.startswith('wire'):
+                if '[' in line:
+                    _, dims, name = line[:-1].split()
+                    start = int(dims.split('[')[1].split(':')[0])
+                    end = int(dims.split(':')[1].split(']')[0])
+                    step = 1 if end > start else -1
+                    end_excl = end + step
+                    vector_dims_by_name[name] = (start, end_excl, step)
             if line.endswith('('):
                 in_declaration = True
                 cell_type, cell_name, _ = line.split()
                 cell_inputs = {}
                 cell_outputs = {}
+
+    for cell in cells:
+        print(cell, cell.cell_inputs, cell.cell_outputs)
+
+    print('vectors:')
+    for name, dims in vector_dims_by_name.items():
+        print('    ', name, dims)
 
     G = nx.Graph()
     for i, cell in enumerate(cells):

@@ -1,3 +1,7 @@
+- handle assigns in timing.py
+- handle vector declarations in timing.py
+- get timing.py working on src/proc.sv
+- add area approximation to timing.py (eg count the number of cells :P)
 - int multiplication
 - factorial calculator
 - int division
