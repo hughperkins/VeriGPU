@@ -22,14 +22,14 @@ jobs:
             echo foo bar
             ls
             pwd
-            iverilog -g2012 src/proc.sv > /dev/stderr
-            verilator -sv --cc src/proc.sv > /dev/stderr
-            python3 -V > /dev/stderr
-            pip3 freeze > /dev/stderr
-            yosys -V > /dev/stderr
-            python3 run.py --name prog2 > /dev/stderr
-            pip3 install networkx > /dev/stderr
-            python3 src/timing.py --in-verlog src/proc.sv > /dev/stderr
+            iverilog -g2012 src/proc.sv
+            verilator -sv --cc src/proc.sv
+            python3 -V
+            pip3 freeze
+            yosys -V
+            python3 run.py --name prog2
+            pip3 install networkx
+            python3 src/timing.py --in-verlog src/proc.sv
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
