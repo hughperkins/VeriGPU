@@ -100,8 +100,12 @@ def run(args):
             step = 1 if end >= start else -1
             end_excl = end + step
             names += [f'{basename}[{i}]' for i in range(start, end_excl, step)]
+        elif "'" in names_str:
+            # immediate constant, ignore
+            pass
         else:
             names.append(names_str)
+        return list(set(names))
         return names
 
     if args.in_verilog is not None:
@@ -161,6 +165,8 @@ def run(args):
                 # ignore immediate numbers
                 if port_line[0] in '0123456789':
                     continue
+                # yosys sometimes puts spaces between diensions. remove these
+                port_line = port_line.replace('] [', '][')
                 if port_name in ['A', 'B', 'C', 'D', 'R', 'S']:
                     cell_inputs[port_line] = port_line
                 else:
@@ -220,7 +226,6 @@ def run(args):
                     print(line)
                     raise e
             elif line.startswith('assign'):
-                print(line)
                 # eg
                 # assign a = b;
                 line = line.replace('assign ', '').strip()
@@ -258,9 +263,6 @@ def run(args):
                 cell_inputs = {}
                 cell_outputs = {}
 
-    for cell in cells:
-        print(cell, cell.cell_inputs, cell.cell_outputs)
-
     print('vectors:')
     for name, dims in vector_dims_by_name.items():
         print('    ', name, dims)
@@ -274,7 +276,9 @@ def run(args):
             try:
                 from_idx = cellidx_by_output[cell_input]
             except Exception as e:
-                print('to_idx', to_idx, to_cell.cell_name, 'cell_input', cell_input)
+                for wire in cellidx_by_output.keys():
+                    print('wire', wire)
+                print('to_idx', to_idx, to_cell.cell_name, to_cell, 'cell_input', cell_input)
                 raise e
             from_cell = cells[from_idx]
             from_name = from_cell.cell_name
@@ -297,6 +301,12 @@ def run(args):
                 to_cell.connect_input(wire_name, delay)
             except Exception as e:
                 print(from_cell.cell_name, wire_name, to_cell.cell_name, delay)
+                print('to_cell inputs')
+                for _ in to_cell.cell_inputs:
+                    print('    ', _)
+                print('to_cell outputs')
+                for _ in to_cell.cell_outputs:
+                    print('    ', _)
                 raise e
             if to_cell.output_delay is not None:
                 for wire in to_cell.cell_outputs:
