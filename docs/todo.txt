@@ -1,4 +1,5 @@
 - lui
+- fix stdout in circleci
 - change time units to clock cycles
 - int division
 - int modulus
