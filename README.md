@@ -5,7 +5,7 @@ Play with building a toy processor from scratch, in verilog
 
 Experiment with writing some very simple toy processor, maybe GPU, targeting ASIC synthesis. I don't actually intend to run synthesis myself, but I intend to do what I can to verify somehow that synthesis would work ok, timings ok, etc.
 
-Loosely compliant with RISC-V ISA.
+Loosely compliant with RISC-V ISA. Where RISC-V conflicts with designing for a GPU setting, we break with RISC-V. Concretely, we are using unified registers, i.e. same registers for both integers and floating point. CPUs keep the integer and float files separate, so that floats regs are near fp apu, and integer regs are near int apu; but on a GPU, the dominant locality we are concerned about is a single hardware thread, of which there are thousands.
 
 # Simulation Workflow
 
