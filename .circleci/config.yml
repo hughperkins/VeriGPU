@@ -28,6 +28,7 @@ jobs:
             pip3 freeze
             yosys -V
             python3 run.py --name prog2
+            alias python=python3
             bash src/reg_test.sh
             pip3 install networkx pydot
             python3 src/timing.py --in-verilog src/proc.sv
