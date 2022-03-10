@@ -41,6 +41,7 @@ module proc(
     wire signed [31:0] c1_load_offset;
     wire signed [31:0] c1_i_imm;
     wire signed [31:0] c1_branch_offset;
+    wire [31:0] c1_instr;
 
     typedef enum bit[6:0] {
         STORE =    7'b0100011,
@@ -196,6 +197,16 @@ module proc(
         read_next_instr(pc + 4);
     endtask
 
+    task op_lui(input [31:0] _instr, input [4:0] _rd);
+        regs[_rd] <= {_instr[31:12], {12{1'b0}} };
+        read_next_instr(pc + 4);
+    endtask
+
+    task op_auipc(input [31:0] _instr, input [4:0] _rd);
+        regs[_rd] <= {_instr[31:12], {12{1'b0}}} + pc;
+        read_next_instr(pc + 4);
+    endtask
+
     task instr_c1();
         case (c1_op)
             OPIMM: begin
@@ -229,6 +240,12 @@ module proc(
             end
             OP: begin
                 op_op(c1_op_funct, c1_rd, c1_rs1, c1_rs2);
+            end
+            LUI: begin
+                op_lui(c1_instr, c1_rd);
+            end
+            AUIPC: begin
+                op_auipc(c1_instr, c1_rd);
             end
             default: begin
                 halt <= 1;
@@ -291,6 +308,7 @@ module proc(
     assign c1_rs2 = mem_rd_data[24:20];
     assign c1_funct3 = mem_rd_data[14:12];
     assign c1_imm1 = mem_rd_data[31:25];
+    assign c1_instr = mem_rd_data;
     assign c1_store_offset = {{20{mem_rd_data[31]}}, mem_rd_data[31:25], mem_rd_data[11:7]};
     assign c1_load_offset = {{20{mem_rd_data[31]}}, mem_rd_data[31:20]};
     assign c1_i_imm = {{20{mem_rd_data[31]}}, mem_rd_data[31:20]};

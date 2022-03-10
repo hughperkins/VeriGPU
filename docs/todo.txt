@@ -1,15 +1,14 @@
-- prime numbers calculator
-- lui
+- floats: regs, mul, div, modulus, add, sub, beq, glt
+- matrix multiplication
 - int division
 - int modulus
+- prime numbers calculator
 - maybe use a C/C++ -> RISC-V compiler, instead of writing assembler?
 - instruction cache
 - out of order execution
 - cicd for iverilog reg_test
 - cicd for timing
 - cicd for verilator compilation
-- floats: regs, mul, div, modulus, add, sub, beq, glt
-- matrix multiplication
 - check endian-ness relative to risc-v spec
 - check spir-v vs risc-v
 - gpu structure
@@ -21,6 +20,7 @@
 - (use actual memory module?)
 
 done:
+- lui
 - change time units to clock cycles
 - fix stdout in circleci
 - factorial calculator
