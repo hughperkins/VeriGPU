@@ -1,3 +1,5 @@
+`timescale 1ns/10ps
+
 module comp_driver(
 );
     reg rst;
@@ -35,7 +37,7 @@ module comp_driver(
 
     initial begin
         clk = 1;
-        forever #5 clk = ~clk;
+        forever #0.5 clk = ~clk;
     end
     always @(posedge clk) begin
         if (outen) begin
@@ -46,24 +48,24 @@ module comp_driver(
     initial begin
         $readmemh("build/{PROG}.hex", mem_load);
         for(int i = 0; i < 255; i++) begin
-            #10
+            #1
             oob_wen = 1;
             oob_wr_addr = i;
             oob_wr_data = mem_load[i];
         end
-        #10
+        #1
         oob_wen = 0;
         outpos = 0;
-        #10
+        #1
 
         $monitor(
             "t=%d rst=%b pc=%0h, out=%h op=%h imm1=%h %0d rd=%0d x1=%h state=%d",
             $time(), rst, pc, out,  op,   imm1, imm1,   rd, x1, state);
         rst = 1;
-        #10 rst = 0;
+        #1 rst = 0;
 
         while(~halt && clk < 100) begin
-            #10;
+            #1;
         end
 
         // #100

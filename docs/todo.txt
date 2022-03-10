@@ -1,6 +1,5 @@
-- lui
 - prime numbers calculator
-- change time units to clock cycles
+- lui
 - int division
 - int modulus
 - maybe use a C/C++ -> RISC-V compiler, instead of writing assembler?
@@ -22,6 +21,7 @@
 - (use actual memory module?)
 
 done:
+- change time units to clock cycles
 - fix stdout in circleci
 - factorial calculator
 - int multiplication
