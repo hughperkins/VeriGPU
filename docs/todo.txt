@@ -6,11 +6,9 @@
 - maybe use a C/C++ -> RISC-V compiler, instead of writing assembler?
 - instruction cache
 - out of order execution
-- cicd for iverilog reg_test
-- cicd for timing
-- cicd for verilator compilation
 - check endian-ness relative to risc-v spec
 - check spir-v vs risc-v
+- add cicd to readme
 - gpu structure
 - opencl
 - change bits of address to 64-bit, to allow 16GB+ of memory
@@ -20,6 +18,9 @@
 - (use actual memory module?)
 
 done:
+- cicd for iverilog reg_test
+- cicd for timing
+- cicd for verilator compilation
 - lui
 - change time units to clock cycles
 - fix stdout in circleci
