@@ -113,7 +113,8 @@ def run(args):
         # first need to synthesize
         # use check output, so we can suppress output (less spammy...)
         subprocess.check_output([
-            sys.executable, 'src/tools/run_yosys.py', '--verilog', args.in_verilog
+            sys.executable, 'src/tools/run_yosys.py', '--verilog', args.in_verilog,
+            '--cell-lib', args.cell_lib
         ])
         # os.system(f'python src/tools/run_yosys.py --verilog {args.in_verilog}')
         args.in_netlist = 'build/netlist.v'
@@ -350,6 +351,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--in-netlist', type=str, help='path to gate netlist verilog file')
     parser.add_argument('--in-verilog', type=str, help='path to original verilog file')
+    parser.add_argument(
+        '--cell-lib', type=str, default='tech/osu018/osu018_stdcells.lib',
+        help='e.g. path to osu018_stdcells.lib')
     args = parser.parse_args()
     # we should have one argument only
     assert args.in_netlist is not None or args.in_verilog is not None

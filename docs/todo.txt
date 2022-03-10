@@ -1,9 +1,8 @@
 - lui
-- fix stdout in circleci
+- prime numbers calculator
 - change time units to clock cycles
 - int division
 - int modulus
-- prime numbers calculator
 - maybe use a C/C++ -> RISC-V compiler, instead of writing assembler?
 - instruction cache
 - out of order execution
@@ -23,6 +22,7 @@
 - (use actual memory module?)
 
 done:
+- fix stdout in circleci
 - factorial calculator
 - int multiplication
 - measure timing/maximum clock speed somehow

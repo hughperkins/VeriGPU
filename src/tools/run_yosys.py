@@ -4,7 +4,6 @@
 # so much more convenenient in python
 import argparse
 import os
-from os.path import expanduser as expand
 
 
 def run(args):
@@ -12,8 +11,8 @@ def run(args):
         f.write(f"""
 read_verilog -sv {args.verilog}
 synth
-dfflibmap -liberty {expand('~/git/OpenTimer/example/simple/osu018_stdcells.lib')}
-abc -liberty {expand('~/git/OpenTimer/example/simple/osu018_stdcells.lib')}
+dfflibmap -liberty {args.cell_lib}
+abc -liberty {args.cell_lib}
 clean
 
 write_rtlil build/rtlil.rtl
@@ -34,5 +33,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--verilog', type=str, required=True, help='path to verilog file')
     parser.add_argument('--show', action='store_true', help='show xdot on the result')
+    parser.add_argument(
+        '--cell-lib', type=str, default='tech/osu018/osu018_stdcells.lib',
+        help='e.g. path to osu018_stdcells.lib')
     args = parser.parse_args()
     run(args)

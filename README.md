@@ -69,7 +69,7 @@ bash src/reg_test.sh
 
 - python3
 - [yosys](http://bygone.clairexen.net/yosys/)
-- have installed the following packages
+- have installed the following python packages
 ```
 pip install networkx 
 ```
@@ -80,6 +80,7 @@ e.g. for the module at [prot/add_one_2chunks.sv](prot/add_one_2chunks.sv), run:
 
 ```
 python src/timing.py --in-verilog prot/add_one_2chunks.sv
+# optionally can use --cell-lib to specify path to cell library. By default will use osu018 cell library in `tech/osu018` folder
 ```
 
 ### Example outputs
