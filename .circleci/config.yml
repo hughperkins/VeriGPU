@@ -28,7 +28,7 @@ jobs:
             pip3 freeze
             yosys -V
             python3 run.py --name prog2
-            pip3 install networkx
+            pip3 install networkx pydot
             python3 src/timing.py --in-verilog src/proc.sv
 
 # Invoke jobs via workflows

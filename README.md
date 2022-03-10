@@ -71,7 +71,7 @@ bash src/reg_test.sh
 - [yosys](http://bygone.clairexen.net/yosys/)
 - have installed the following python packages
 ```
-pip install networkx 
+pip install networkx pydot
 ```
 
 ### Procedure
