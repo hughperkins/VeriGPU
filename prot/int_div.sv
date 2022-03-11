@@ -2,6 +2,23 @@
 
 parameter bitwidth = 32;
 
+/*
+timiing actually better than yosys built-in synthesis for /
+
+$ python toy_proc/timing.py --in-verilog prot/int_div.sv 
+
+Propagation delay is between any pair of combinatorially connected
+inputs and outputs, drawn from:
+    - module inputs
+    - module outputs,
+    - flip-flop outputs (treated as inputs), and
+    - flip-flop inputs (treated as outputs)
+
+max propagation delay: 805.8 nand units
+
+(verilog built-in ~1000. similar though :) )
+*/
+
 module int_div(input [bitwidth - 1:0] a, input [bitwidth - 1:0] b, output reg [bitwidth - 1:0] quotient, output reg [bitwidth - 1:0] remainder);
     reg [bitwidth - 1:0] result1[bitwidth];
     reg [bitwidth - 1:0] result2[bitwidth];
