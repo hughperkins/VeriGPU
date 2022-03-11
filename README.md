@@ -56,6 +56,11 @@ pytest -v
 
 ## Timing based on gate-level netlist
 
+You can see the current clock cycle propagation delay by opening the most recent build at https://app.circleci.com/pipelines/github/hughperkins/toy_proc, going to 'artifacts', and clicking on 'build/timing.txt'. As of writing this, it was 110 nand gate units, i.e. equivalent to passing through about 110 nand units.
+- at 90nm, one nand gate unit is about 50ps, giving a cycle time of about 5.5ns, and a frequency of about 200MHz
+- at 5nm, one nand gate unit is about 5ps, giving a cycle time of about 0.55ns, and a frequency of about 2GHz
+(Note: this analysis totally neglects layout, i.e. wire delay over distance, so it's just to give an idea).
+
 ### Concept
 
 - we first use [yosys](http://bygone.clairexen.net/yosys/) to synthesize our verilog file to a gate-level netlist
@@ -66,6 +71,7 @@ pytest -v
     - an AND gate is 1.6 (it's a NAND followed by a NOT)
     - we assume that all cells only have a single output currently
 - the cell propagation delays are loosely based on those in https://web.engr.oregonstate.edu/~traylor/ece474/reading/SAED_Cell_Lib_Rev1_4_20_1.pdf , which is a 90nm spec sheet, but could be representative of relative timings, which are likely architecture-independent
+- you can see the relative cell times we use at [toy_proc/timing.py](https://github.com/hughperkins/toy_proc/blob/c4e37bdde601829f3959935e564503dbe30677fa/toy_proc/timing.py#L25-L46)
 - when there are flip-flops in the circuit, propagation delay is the max of those between all pairs of connected inputs and outputs, where inputs and outputs are drawn from:
     - module inputs
     - module outputs
