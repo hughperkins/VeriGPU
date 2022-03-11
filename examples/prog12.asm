@@ -15,4 +15,13 @@ outr x3
 addi x3, x1, -100
 outr x3
 
+addi x3, x0, -1000
+outr x3
+
+addi x3, x0, -2000
+outr x3
+
+addi x3, x0, 2000
+outr x3
+
 halt

@@ -1,4 +1,3 @@
-- fout.s; and modify assembler to handle floats for li
 - verilator driver file
 - loadfp
 - STORE-FP
@@ -23,6 +22,7 @@
 - (use actual memory module?)
 
 done:
+- fout.s; and modify assembler to handle floats for li
 - cicd for iverilog reg_test
 - cicd for timing
 - cicd for verilator compilation

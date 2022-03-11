@@ -144,6 +144,31 @@ def bits_to_hex(bits, num_bytes: int = 4):
     return hex_str
 
 
+# def bits_to_int(bits: str) -> int:
+#     return int(bits, 2)
+
+
+def word_bits_to_lui_addi_bits(word_bits: str):
+    """
+    eg given 00000111010110111100110100010101
+    ew have upper bits 00000111010110111100
+    and lower bits     110100010101
+    ... but the lower bits cannot exceed 2048,
+    so we need to subtract 4096 from lower bits,
+    and add one to upper bits
+    """
+    upper_bits = word_bits[:20]
+    lower_bits = word_bits[20:]
+    upper_int = int(upper_bits, 2)
+    lower_int = int(lower_bits, 2)
+    if lower_int > 2047:
+        lower_int -= 4096
+        upper_int += 1
+    upper_bits2 = int_to_binary(upper_int, 20)
+    lower_bits2 = int_to_binary(lower_int, 12)
+    return upper_bits2, lower_bits2
+
+
 def run(args):
     if not os.path.isdir('build'):
         os.makedirs('build')
@@ -194,11 +219,53 @@ def run(args):
                 #      rd     rs1    imm
                 op_bits = op_bits_by_op['OPIMM']  # "0010011"
                 imm_bits = int_str_to_bits(p3, 12)
+                print('addi imm_bits', imm_bits)
                 rd_bits = reg_str_to_bits(p1)
                 rs1_bits = reg_str_to_bits(p2)
                 funct_bits = '000'
                 instr_bits = f'{imm_bits}{rs1_bits}{funct_bits}{rd_bits}{op_bits}'
                 hex_lines.append(bits_to_hex(instr_bits))
+            elif cmd in ['lui', 'auipc']:
+                # eg lui x1, 0xdeadb
+                #        rd  imm
+                #        p1  p2
+                op_bits = op_bits_by_op[cmd.upper()]
+                rd_bits = reg_str_to_bits(p1)
+                imm_bits = int_str_to_bits(p2, 20)
+                instr_bits = f'{imm_bits}{rd_bits}{op_bits}'
+                print('lui', imm_bits)
+                assert len(instr_bits) == 32
+                hex_lines.append(bits_to_hex(instr_bits))
+            elif cmd == 'li':
+                # e.g.: li x1 0x12
+                # virtual command; convert to e.g. addi x1, x0, 0x12
+
+                if '.' not in p2:
+                    # not float
+                    imm_int = int_str_to_int(p2)
+                    print('li.i value=', p2)
+                    if abs(imm_int) < 2048:
+                        # small ints can be loaded with single addi
+                        asm_cmds.appendleft(f'addi {p1}, x0, {p2}')
+                        continue
+                    imm_bits = int_str_to_bits(p2, 32)
+                    print('li.i imm_bits', imm_bits)
+                else:
+                    # float
+                    imm_bits = numeric_str_to_bits(p2, 32)
+                    print('li.f imm_bits', imm_bits)
+
+                lui_bits, addi_bits = word_bits_to_lui_addi_bits(imm_bits)
+                # imm_upper = imm_bits[:20]
+                # imm_lower = imm_bits[20:]
+
+                # imm_upper_int = int_str_to_int('0b' + imm_upper)
+                # imm_lower_int = int_str_to_int('0b' + imm_lower)
+                # print('upper int', imm_upper_int, 'lower int', imm_lower_int)
+
+                asm_cmds.appendleft(f'addi {p1}, {p1}, 0b{addi_bits}')
+                asm_cmds.appendleft(f'lui {p1}, 0b{lui_bits}')
+                continue
             elif cmd == 'out':
                 # e.g.: out 0x1b
                 # virtual instruction. map to storing to location 1000
@@ -234,27 +301,6 @@ def run(args):
                 asm_cmds.appendleft('addi x31, x0, 1000')
                 asm_cmds.appendleft(f'lw x30, 0(x31)')
                 asm_cmds.appendleft(f'li x31, {p1}')
-                continue
-            elif cmd == 'li':
-                # e.g.: li x1 0x12
-                # virtual command; convert to e.g. addi x1, x0, 0x12
-
-                if '.' not in p2:
-                    # not float
-                    imm_int = int_str_to_int(p2)
-                    if abs(imm_int) < 2048:
-                        # small ints can be loaded with single addi
-                        asm_cmds.appendleft(f'addi {p1}, x0, {p2}')
-                        continue
-                    imm_bits = int_str_to_bits(p2, 32)
-                else:
-                    # float
-                    imm_bits = numeric_str_to_bits(p2, 32)
-
-                imm_upper = imm_bits[:20]
-                imm_lower = imm_bits[20:]
-                asm_cmds.appendleft(f'addi {p1}, {p1}, 0b{imm_lower}')
-                asm_cmds.appendleft(f'lui {p1}, 0b{imm_upper}')
                 continue
             elif cmd == 'mv':
                 # e.g.
@@ -346,16 +392,6 @@ def run(args):
                 l_bits_10_5 = label_offset_bits[-10:-4]
                 l_bits_4_1 = label_offset_bits[-4:]
                 instr_bits = f'{l_bits_12}{l_bits_10_5}{rs2_bits}{rs1_bits}{funct_bits}{l_bits_4_1}{l_bits_11}{op_bits}'
-                hex_lines.append(bits_to_hex(instr_bits))
-            elif cmd in ['lui', 'auipc']:
-                # eg lui x1, 0xdeadb
-                #        rd  imm
-                #        p1  p2
-                op_bits = op_bits_by_op[cmd.upper()]
-                rd_bits = reg_str_to_bits(p1)
-                imm_bits = int_str_to_bits(p2, 20)
-                instr_bits = f'{imm_bits}{rd_bits}{op_bits}'
-                assert len(instr_bits) == 32
                 hex_lines.append(bits_to_hex(instr_bits))
             elif cmd in [
                  'add', 'slt', 'sltu', 'and', 'or', 'xor', 'sll', 'srl', 'sub', 'sra',

@@ -84,7 +84,7 @@ module comp_driver(
                 double = bitstosingle(outmem[i]);
                 $display("out.s %0d %b %f", i, outmem[i], $bitstoreal(double));
             end else begin
-                $display("out %0d %h %0d", i, outmem[i], outmem[i]);
+                $display("out %0d %b %h %0d", i, outmem[i], outmem[i], outmem[i]);
             end
         end
         $finish();
