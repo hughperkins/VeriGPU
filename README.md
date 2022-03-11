@@ -3,15 +3,13 @@ Play with building a toy processor from scratch, in verilog
 
 # Vision
 
-Experiment with writing some very simple toy processor, maybe GPU, targeting ASIC synthesis. I don't actually intend to tape this out myself, but I intend to do what I can to verify somehow that tape-out would work ok, timings ok, etc.
+Write a GPU, targeting ASIC tape-out. I don't actually intend to tape this out myself, but I intend to do what I can to verify somehow that tape-out would work ok, timings ok, etc.
 
 Loosely compliant with RISC-V ISA. Where RISC-V conflicts with designing for a GPU setting, we break with RISC-V.
 
-# Simulation Workflow
+# Simulation
 
 ![toy proc workflow](https://raw.githubusercontent.com/hughperkins/toy_proc/main/img/toy_proc_workflow.png)
-
-# To run / simulate
 
 ## prerequisites
 
@@ -32,12 +30,12 @@ Example output:
 
 ![Example output](https://raw.githubusercontent.com/hughperkins/toy_proc/main/img/example_output.png)
 
-# Example assembler programs that run on this hardware
+## Example assembler programs that run on this hardware
 
 - sum integers from 0 to 5 [examples/prog16.asm](examples/prog16.asm)
 - factorial of integers 0 to 5 [examples/prog18.asm](examples/prog18.asm)
 
-# To run self-tests
+# Testing
 
 [![CircleCI](https://circleci.com/gh/hughperkins/toy_proc/tree/main.svg?style=svg)](https://circleci.com/gh/hughperkins/toy_proc/tree/main)
 
@@ -80,7 +78,7 @@ You can see the current clock cycle propagation delay by opening the most recent
 
 For more details see [docs/timings.md](docs/timing.md)
 
-# Technical details
+# Implementation details
 
 ## RISC-V instructions
 
