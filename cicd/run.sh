@@ -8,6 +8,7 @@ python -V
 pip freeze
 yosys -V
 pip install -e .
+pip install -r requirements-test.txt
 pytest -v .
 bash src/reg_test.sh
 python toy_proc/timing.py --in-verilog src/proc.sv
