@@ -39,11 +39,18 @@ Example output:
 
 # To run self-tests
 
+[![CircleCI](https://circleci.com/gh/hughperkins/toy_proc/tree/main.svg?style=svg)](https://circleci.com/gh/hughperkins/toy_proc/tree/main)
+
 ```
 bash src/reg_test.sh
 ```
 
 - under the hood, this will run many of the examples in [examples](examples), and check the outputs against the expected outputs, which are in the paired files, with suffix `_expected.txt`, also in [examples](examples) folder.
+
+```
+pytest -v
+```
+- run some unit tests on the assembler (which is in python)
 
 # Timing
 
