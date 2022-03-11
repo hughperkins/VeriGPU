@@ -5,7 +5,7 @@ import sys
 
 def run(args):
     args.name = args.name.replace('.asm', '').replace('src/', '')
-    assert os.system(f'{sys.executable} src/assembler.py --in-asm examples/{args.name}.asm --out-hex build/{args.name}.hex') == 0
+    assert os.system(f'{sys.executable} toy_proc/assembler.py --in-asm examples/{args.name}.asm --out-hex build/{args.name}.hex') == 0
     with open('src/comp_driver.sv') as f:
         comp_driver = f.read()
     comp_driver = comp_driver.replace('{PROG}', args.name)

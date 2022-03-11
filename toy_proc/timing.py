@@ -113,7 +113,7 @@ def run(args):
         # first need to synthesize
         # use check output, so we can suppress output (less spammy...)
         subprocess.check_output([
-            sys.executable, 'src/tools/run_yosys.py', '--verilog', args.in_verilog,
+            sys.executable, 'toy_proc/run_yosys.py', '--verilog', args.in_verilog,
             '--cell-lib', args.cell_lib
         ])
         # os.system(f'python src/tools/run_yosys.py --verilog {args.in_verilog}')

@@ -1,6 +1,7 @@
 import argparse
 import os
 import math
+import struct
 from collections import deque
 
 
@@ -87,6 +88,43 @@ def int_str_to_int(int_str):
 def int_str_to_bits(int_str, num_bits):
     int_value = int_str_to_int(int_str)
     bits = int_to_binary(int_value, num_bits)
+    assert len(bits) == num_bits
+    return bits
+
+
+def float_to_bits(float_value, exp_bits: int = 8, sig_bits: int = 23):
+    # bits_check = ''.join([format(byte, '#010b')[2:] for byte in list(struct.pack('!f', 23.567))])
+    sign_bit = 1 if float_value < 0 else 0
+    if float_value == 0:
+        return '0' * 32
+    elif float_value != float_value:
+        return '0' + '1' * 31
+    else:
+        float_value = float_value if float_value >= 0 else - float_value
+        exp = 0
+        signif = float_value
+        while signif >= 2:
+            signif /= 2
+            exp += 1
+        while signif < 1:
+            signif *= 2
+            exp -= 1
+        exp_to_store = exp + 127
+        exp_bits = int_to_binary(exp_to_store, 8)
+        signif_to_store = (signif - 1) * math.pow(2, 23)
+        signif_bits = int_to_binary(int(signif_to_store), 23)
+    return f'{sign_bit}{exp_bits}{signif_bits}'
+    # return bits
+
+
+def numeric_str_to_bits(numeric_str, num_bits):
+    if '.' in numeric_str:
+        float_value = float(numeric_str)
+        print('float_value', float_value)
+        bits = float_to_bits(float_value, exp_bits=8, sig_bits=23)
+    else:
+        int_value = int_str_to_int(int_str)
+        bits = int_to_binary(int_value, num_bits)
     assert len(bits) == num_bits
     return bits
 
