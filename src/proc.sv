@@ -2,6 +2,9 @@
 module proc(
     input rst, clk,
     output reg [31:0] out,
+    output reg outen,
+    output reg outflen,
+
     output reg [6:0] op,
     output reg [2:0] funct,
     output reg [4:0] rd,
@@ -11,7 +14,6 @@ module proc(
     output [31:0] x1,
     output reg [31:0] pc,
     output reg [4:0] state,
-    output reg outen,
 
     output reg [31:0] mem_addr,
     input [31:0] mem_rd_data,
@@ -110,6 +112,11 @@ module proc(
     task write_out(input [31:0] _out);
         out[31:0] <= _out;
         outen <= 1;
+    endtask
+
+    task write_float(input [31:0] _out);
+        out[31:0] <= _out;
+        outflen <= 1;
     endtask
 
     task op_imm(input [2:0] _funct, input [4:0] _rd, input [4:0] _rs1, input [31:0] _i_imm);
@@ -216,6 +223,10 @@ module proc(
             1004: begin
                 halt <= 1;
             end
+            1008: begin
+                write_float(regs[c1_rs2]);
+                read_next_instr(pc + 4);
+            end
             default: begin
                 mem_addr <= (regs[c1_rs1] + c1_store_offset);
                 mem_wr_req <= 1;
@@ -283,12 +294,14 @@ module proc(
         if (rst) begin
             halt <= 0;
             outen <= 0;
+            outflen <= 0;
             read_next_instr(0);
         end
         else begin
             mem_rd_req <= 0;
             mem_wr_req <= 0;
             outen <= 0;
+            outflen <= 0;
             case(state)
                 C1: begin
                     mem_rd_req <= 0;

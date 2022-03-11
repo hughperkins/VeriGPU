@@ -131,6 +131,7 @@ def numeric_str_to_bits(numeric_str, num_bits):
 
 def reg_str_to_bits(reg_str, num_bits: int = 5):
     assert reg_str.startswith('x')
+    assert len(reg_str) >= 2
     reg_str = reg_str[1:]
     bits = int_str_to_bits(reg_str, num_bits=num_bits)
     return bits
@@ -208,6 +209,24 @@ def run(args):
                 asm_cmds.appendleft(f'addi x30, x0, {p1}')
                 asm_cmds.appendleft('addi x31, x0, 1000')
                 continue
+            elif cmd == 'outr':
+                # virtual instruction. map to storing to location 1000
+
+                # migrate to use store at location 1000, with load before that
+                # need to push store in first, since we are pushing in reverse order
+
+                asm_cmds.appendleft(f'sw {p1}, 0(x31)')
+                asm_cmds.appendleft('addi x31, x0, 1000')
+                continue
+            elif cmd == 'outr.s':
+                # virtual instruction. map to storing to location 1008
+
+                # migrate to use store at location 1000, with load before that
+                # need to push store in first, since we are pushing in reverse order
+
+                asm_cmds.appendleft(f'sw {p1}, 0(x31)')
+                asm_cmds.appendleft('addi x31, x0, 1008')
+                continue
             elif cmd == 'outloc':
                 # e.g. outloc 0x20
                 # virtual command, maps to li followed by sw to location 1000
@@ -220,15 +239,22 @@ def run(args):
                 # e.g.: li x1 0x12
                 # virtual command; convert to e.g. addi x1, x0, 0x12
 
-                imm_int = int_str_to_int(p2)
-                if abs(imm_int) < 2048:
-                    asm_cmds.appendleft(f'addi {p1}, x0, {p2}')
-                else:
+                if '.' not in p2:
+                    # not float
+                    imm_int = int_str_to_int(p2)
+                    if abs(imm_int) < 2048:
+                        # small ints can be loaded with single addi
+                        asm_cmds.appendleft(f'addi {p1}, x0, {p2}')
+                        continue
                     imm_bits = int_str_to_bits(p2, 32)
-                    imm_upper = imm_bits[:20]
-                    imm_lower = imm_bits[20:]
-                    asm_cmds.appendleft(f'addi {p1}, {p1}, 0b{imm_lower}')
-                    asm_cmds.appendleft(f'lui {p1}, 0b{imm_upper}')
+                else:
+                    # float
+                    imm_bits = numeric_str_to_bits(p2, 32)
+
+                imm_upper = imm_bits[:20]
+                imm_lower = imm_bits[20:]
+                asm_cmds.appendleft(f'addi {p1}, {p1}, 0b{imm_lower}')
+                asm_cmds.appendleft(f'lui {p1}, 0b{imm_upper}')
                 continue
             elif cmd == 'mv':
                 # e.g.
@@ -283,15 +309,6 @@ def run(args):
             elif cmd == 'bleu':
                 # bge rs, rt offset
                 asm_cmds.appendleft(f'bgeu {p2} {p2} {p3}')
-                continue
-            elif cmd == 'outr':
-                # virtual instruction. map to storing to location 1000
-
-                # migrate to use store at location 1000, with load before that
-                # need to push store in first, since we are pushing in reverse order
-
-                asm_cmds.appendleft(f'sw {p1}, 0(x31)')
-                asm_cmds.appendleft('addi x31, x0, 1000')
                 continue
             elif cmd == 'half':
                 bits = int_str_to_bits(p1, 16)

@@ -27,5 +27,6 @@ def bin_str_to_single(b):
 )
 def test_float_to_bits(float_value: float):
     bits = assembler.float_to_bits(float_value)
+    print(float_value, bits)
     reconstr_float = bin_str_to_single('0b' + bits)
     assert float_value == pytest.approx(reconstr_float)

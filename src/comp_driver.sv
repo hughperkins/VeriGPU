@@ -6,13 +6,15 @@ module comp_driver(
     reg clk;
 
     wire [31:0] out;
+    wire outen;
+    wire outflen;
+
     wire [31:0] pc;
     wire [6:0] op;
     wire [4:0] rd;
     wire [6:0] imm1;
     wire [31:0] x1;
     wire [4:0] state;
-    wire outen;
 
     reg [31:0] oob_wr_addr;
     reg [31:0] oob_wr_data;
@@ -21,14 +23,17 @@ module comp_driver(
     reg [31:0] mem_load [256];
 
     reg [31:0] outmem [32];
+    reg [32]outtype ;
     reg [4:0] outpos;
     reg halt;
+
+    reg [63:0] double;
 
     comp comp1(
         .clk(clk), .rst(rst),
         .pc(pc), .op(op), .rd(rd),
         .x1(x1), .imm1(imm1), .state(state),
-        .out(out), .outen(outen),
+        .out(out), .outen(outen), .outflen(outflen),
         .oob_wr_addr(oob_wr_addr),
         .oob_wr_data(oob_wr_data),
         .oob_wen(oob_wen),
@@ -40,11 +45,17 @@ module comp_driver(
         forever #0.5 clk = ~clk;
     end
     always @(posedge clk) begin
-        if (outen) begin
+        if (outen | outflen) begin
             outmem[outpos] <= out;
+            outtype[outpos] <= outflen;
             outpos <= outpos + 1;
         end
     end
+
+    function [63:0] bitstosingle(input [31:0] s);
+        bitstosingle = { s[31], s[30], {3{~s[30]}}, s[29:23], s[22:0], {29{1'b0}} };
+    endfunction
+
     initial begin
         $readmemh("build/{PROG}.hex", mem_load);
         for(int i = 0; i < 255; i++) begin
@@ -68,9 +79,13 @@ module comp_driver(
             #1;
         end
 
-        // #100
         for(int i = 0; i < outpos; i++) begin
-            $display("out %0d %h %0d", i, outmem[i], outmem[i]);
+            if (outtype[i]) begin
+                double = bitstosingle(outmem[i]);
+                $display("out.s %0d %b %f", i, outmem[i], $bitstoreal(double));
+            end else begin
+                $display("out %0d %h %0d", i, outmem[i], outmem[i]);
+            end
         end
         $finish();
     end

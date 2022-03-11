@@ -13,14 +13,16 @@ module comp(
     output mem_ack,
 
     output [31:0] out,
+    output outen,
+    output outflen,
+
     output [6:0] op,
     output [4:0] rd,
     output [6:0] imm1,
     output [31:0] x1,
     output [31:0] pc,
     output [4:0] state,
-    output halt,
-    output outen
+    output halt
 );
     reg [31:0] mem_addr;
     reg [31:0] mem_rd_data, mem_wr_data;
@@ -39,6 +41,7 @@ module comp(
 
     proc proc1(
         .rst(rst), .clk(clk), .out(out), .op(op), .imm1(imm1), .pc(pc),
+        .outflen(outflen),
         .rd(rd),
         .x1(x1),
         .state(state), .outen(outen), .halt(halt),
@@ -47,7 +50,6 @@ module comp(
         .mem_rd_data(mem_rd_data), .mem_wr_data(mem_wr_data),
         .mem_ack(mem_ack), .mem_busy(mem_busy),
         .mem_rd_req(mem_rd_req), .mem_wr_req(mem_wr_req)
-        //.mem_we(mem_we)
     );
 
 endmodule
