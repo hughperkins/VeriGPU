@@ -1,4 +1,5 @@
 - fout.s; and modify assembler to handle floats for li
+- verilator driver file
 - loadfp
 - STORE-FP
 - LOAD-FP

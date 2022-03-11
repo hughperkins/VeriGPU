@@ -123,7 +123,7 @@ def numeric_str_to_bits(numeric_str, num_bits):
         print('float_value', float_value)
         bits = float_to_bits(float_value, exp_bits=8, sig_bits=23)
     else:
-        int_value = int_str_to_int(int_str)
+        int_value = int_str_to_int(numeric_str)
         bits = int_to_binary(int_value, num_bits)
     assert len(bits) == num_bits
     return bits
@@ -169,22 +169,18 @@ def run(args):
                 # e.g.
                 # sw x2,  0      (x3)
                 #    rs2  offset rs1
-                print('sw', p1, p2, p3)
                 op_bits = op_bits_by_op['STORE']  # "0100011"
                 rs1_bits = reg_str_to_bits(p3)
                 rs2_bits = reg_str_to_bits(p1)
-                # offset_int = int_str_to_int(p2)
                 offset_bits = int_str_to_bits(p2, 12)
                 offset1_bits = offset_bits[:7]
                 offset2_bits = offset_bits[7:]
-                # assert offset_int == 0
                 instr_bits = f'{offset1_bits}{rs2_bits}{rs1_bits}010{offset2_bits}{op_bits}'
                 hex_lines.append(bits_to_hex(instr_bits))
             elif cmd == 'lw':
                 # e.g.
                 # lw x2,  0      (x3)
                 #    rd   offset rs1
-                print('lw', p1, p2, p3)
                 op_bits = op_bits_by_op['LOAD']  # "0000011"
                 rs1_bits = reg_str_to_bits(p3)
                 rd_bits = reg_str_to_bits(p1)
@@ -327,14 +323,12 @@ def run(args):
                 label_pos = label_pos_by_name[label]
                 pc = len(hex_lines) * 4
                 label_offset = label_pos - pc
-                print('label_pos', label_pos, pc, label_offset)
                 label_offset_bits = int_to_binary(label_offset // 2, 12)
                 l_bits_12 = label_offset_bits[-12]
                 l_bits_11 = label_offset_bits[-11]
                 l_bits_10_5 = label_offset_bits[-10:-4]
                 l_bits_4_1 = label_offset_bits[-4:]
                 instr_bits = f'{l_bits_12}{l_bits_10_5}{rs2_bits}{rs1_bits}{funct_bits}{l_bits_4_1}{l_bits_11}{op_bits}'
-                print('instr_bits', instr_bits)
                 hex_lines.append(bits_to_hex(instr_bits))
             elif cmd in ['lui', 'auipc']:
                 # eg lui x1, 0xdeadb
@@ -355,20 +349,15 @@ def run(args):
                 op_bits = op_bits_by_op['OP']  # "0110011"
                 funct_bits = funct_bits_op[cmd.upper()]
 
-                # print(cmd, p1, p2, p3)
                 rd_bits = reg_str_to_bits(p1)
                 rs1_bits = reg_str_to_bits(p2)
                 rs2_bits = reg_str_to_bits(p3)
                 instr_bits = f'{funct_bits[:7]}{rs2_bits}{rs1_bits}{funct_bits[-3:]}{rd_bits}{op_bits}'
-                # print('instr_bits', instr_bits, len(instr_bits))
-                # instr_bits = instr_bits.replace(',', '')
-                print('add', p1, p2, p3)
                 hex_lines.append(bits_to_hex(instr_bits))
             elif cmd == 'location':
                 # non risc-v command, to continue writing our assembler output at a new
                 # location
                 assert p1.endswith(':')
-                # cmd = cmd[:-1]
                 loc_int = int_str_to_int(p1[:-1])
                 location = loc_int // 4
                 assert len(hex_lines) <= location
@@ -378,7 +367,6 @@ def run(args):
                 # label
                 label = cmd.strip().replace(':', '')
                 label_pos_by_name[label] = len(hex_lines) * 4
-                print('label', label, label_pos_by_name[label])
             else:
                 raise Exception('cmd ' + cmd + ' not recognized')
         except Exception as e:
@@ -387,9 +375,10 @@ def run(args):
     with open(args.out_hex, 'w') as f:
         for hex_line in hex_lines:
             f.write(hex_line + '\n')
-    with open(args.out_hex) as f:
-        for line in f:
-            print(line.strip())
+    if args.dump_hex:
+        with open(args.out_hex) as f:
+            for line in f:
+                print(line.strip())
     print('wrote ' + args.out_hex)
 
 
@@ -397,5 +386,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--in-asm', type=str, default='prog6.asm')
     parser.add_argument('--out-hex', type=str, default='build/prog6.hex')
+    parser.add_argument('--dump-hex', action='store_true')
     args = parser.parse_args()
     run(args)
