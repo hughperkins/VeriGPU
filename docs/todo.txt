@@ -1,8 +1,5 @@
 - verilator driver file
-- loadfp
-- STORE-FP
-- LOAD-FP
-- floats: regs, mul, div, modulus, add, sub, beq, glt
+- floats:  mul, div, modulus, add, sub, beq, glt
 - matrix multiplication
 - int division
 - int modulus
@@ -22,6 +19,7 @@
 - (use actual memory module?)
 
 done:
+- tested store and load floats
 - fout.s; and modify assembler to handle floats for li
 - cicd for iverilog reg_test
 - cicd for timing

@@ -119,8 +119,8 @@ max propagation delay: 101.6 nand units
 ## RISC-V instructions
 
 ```
-SW    rs2, offset(rs1)
-LW    rd,  offset(rs1)
+SW    rs2, offset(rs1)     # use for both integers and floats
+LW    rd,  offset(rs1)     # use for both integers and floats
 ADDI  rd,  rs1, immediate
 BEQ   rs1, rs2, location
 BNE   rs1, rs2, location
@@ -142,10 +142,11 @@ location:  # to label a location that we will branch conditionally to
 ## Pseudoinstructions
 
 ```
-LI rd, immediate  # loads immediate into register rd
+LI rd, immediate  # loads immediate into register rd (works with floats, hex, binary, decimal)
 HALT              # halts simulation
-OUT immediate     # sends immediate to stdout, via writing to mem location 1000
-OUTR rd           # sends contents of register rd to stdout
+OUT immediate     # sends immediate to stdout as int, via writing to mem location 1000
+OUTR rd           # sends contents of register rd to stdout, as int
+OUTR.S rd           # sends contents of register rd to stdout, as float, via mem location 1008
 OUTLOC immediate  # sends contents of memory location at immediate to stdout
 NOP
 MV rd, rs
@@ -169,10 +170,15 @@ Memory access is via a mock memory controller, which will wait several cycles be
 
 No caching of any sort is implemented currently (no level1, no level2, no level3, not even instruction cache :P ). Since I intend to target creating a GPU, which has a different cache mechanism than CPU, I'll think about this once it starts to look more like a GPU.
 
+## Registers
+
+There are 31 registers, x1 to x31, along with x0, which is always 0s. Use the same registers for both integers and floats. (this latter point deviates from RISC-V, because we are targeting creating a GPU, where locality is based around each of thousands of tiny cores, rather than around the FP unit vs the integer APU).
+
 ## I/O
 
 - any word written to location 1000 will be considered to have been sent to a memory-mapped i/o device, which will write this value out, in our case to stdout, via the test bench code.
 - writing any word to location 1004 halts the simulation.
+- writing a word to location 1008 outputs it as as a 32-bit float
 
 # Short-term plan
 
