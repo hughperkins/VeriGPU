@@ -3,9 +3,9 @@ Play with building a toy processor from scratch, in verilog
 
 # Vision
 
-Experiment with writing some very simple toy processor, maybe GPU, targeting ASIC synthesis. I don't actually intend to run synthesis myself, but I intend to do what I can to verify somehow that synthesis would work ok, timings ok, etc.
+Experiment with writing some very simple toy processor, maybe GPU, targeting ASIC synthesis. I don't actually intend to tape this out myself, but I intend to do what I can to verify somehow that tape-out would work ok, timings ok, etc.
 
-Loosely compliant with RISC-V ISA. Where RISC-V conflicts with designing for a GPU setting, we break with RISC-V. Concretely, we are using unified registers, i.e. same registers for both integers and floating point. CPUs keep the integer and float files separate, so that floats regs are near fp apu, and integer regs are near int apu; but on a GPU, the dominant locality we are concerned about is a single hardware thread, of which there are thousands. In addition, we use standard load and store instructions for moving floats to and from memory, rather than load-fp and store-fp.
+Loosely compliant with RISC-V ISA. Where RISC-V conflicts with designing for a GPU setting, we break with RISC-V.
 
 # Simulation Workflow
 
@@ -32,7 +32,7 @@ Example output:
 
 ![Example output](https://raw.githubusercontent.com/hughperkins/toy_proc/main/img/example_output.png)
 
-# Some example programs that run ok
+# Some example assembler programs that run on this hardware
 
 - sum integers from 0 to 5 [examples/prog16.asm](examples/prog16.asm)
 - factorial of integers 0 to 5 [examples/prog18.asm](examples/prog18.asm)
@@ -56,6 +56,9 @@ pytest -v
 
 ## Timing based on gate-level netlist
 
+
+### Current result
+
 You can see the current clock cycle propagation delay by opening the most recent build at https://app.circleci.com/pipelines/github/hughperkins/toy_proc, going to 'artifacts', and clicking on 'build/timing.txt'. As of writing this, it was 110 nand gate units, i.e. equivalent to passing through about 110 nand units.
 - at 90nm, one nand gate unit is about 50ps, giving a cycle time of about 5.5ns, and a frequency of about 200MHz
 - at 5nm, one nand gate unit is about 5ps, giving a cycle time of about 0.55ns, and a frequency of about 2GHz
@@ -72,53 +75,10 @@ You can see the current clock cycle propagation delay by opening the most recent
     - we assume that all cells only have a single output currently
 - the cell propagation delays are loosely based on those in https://web.engr.oregonstate.edu/~traylor/ece474/reading/SAED_Cell_Lib_Rev1_4_20_1.pdf , which is a 90nm spec sheet, but could be representative of relative timings, which are likely architecture-independent
 - you can see the relative cell times we use at [toy_proc/timing.py](https://github.com/hughperkins/toy_proc/blob/c4e37bdde601829f3959935e564503dbe30677fa/toy_proc/timing.py#L25-L46)
-- when there are flip-flops in the circuit, propagation delay is the max of those between all pairs of connected inputs and outputs, where inputs and outputs are drawn from:
-    - module inputs
-    - module outputs
-    - flip-flop inputs (treated as outputs)
-    - flip-flop outputs (treated as inputs)
 
-### Prerequities
+### Details
 
-- python3
-- [yosys](http://bygone.clairexen.net/yosys/)
-- have installed the following python packages
-```
-pip install networkx pydot
-```
-
-### Procedure
-
-e.g. for the module at [prot/add_one_2chunks.sv](prot/add_one_2chunks.sv), run:
-
-```
-python toy_proc/timing.py --in-verilog prot/add_one_2chunks.sv
-# optionally can use --cell-lib to specify path to cell library. By default will use osu018 cell library in `tech/osu018` folder
-```
-
-### Example outputs
-
-```
-# pure combinatorial models:
-$ python toy_proc/timing.py --in-verilog prot/add_one.sv 
-output max delay: 37.4 nand units
-$ python toy_proc/timing.py --in-verilog prot/add_one_chunked.sv 
-output max delay: 27.2 nand units
-$ python toy_proc/timing.py --in-verilog prot/add_one_2chunks.sv 
-output max delay: 24.6 nand units
-$ python toy_proc/timing.py --in-verilog prot/mul.sv 
-output max delay: 82.8 nand units
-$ python toy_proc/timing.py --in-verilog prot/div.sv 
-output max delay: 1215.8 nand units
-
-# flip-flop modules:
-$ python toy_proc/timing.py --in-verilog prot/clocked_counter.sv 
-max propagation delay: 37.4 nand units
-
-# the processor module itself :)
-$ python toy_proc/timing.py --in-verilog src/proc.sv
-max propagation delay: 101.6 nand units
-```
+For more details see [docs/timings.md](docs/timing.md)
 
 # Technical details
 
