@@ -1,6 +1,6 @@
-- verilator driver file
 - floats:  mul, div, modulus, add, sub, beq, glt
 - matrix multiplication
+- verilator driver file
 - int division
 - int modulus
 - prime numbers calculator
@@ -9,16 +9,15 @@
 - out of order execution
 - check endian-ness relative to risc-v spec
 - check spir-v vs risc-v
-- add cicd to readme
 - gpu structure
 - opencl
 - change bits of address to 64-bit, to allow 16GB+ of memory
 - create register file
-- start create ALU functions, eg mul, div
 - add area approximation to timing.py (eg count the number of cells :P)
 - (use actual memory module?)
 
 done:
+- add cicd to readme
 - tested store and load floats
 - fout.s; and modify assembler to handle floats for li
 - cicd for iverilog reg_test
@@ -31,26 +30,7 @@ done:
 - int multiplication
 - measure timing/maximum clock speed somehow
 - handle assigns in timing.py
-- handle vector declarations in timing.py
-- get timing.py working on src/proc.sv
-- made a script to measure gate-level propagation delay for combinatorial module
-- mv pseudoinstruction
-- sum of integers from 0 to 5
-- add 2 registers (and various other OP ops, such as shifts, and logical operators)
-- migraet to use byte-addressing everywher (instead of word-addressing, eg for pc, and mem module instructions)
-- loop from 5 to 0
-- branch
-- allow negative immediate for addi, and negative offset for store and load
-- allow non-zero offset in store and load
-- migrate HALT to be a virtual instruction that writes to location 1004
-- migrate instructions to use risc-v op codes
-- migrate away from `out` instructions
-- load
-- migrate out and outr to be virtual insturctions that store to 1000 instead
-- use to write to memory location 1000 as 'out' command
-- addi
-- add store to memory (without offset)
-- allow commas in instructions
+- [older stuff truncated]
 
 things for gpu:
 - get_local_id(), get_global_id()
