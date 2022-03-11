@@ -21,6 +21,8 @@ jobs:
           name: "Run tests"
           command: |
             cicd/run.sh
+      - store_artifacts:
+          path: build/timing.txt
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
