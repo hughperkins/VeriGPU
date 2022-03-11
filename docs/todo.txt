@@ -1,3 +1,7 @@
+- fout.s; and modify assembler to handle floats for li
+- loadfp
+- STORE-FP
+- LOAD-FP
 - floats: regs, mul, div, modulus, add, sub, beq, glt
 - matrix multiplication
 - int division
