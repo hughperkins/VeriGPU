@@ -183,7 +183,3 @@ There are 31 registers, x1 to x31, along with x0, which is always 0s. Use the sa
 # Short-term plan
 
 For long-term plan, see section Vision above. For short-term plan, see [todo.txt](docs/todo.txt)
-
-# Recent changes
-
-- created script timing.py, that measures longest propagation time, for combinatorial modules, based on gate-level netlist. Update: including works on src/proc.sv now
