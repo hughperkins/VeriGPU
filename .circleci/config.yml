@@ -5,7 +5,7 @@ version: 2.1
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  say-hello:
+  test:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
     resource_class: small  # see https://circleci.com/docs/2.0/configuration-reference/#resource_class
@@ -18,26 +18,13 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "Say hello"
+          name: "Run tests"
           command: |
-            echo Hello World
-            echo foo bar
-            ls
-            pwd
-            iverilog -g2012 src/proc.sv
-            verilator -sv --cc src/proc.sv
-            python3 -V
-            pip3 freeze
-            yosys -V
-            python3 run.py --name prog2
-            alias python=python3
-            bash src/reg_test.sh
-            pip3 install networkx pydot
-            python3 src/timing.py --in-verilog src/proc.sv
+            cicd/run.sh
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
   say-hello-workflow:
     jobs:
-      - say-hello
+      - test
