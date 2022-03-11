@@ -207,6 +207,24 @@ module proc(
         read_next_instr(pc + 4);
     endtask
 
+    task op_store(input [31:0] _addr);
+        case (_addr)
+            1000: begin
+                write_out(regs[c1_rs2]);
+                read_next_instr(pc + 4);
+            end
+            1004: begin
+                halt <= 1;
+            end
+            default: begin
+                mem_addr <= (regs[c1_rs1] + c1_store_offset);
+                mem_wr_req <= 1;
+                mem_wr_data <= regs[c1_rs2];
+                state <= C2;
+            end
+        endcase
+    endtask
+
     task instr_c1();
         case (c1_op)
             OPIMM: begin
@@ -222,17 +240,7 @@ module proc(
             STORE: begin
                 // write to memory
                 // sw rs2, offset(rs1)
-                if (regs[c1_rs1] + c1_store_offset == 1000) begin
-                    write_out(regs[c1_rs2]);
-                    read_next_instr(pc + 4);
-                end else if(regs[c1_rs1] + c1_store_offset == 1004) begin
-                    halt <= 1;
-                end else begin
-                    mem_addr <= (regs[c1_rs1] + c1_store_offset);
-                    mem_wr_req <= 1;
-                    mem_wr_data <= regs[c1_rs2];
-                    state <= C2;
-                end
+                op_store(regs[c1_rs1] + c1_store_offset);
             end
             BRANCH: begin
                 // e.g. beq rs1, rs2, offset
