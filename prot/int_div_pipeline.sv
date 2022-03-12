@@ -29,9 +29,11 @@ module int_div_pipeline(input clk, input req, output reg ack, input [bitwidth - 
     reg [poswidth - 1:0] pos;
     reg run;
 
+    reg cout;
+
     always @(posedge clk) begin
         if(req) begin
-            pos <= bitwidth - 1;
+            {cout, pos} <= bitwidth - 1;
             quotient <= '0;
             a_ <= a;
             run <= 1;
