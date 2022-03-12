@@ -19,32 +19,39 @@ required parameters:
 
 */
 
-module int_div_pipeline(input clk, input req, output reg ack, input [bitwidth - 1:0] a, input [bitwidth - 1:0] b, output reg [bitwidth - 1:0] quotient, output reg [bitwidth - 1:0] remainder);
-    parameter bitwidth = 32;
+module int_div_pipeline(
+        input clk,
+        input req,
+        output reg ack,
+        input [data_width - 1:0] a,
+        input [data_width - 1:0] b,
+        output reg [data_width - 1:0] quotient,
+        output reg [data_width - 1:0] remainder
+    );
+    parameter data_width = 32;
+    parameter num_regs = 32;
 
-    parameter poswidth = $clog2(bitwidth);
+    parameter reg_sel_width = $clog2(num_regs);
+    parameter pos_width = $clog2(data_width);
 
-    reg [bitwidth - 1:0] result1[bitwidth];
-    reg [bitwidth - 1:0] result2[bitwidth];
+    reg [data_width - 1: 0] a_;
+    reg [2 * data_width - 1: 0] shiftedb;
 
-    reg [bitwidth - 1: 0] a_;
-    reg [2 * bitwidth - 1: 0] shiftedb;
-
-    reg [poswidth - 1:0] pos;
+    reg [pos_width - 1:0] pos;
     reg run;
 
     reg cout;
 
     always @(posedge clk) begin
         if(req) begin
-            {cout, pos} <= bitwidth - 1;
+            {cout, pos} <= data_width - 1;
             quotient <= '0;
             a_ <= a;
             run <= 1;
             ack <= 0;
         end else if(run) begin
-            if (shiftedb < {{bitwidth{1'b0}}, a_}) begin
-                a_ <= a_ - shiftedb[bitwidth - 1 :0];
+            if (shiftedb < {{data_width{1'b0}}, a_}) begin
+                a_ <= a_ - shiftedb[data_width - 1 :0];
                 quotient[pos] <= 1;
             end
             if (pos == 0) begin
@@ -58,6 +65,6 @@ module int_div_pipeline(input clk, input req, output reg ack, input [bitwidth - 
         end
     end
 
-    assign shiftedb = {{bitwidth{1'b0}}, b} << pos;
+    assign shiftedb = {{data_width{1'b0}}, b} << pos;
     assign remainder = a_;
 endmodule
