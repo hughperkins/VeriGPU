@@ -48,12 +48,14 @@ module int_div_regfile(
     reg [1:0] state;
 
     always @(posedge clk, posedge rst) begin
+        // $strobe("always %0d req=%0b rst=%0b", state, req, rst);
         if (rst) begin
             busy <= 0;
             rf_wr_req <= 0;
             state <= IDLE;
         end else begin
             rf_wr_req <= 0;
+            // $strobe("state %0d req=%0b", state, req);
             case(state)
                 IDLE: begin
                     if(req) begin
