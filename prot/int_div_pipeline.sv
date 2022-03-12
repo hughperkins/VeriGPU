@@ -14,12 +14,16 @@ inputs and outputs, drawn from:
 
 max propagation delay: 38.6 nand units
 
+required parameters:
+- bitwidth: how many bits in the input and output ints
+
 */
 
-parameter bitwidth = 32;
-parameter poswidth = 5;
-
 module int_div_pipeline(input clk, input req, output reg ack, input [bitwidth - 1:0] a, input [bitwidth - 1:0] b, output reg [bitwidth - 1:0] quotient, output reg [bitwidth - 1:0] remainder);
+    parameter bitwidth = 32;
+
+    parameter poswidth = $clog2(bitwidth);
+
     reg [bitwidth - 1:0] result1[bitwidth];
     reg [bitwidth - 1:0] result2[bitwidth];
 
