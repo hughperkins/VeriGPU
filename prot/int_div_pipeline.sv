@@ -1,11 +1,25 @@
 /*
 attempt to use pipeline for int_div
+
+timing, for bitwidth = 32, poswidth = 5:
+
+$ python toy_proc/timing.py --in-verilog prot/int_div_pipeline.sv 
+
+Propagation delay is between any pair of combinatorially connected
+inputs and outputs, drawn from:
+    - module inputs
+    - module outputs,
+    - flip-flop outputs (treated as inputs), and
+    - flip-flop inputs (treated as outputs)
+
+max propagation delay: 38.6 nand units
+
 */
 
-parameter bitwidth = 3;
-parameter poswidth = 2;
+parameter bitwidth = 32;
+parameter poswidth = 5;
 
-module int_div_pipeline(input clk, input rst, output reg ack, input [bitwidth - 1:0] a, input [bitwidth - 1:0] b, output reg [bitwidth - 1:0] quotient, output reg [bitwidth - 1:0] remainder);
+module int_div_pipeline(input clk, input req, output reg ack, input [bitwidth - 1:0] a, input [bitwidth - 1:0] b, output reg [bitwidth - 1:0] quotient, output reg [bitwidth - 1:0] remainder);
     reg [bitwidth - 1:0] result1[bitwidth];
     reg [bitwidth - 1:0] result2[bitwidth];
 
@@ -15,8 +29,8 @@ module int_div_pipeline(input clk, input rst, output reg ack, input [bitwidth - 
     reg [poswidth - 1:0] pos;
     reg run;
 
-    always @(posedge clk, posedge rst) begin
-        if(rst) begin
+    always @(posedge clk) begin
+        if(req) begin
             pos <= bitwidth - 1;
             quotient <= '0;
             a_ <= a;
