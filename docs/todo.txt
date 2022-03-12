@@ -1,8 +1,12 @@
-- floats:  mul, div, modulus, add, sub, beq, glt
-- matrix multiplication
-- verilator driver file
 - int division
 - int modulus
+- fuse div and modulus instructions somehow, in the pipeline
+- parallel instruction execution
+- add area approximation to timing.py (eg count the number of cells :P)
+- floats:  mul, div, modulus, add, sub, beq, glt
+- rename examples....
+- matrix multiplication
+- verilator driver file
 - prime numbers calculator
 - maybe use a C/C++ -> RISC-V compiler, instead of writing assembler?
 - instruction cache
@@ -13,7 +17,6 @@
 - opencl
 - change bits of address to 64-bit, to allow 16GB+ of memory
 - create register file
-- add area approximation to timing.py (eg count the number of cells :P)
 - (use actual memory module?)
 
 done:
