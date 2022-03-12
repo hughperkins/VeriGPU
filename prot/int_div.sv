@@ -31,7 +31,6 @@ module int_div(input [bitwidth - 1:0] a, input [bitwidth - 1:0] b, output reg [b
         a_ = a;
         for(int i = bitwidth - 1; i >= 0; i--) begin
             shiftedb = b << i;
-            // $strobe("shiftedb %b quotient %b a_ %b", shiftedb, quotient, a_);
             if (shiftedb < a_) begin
                 a_ = a_ - shiftedb;
                 quotient[i] = 1;
