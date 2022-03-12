@@ -1,6 +1,6 @@
 // purely combinatorial; no pipeline
 
-parameter bitwidth = 32;
+parameter bitwidth = 20;
 
 /*
 timiing actually better than yosys built-in synthesis for /
@@ -30,9 +30,9 @@ module int_div(input [bitwidth - 1:0] a, input [bitwidth - 1:0] b, output reg [b
         quotient = '0;
         a_ = a;
         for(int i = bitwidth - 1; i >= 0; i--) begin
-            shiftedb = b << i;
-            if (shiftedb < a_) begin
-                a_ = a_ - shiftedb;
+            shiftedb = {{bitwidth{1'b0}}, b} << i;
+            if (shiftedb < {{bitwidth{1'b0}}, a_}) begin
+                a_ = a_ - shiftedb[bitwidth - 1:0];
                 quotient[i] = 1;
             end else begin
             end
