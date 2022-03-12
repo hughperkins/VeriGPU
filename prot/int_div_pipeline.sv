@@ -15,7 +15,7 @@ inputs and outputs, drawn from:
 max propagation delay: 38.6 nand units
 
 required parameters:
-- bitwidth: how many bits in the input and output ints
+- data_width: how many bits in the input and output ints
 
 */
 
