@@ -49,13 +49,13 @@ module proc(
     wire signed [31:0] c1_branch_offset;
     wire [31:0] c1_instr;
 
-    function void read_next_instr([31:0] _next_pc);
-        // assumes nothing else reading or writing to memory at same time...
+    task read_next_instr(input [31:0] _next_pc);
+        // // assumes nothing else reading or writing to memory at same time...
         next_pc = _next_pc;
         mem_addr = next_pc;
         mem_rd_req = 1;
         next_state = C1;
-    endfunction
+    endtask
 
     task automatic write_out(input [31:0] _out);
         out[31:0] = _out;
