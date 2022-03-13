@@ -23,6 +23,7 @@ module mem_delayed(
         end else if(oob_wen) begin
             mem[oob_wr_addr] <= oob_wr_data;
         end else begin
+            rd_data <= '0;
             if (received_rd_req) begin
                 if (clks_to_wait == 0) begin
                     ack <= 1;

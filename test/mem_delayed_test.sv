@@ -1,8 +1,8 @@
 module mem_delayed_test();
     reg clk;
-    wire [15:0] rd_data;
-    reg [15:0] wr_data;
-    reg [15:0] addr;
+    wire [data_width - 1:0] rd_data;
+    reg [data_width - 1:0] wr_data;
+    reg [addr_width - 1:0] addr;
     wire ack;
     wire busy;
     reg rd_req;
@@ -16,8 +16,8 @@ module mem_delayed_test();
     );
 
     task check_read(
-        [15:0] tgt_addr,
-        [15:0] expected_data,
+        [addr_width - 1:0] tgt_addr,
+        [data_width - 1:0] expected_data,
         [4:0] expected_cycles
     );
         reg [4:0] cycles;
@@ -36,13 +36,13 @@ module mem_delayed_test();
         end while(busy);
         assert(ack);
         assert(rd_data == expected_data);
-        $display("cycles %d", cycles);
+        $display("cycles %d rd_data=%0h expected_data=%0h", cycles, rd_data, expected_data);
         assert (cycles == expected_cycles);
     endtask
 
     task write(
-        [15:0] tgt_addr,
-        [15:0] tgt_data,
+        [addr_width - 1:0] tgt_addr,
+        [data_width - 1:0] tgt_data,
         [4:0] expected_cycles
     );
         reg [4:0] cycles;
@@ -74,7 +74,7 @@ module mem_delayed_test();
         end
     end
     initial begin
-        $monitor("t=%d ack=%d busy=%d rd_req=%h wr_req=%h addr=%h rd_data=%h wr_data=%h", $time, ack, busy, rd_req, wr_req, addr, rd_data, wr_data);
+        $monitor("t=%0d ack=%d busy=%d rd_req=%h wr_req=%h addr=%0h rd_data=%0h wr_data=%0h", $time, ack, busy, rd_req, wr_req, addr, rd_data, wr_data);
         rst = 1;
 
         #10
@@ -104,6 +104,9 @@ module mem_delayed_test();
         write(16'd12, 16'hcd, 5);
         check_read(16'd8, 16'hab, 5);
         check_read(16'd12, 16'hcd, 5);
+
+
+        assert(~busy);
 
         #200 $finish();
     end
