@@ -32,6 +32,7 @@ module reg_file(
             proc_ack <= 0;
             apu_ack <= 0;
         end else begin
+            regs[0] <= '0;
             proc_ack <= 0;
             apu_ack <= 0;
             if(proc_wr_req) begin
