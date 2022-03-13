@@ -63,8 +63,8 @@ module proc(
     endtask
 
     task write_float(input [31:0] _out);
-        out[31:0] <= _out;
-        outflen <= 1;
+        out[31:0] = _out;
+        outflen = 1;
     endtask
 
     task automatic op_imm(input [2:0] _funct, input [4:0] _rd, input [4:0] _rs1, input [31:0] _i_imm);
@@ -155,12 +155,12 @@ module proc(
     endtask
 
     task op_lui(input [31:0] _instr, input [4:0] _rd);
-        regs[_rd] <= {_instr[31:12], {12{1'b0}} };
+        regs[_rd] = {_instr[31:12], {12{1'b0}} };
         read_next_instr(pc + 4);
     endtask
 
     task op_auipc(input [31:0] _instr, input [4:0] _rd);
-        regs[_rd] <= {_instr[31:12], {12{1'b0}}} + pc;
+        regs[_rd] = {_instr[31:12], {12{1'b0}}} + pc;
         read_next_instr(pc + 4);
     endtask
 
