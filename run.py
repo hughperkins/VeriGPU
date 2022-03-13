@@ -5,14 +5,17 @@ import sys
 
 def run(args):
     args.name = args.name.replace('.asm', '').replace('src/', '')
-    assert os.system(f'{sys.executable} toy_proc/assembler.py --in-asm examples/{args.name}.asm --out-hex build/{args.name}.hex') == 0
+    assert os.system(
+        f'{sys.executable} toy_proc/assembler.py --in-asm examples/{args.name}.asm'
+        f' --out-hex build/{args.name}.hex') == 0
     with open('src/comp_driver.sv') as f:
         comp_driver = f.read()
     comp_driver = comp_driver.replace('{PROG}', args.name)
     with open('build/comp_driver.sv', 'w') as f:
         f.write(comp_driver)
     os.system(f'cat examples/{args.name}.asm')
-    assert os.system('iverilog -g2012 src/op_const.sv src/proc.sv src/comp.sv src/mem_delayed.sv build/comp_driver.sv') == 0
+    assert os.system(
+        'iverilog -g2012 src/op_const.sv src/proc.sv src/comp.sv src/mem_delayed.sv build/comp_driver.sv') == 0
     os.system('./a.out | tee /tmp/out.txt')
     if os.path.exists(f'examples/{args.name}_expected.txt'):
         with open('/tmp/out.txt') as f:
