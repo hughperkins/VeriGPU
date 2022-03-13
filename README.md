@@ -40,7 +40,7 @@ Example output:
 [![CircleCI](https://circleci.com/gh/hughperkins/toy_proc/tree/main.svg?style=svg)](https://circleci.com/gh/hughperkins/toy_proc/tree/main)
 
 ```
-bash src/reg_test.sh
+bash test/reg_test.sh
 ```
 
 - under the hood, this will run many of the examples in [examples](examples), and check the outputs against the expected outputs, which are in the paired files, with suffix `_expected.txt`, also in [examples](examples) folder.
@@ -57,7 +57,7 @@ pytest -v
 
 ### Current result
 
-You can see the current clock cycle propagation delay by opening the most recent build at https://app.circleci.com/pipelines/github/hughperkins/toy_proc, going to 'artifacts', and clicking on 'build/timing.txt'. As of writing this, it was 110 nand gate units, i.e. equivalent to passing through about 110 nand units.
+You can see the current clock cycle propagation delay by opening the most recent build at https://app.circleci.com/pipelines/github/hughperkins/toy_proc, going to 'artifacts', and clicking on 'build/timing-proc.txt'. As of writing this, it was 110 nand gate units, i.e. equivalent to passing through about 110 nand units.
 - at 90nm, one nand gate unit is about 50ps, giving a cycle time of about 5.5ns, and a frequency of about 200MHz
 - at 5nm, one nand gate unit is about 5ps, giving a cycle time of about 0.55ns, and a frequency of about 2GHz
 (Note: this analysis totally neglects layout, i.e. wire delay over distance, so it's just to give an idea).
