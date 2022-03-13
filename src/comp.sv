@@ -40,10 +40,12 @@ module comp(
     );
 
     proc proc1(
-        .rst(rst), .clk(clk), .out(out), .op(op), .imm1(imm1), .pc(pc),
+        .rst(rst), .clk(clk), .out(out),
+         .pc(pc),
+        // .op(op), .imm1(imm1),
         .outflen(outflen),
-        .rd(rd),
-        .x1(x1),
+        // .rd(rd),
+        // .x1(x1),
         .state(state), .outen(outen), .halt(halt),
 
         .mem_addr(mem_addr),
