@@ -8,7 +8,7 @@ import os
 
 def run(args):
     with open('build/yosys.tcl', 'w') as f:
-        for file in args.verilog:
+        for file in args.in_verilog:
             f.write(f"read_verilog -sv {file}\n")
         if args.top_module:
             f.write(f'hierarchy -top {args.top_module}')
@@ -36,7 +36,7 @@ stat
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--verilog', type=str, nargs='+', required=True, help='path to verilog file')
+    parser.add_argument('--in-verilog', type=str, nargs='+', required=True, help='path to verilog file')
     parser.add_argument(
         '--top-module', type=str, help='top module name, only needed if more than one module.')
     parser.add_argument('--show', action='store_true', help='show xdot on the result')

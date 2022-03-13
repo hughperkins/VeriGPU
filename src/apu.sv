@@ -1,3 +1,18 @@
+/*
+
+python toy_proc/timing.py --in-verilog src/const.sv src/int_div_regfile.sv src/apu.sv --top-module apu
+
+Propagation delay is between any pair of combinatorially connected
+inputs and outputs, drawn from:
+    - module inputs
+    - module outputs,
+    - flip-flop outputs (treated as inputs), and
+    - flip-flop inputs (treated as outputs)
+
+max propagation delay: 45.8 nand units
+
+*/
+
 typedef enum bit[9:0] {
     ADD =  10'b0000000000,
     SLT =  10'b0000000010,

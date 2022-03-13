@@ -16,7 +16,7 @@ Will use 'unit times' for timings, which will look something like:
 - shr: 0 (it's just rewiring)
 """
 import argparse
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 from collections import deque, defaultdict
 import networkx as nx
 import subprocess
@@ -47,14 +47,8 @@ g_cell_times = {
 }
 
 
-# INPUT_PORT_NAMES = ['A', 'B', 'C', 'D', 'R', 'S']
-# OUTPUT_PORT_NAMES = ['Q', 'Y']
-
 INPUT_PORT_NAMES = ['a', 'b', 'c', 'd', 'r', 's']
 OUTPUT_PORT_NAMES = ['q', 'y']
-
-# INPUT_PORT_NAMES = ['d']
-# OUTPUT_PORT_NAMES = ['y']
 
 
 class Cell:
@@ -69,13 +63,9 @@ class Cell:
         if is_source_sink:
             self.cell_delay = 1e8
             self.output_delay = 0
-        # if cell_type.startswith('DFF'):
-            # self.cell_delay = 1e8
-            # self.is_source_sink = True
         else:
             self.cell_delay = g_cell_times[cell_type]
             self.output_delay = None
-        # self.output_delay = output_delay
 
     def connect_input(self, input_name: str, delay: float):
         assert input_name not in self.cell_input_delay_by_name
@@ -85,7 +75,6 @@ class Cell:
 
     def max_input_delay(self):
         if len(self.cell_input_delay_by_name) == 0:
-            print(self)
             max_delay = 0
         else:
             max_delay = max(self.cell_input_delay_by_name.values())
@@ -100,59 +89,55 @@ class Cell:
             f' in={len(self.cell_input_delay_by_name)}/{len(self.cell_inputs)})')
 
 
+def str_to_names(vector_dims_by_name: Dict[str, Tuple[int, int, int]], names_str: str):
+    """
+    example of names_str:
+    some_name
+    some_name[2:15]
+    {some_name, another_name[2:15]}
+
+    any of these names can be found in vectors lookup dict, and should then be converted
+    into a list of names, using the vector definition
+    """
+    names = []
+    names_str = names_str.strip()
+    if names_str.startswith('{'):
+        # it's a concatenation
+        split_names_str = names_str[1:-1].split(',')
+        for child_name_str in split_names_str:
+            names += str_to_names(vector_dims_by_name, child_name_str.strip())
+    elif names_str in vector_dims_by_name:
+        start, end, step = vector_dims_by_name[names_str]
+        names += [f'{names_str}[{i}]' for i in range(start, end, step)]
+    elif ':' in names_str:
+        # it's already a vector...
+        # split into names
+        basename = names_str.split('[')[0]
+        start = int(names_str.split('[')[1].split(':')[0])
+        end = int(names_str.split(':')[1].split(']')[0])
+        step = 1 if end >= start else -1
+        end_excl = end + step
+        names += [f'{basename}[{i}]' for i in range(start, end_excl, step)]
+    elif "'" in names_str:
+        # immediate constant, ignore
+        pass
+    else:
+        names.append(names_str.strip())
+    names = sorted(list(set(names)))
+    return names
+
+
 def run(args):
-    def str_to_names(names_str: str):
-        """
-        example of names_str:
-        some_name
-        some_name[2:15]
-        {some_name, another_name[2:15]}
-
-        any of these names can be found in vectors lookup dict, and should then be converted
-        into a list of names, using the vector definition
-        """
-        names = []
-        names_str = names_str.strip()
-        if names_str.startswith('{'):
-            # it's a concatenation
-            split_names_str = names_str[1:-1].split(',')
-            for child_name_str in split_names_str:
-                names += str_to_names(child_name_str.strip())
-        elif names_str in vector_dims_by_name:
-            start, end, step = vector_dims_by_name[names_str]
-            names += [f'{names_str}[{i}]' for i in range(start, end, step)]
-        elif ':' in names_str:
-            # it's already a vector...
-            # split into names
-            basename = names_str.split('[')[0]
-            start = int(names_str.split('[')[1].split(':')[0])
-            end = int(names_str.split(':')[1].split(']')[0])
-            step = 1 if end >= start else -1
-            end_excl = end + step
-            names += [f'{basename}[{i}]' for i in range(start, end_excl, step)]
-        elif "'" in names_str:
-            # immediate constant, ignore
-            pass
-        else:
-            names.append(names_str.strip())
-        return list(set(names))
-        return names
-
     if args.in_verilog is not None:
         # first need to synthesize
         # use check output, so we can suppress output (less spammy...)
-        # verilog_file_args = []
-        # for file in args.in_verilog:
-        #     verilog_file_args.append('--verilog')
-        #     verilog_file_args.append(file)
         child_args = [
-            sys.executable, 'toy_proc/run_yosys.py', '--verilog'] + args.in_verilog + [
+            sys.executable, 'toy_proc/run_yosys.py', '--in-verilog'] + args.in_verilog + [
             '--cell-lib', args.cell_lib
         ]
         if args.top_module:
             child_args += ['--top-module', args.top_module]
         subprocess.check_output(child_args)
-        # os.system(f'python src/tools/run_yosys.py --verilog {args.in_verilog}')
         args.in_netlist = 'build/netlist.v'
 
     with open(args.in_netlist) as f:
@@ -198,10 +183,8 @@ def run(args):
                     cells.append(cell)
                     source_sink_nodes.add(cell)
                     for cell_input in cell_inputs.keys():
-                        # end_cell.cell_inputs.append(cell_input)
                         cellidxs_by_input[cell_input].append(cell_idx)
                     for cell_output in cell_outputs.keys():
-                        # start_cell.cell_outputs.append(cell_output)
                         cellidxs_by_output[cell_output.strip()].append(cell_idx)
                 else:
                     cell = Cell(cell_type, cell_name, cell_inputs, cell_outputs)
@@ -215,24 +198,22 @@ def run(args):
                 in_declaration = False
             else:
                 port_name = line.split('.')[1].split('(')[0].lower()
-                port_line = line.split('(')[1].split(')')[0]
+                port_wire = line.split('(')[1].split(')')[0].strip().replace(' ', '')
                 # ignore immediate numbers
-                if port_line[0] in '0123456789':
+                if port_wire[0] in '0123456789':
                     continue
-                # yosys sometimes puts spaces between diensions. remove these
-                port_line = port_line.replace('] [', '][').strip()
-                # print('cellidx_by_output', cellidx_by_output.keys())
-                # print('cellidxs_by_input', cellidxs_by_input.keys())
-                if port_name in input_wires:
-                    cell_inputs[port_line] = port_line
-                elif port_name in output_wires:
-                    cell_outputs[port_line] = port_line
-                elif port_name in INPUT_PORT_NAMES:
-                    cell_inputs[port_line] = port_line
-                elif port_name in OUTPUT_PORT_NAMES:
-                    cell_outputs[port_line] = port_line
-                else:
-                    raise Exception('unknown port name', port_name)
+                port_wires = str_to_names(vector_dims_by_name, port_wire)
+                for port_wire in port_wires:
+                    if port_name in input_wires:
+                        cell_inputs[port_wire] = port_wire
+                    elif port_name in output_wires:
+                        cell_outputs[port_wire] = port_wire
+                    elif port_name in INPUT_PORT_NAMES:
+                        cell_inputs[port_wire] = port_wire
+                    elif port_name in OUTPUT_PORT_NAMES:
+                        cell_outputs[port_wire] = port_wire
+                    else:
+                        raise Exception('unknown port name', port_name)
         else:
             if line.startswith('input '):
                 try:
@@ -300,8 +281,8 @@ def run(args):
                 line = line.replace('assign ', '').strip()
                 line = line[:-1]
                 lhs, _, rhs = line.partition(' = ')
-                lhs_names = str_to_names(lhs)
-                rhs_names = str_to_names(rhs)
+                lhs_names = str_to_names(vector_dims_by_name, lhs)
+                rhs_names = str_to_names(vector_dims_by_name, rhs)
 
                 cell_outputs = lhs_names
                 cell_inputs = rhs_names
@@ -314,7 +295,6 @@ def run(args):
                     cell_name='assign' + str(assign_idx),
                     inputs=cell_inputs,
                     outputs=cell_outputs,
-                    # output_delay=output_delay
                 )
                 cell.output_delay = output_delay
                 assign_idx += 1
@@ -368,7 +348,6 @@ def run(args):
     to_process = deque()
     for source_sink_cell in source_sink_nodes:
         to_process.extend(source_sink_cell.cell_outputs)
-    print('to_process', to_process)
     seen = set(to_process)
     to_process += empty_cells
     while len(to_process) > 0:
@@ -379,10 +358,7 @@ def run(args):
             for to_idx in to_idxs:
                 from_cell = cells[from_idx]
                 to_cell = cells[to_idx]
-                # print('wire', wire_name, 'from', from_cell.cell_name, 'to', to_cell.cell_name)
-                print(from_cell.cell_name, '---', wire_name, '---', to_cell.cell_name, 'delay=', from_cell.output_delay)
                 delay = from_cell.output_delay
-                # print('from_cell', from_cell, from_cell.cell_inputs, from_cell.cell_outputs)
                 assert delay is not None
                 try:
                     to_cell.connect_input(wire_name, delay)
@@ -408,6 +384,10 @@ def run(args):
                             to_process.append(wire)
                             seen.add(wire)
 
+    max_delay = 0
+    for node in source_sink_nodes:
+        max_delay = max(max_delay, node.max_input_delay())
+
     # check for unprocessed nodes
     printed_prologue = False
     for cell in cells:
@@ -421,12 +401,6 @@ def run(args):
                     print('    missing', name)
     if printed_prologue:
         return
-
-    max_delay = 0
-    for node in source_sink_nodes:
-        print(node, node.max_input_delay())
-        max_delay = max(max_delay, node.max_input_delay())
-    print('max_delay', max_delay)
 
     print('')
     print('Propagation delay is between any pair of combinatorially connected')

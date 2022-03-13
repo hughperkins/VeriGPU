@@ -4,6 +4,18 @@ use pipeline for int_div, but test writin back to a registry file
 required parameters:
 - data_width: how many bits in the input and output ints
 - num_regs: how many registers there are in the registry file
+
+
+$ python toy_proc/timing.py --in-verilog src/const.sv src/int_div_regfile.sv
+
+Propagation delay is between any pair of combinatorially connected
+inputs and outputs, drawn from:
+    - module inputs
+    - module outputs,
+    - flip-flop outputs (treated as inputs), and
+    - flip-flop inputs (treated as outputs)
+
+max propagation delay: 67.0 nand units
 */
 
 module int_div_regfile(
