@@ -1,7 +1,6 @@
 import argparse
 import os
 import math
-import struct
 from collections import deque
 
 
@@ -299,7 +298,7 @@ def run(args):
                 # virtual command, maps to li followed by sw to location 1000
                 asm_cmds.appendleft('sw x30, 0(x31)')
                 asm_cmds.appendleft('addi x31, x0, 1000')
-                asm_cmds.appendleft(f'lw x30, 0(x31)')
+                asm_cmds.appendleft('lw x30, 0(x31)')
                 asm_cmds.appendleft(f'li x31, {p1}')
                 continue
             elif cmd == 'mv':

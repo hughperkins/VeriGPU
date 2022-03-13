@@ -49,7 +49,7 @@ module proc(
     wire signed [31:0] c1_branch_offset;
     wire [31:0] c1_instr;
 
-    function read_next_instr([31:0] _next_pc);
+    function void read_next_instr([31:0] _next_pc);
         // assumes nothing else reading or writing to memory at same time...
         next_pc = _next_pc;
         mem_addr = next_pc;
@@ -257,6 +257,14 @@ module proc(
 
     always @(*) begin
     // always_comb begin
+        halt = 0;
+        outen = 0;
+        outflen = 0;
+        mem_rd_req = 0;
+        mem_wr_req = 0;
+        next_pc = pc;
+        next_state = state;
+
         mem_rd_req = 0;
         mem_wr_req = 0;
         outen = 0;
@@ -306,16 +314,16 @@ module proc(
 
     always @(posedge clk or posedge rst) begin
         if (rst) begin  
-            halt <= 0;
-            outen <= 0;
-            outflen <= 0;
+            // halt <= 0;
+            // outen <= 0;
+            // outflen <= 0;
             pc <= 0;
             // read_next_instr(0);
-            mem_addr <= 0;
-            mem_rd_req <= 0;
-            mem_wr_req <= 0;
-            next_pc <= 0;
-            next_state = C0;
+            // mem_addr <= 0;
+            // mem_rd_req <= 0;
+            // mem_wr_req <= 0;
+            // next_pc <= 0;
+            // next_state = C0;
             state <= C0;
            regs[0] <= '0;
         end else begin
