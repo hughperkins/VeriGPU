@@ -12,7 +12,7 @@ def run(args):
     with open('build/comp_driver.sv', 'w') as f:
         f.write(comp_driver)
     os.system(f'cat examples/{args.name}.asm')
-    assert os.system('iverilog -g2012 src/proc.sv src/comp.sv src/mem_delayed.sv build/comp_driver.sv') == 0
+    assert os.system('iverilog -g2012 src/op_const.sv src/proc.sv src/comp.sv src/mem_delayed.sv build/comp_driver.sv') == 0
     os.system('./a.out | tee /tmp/out.txt')
     if os.path.exists(f'examples/{args.name}_expected.txt'):
         with open('/tmp/out.txt') as f:
