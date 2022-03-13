@@ -8,7 +8,7 @@ one write port for the apu
 */
 
 module reg_file(
-    input clk, rst;
+    input clk, rst,
 
     input [reg_sel_width - 1:0] proc_rs1_sel,
     input [reg_sel_width - 1:0] proc_rs2_sel,
@@ -16,14 +16,14 @@ module reg_file(
     output reg [data_width - 1:0] proc_rs2_data,
 
     input proc_wr_req,
-    output reg proc_ack;
+    output reg proc_ack,
     input [reg_sel_width - 1:0] proc_rd_sel,
-    input [data_width - 1:0] proc_rd_data
+    input [data_width - 1:0] proc_rd_data,
 
     input apu_wr_req,
-    output reg apu_ack;
+    output reg apu_ack,
     input [reg_sel_width - 1:0] apu_wr_sel,
-    input [data_width - 1:0] apu_wr_data,
+    input [data_width - 1:0] apu_wr_data
 );
     reg [data_width - 1:0] regs [num_regs];
 
