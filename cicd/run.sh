@@ -2,7 +2,7 @@
 
 set -x
 set -e
-iverilog -g2012 src/proc.sv
+iverilog -g2012 src/op_const.sv src/proc.sv
 verilator -sv --cc src/op_const.sv src/proc.sv
 python -V
 pip freeze
