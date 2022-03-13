@@ -1,4 +1,4 @@
-`timescale 1ns/10ps
+// `timescale 1ns/10ps
 
 module comp_driver(
 );
@@ -29,6 +29,8 @@ module comp_driver(
 
     reg [63:0] double;
 
+    reg [31:0] t_at_reset;
+
     comp comp1(
         .clk(clk), .rst(rst),
         .pc(pc), .op(op), .rd(rd),
@@ -42,7 +44,7 @@ module comp_driver(
 
     initial begin
         clk = 1;
-        forever #0.5 clk = ~clk;
+        forever #5 clk = ~clk;
     end
     always @(posedge clk) begin
         if (outen | outflen) begin
@@ -58,27 +60,40 @@ module comp_driver(
 
     initial begin
         $readmemh("build/{PROG}.hex", mem_load);
+        rst = 1;
         for(int i = 0; i < 255; i++) begin
-            #1
+            #10
             oob_wen = 1;
             oob_wr_addr = i;
             oob_wr_data = mem_load[i];
         end
-        #1
+        #10
         oob_wen = 0;
         outpos = 0;
-        #1
+        #10
+        $display("");
+        $display("===========================================");
+        $display("========== turning off reset ==============");
+        $display("");
+        rst = 0;
+        t_at_reset = $time;
 
         $monitor(
-            "t=%d rst=%b pc=%0h, out=%h op=%h imm1=%h %0d rd=%0d x1=%h state=%d",
-            $time(), rst, pc, out,  op,   imm1, imm1,   rd, x1, state);
-        rst = 1;
-        #1 rst = 0;
+            "driver monitor t=%0d rst=%b pc=%0h, out=%h outen=%0b op=%h imm1=%h %0d rd=%0d x1=%h state=%d",
+            $time(), rst, pc, out, outen,  op,   imm1, imm1,   rd, x1, state);
 
-        while(~halt && clk < 100) begin
-            #1;
+        // #500
+        // $finish;
+
+        // rst = 1;
+        // #1 rst = 0;
+
+        while(~halt && $time - t_at_reset < 1000) begin
+            #10;
         end
+        $display("halt %0b t=%0d", halt, $time);
 
+        $display("driver monitor outpos %0d", outpos);
         for(int i = 0; i < outpos; i++) begin
             if (outtype[i]) begin
                 double = bitstosingle(outmem[i]);

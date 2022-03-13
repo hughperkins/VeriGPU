@@ -1,7 +1,7 @@
 # test li
 
-li x1, 0x01
-li x1, 0x02
-li x1 0x1e
-li x1 0x2d
+li x1, 3
+li x1, 2
+li x1 22
+li x1 123
 halt
