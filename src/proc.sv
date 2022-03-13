@@ -49,15 +49,23 @@ module proc(
     wire signed [31:0] c1_branch_offset;
     wire [31:0] c1_instr;
 
+    function read_next_instr([31:0] _next_pc);
+        // assumes nothing else reading or writing to memory at same time...
+        next_pc = _next_pc;
+        mem_addr = next_pc;
+        mem_rd_req = 1;
+        next_state = C1;
+    endfunction
+
     task automatic write_out(input [31:0] _out);
         out[31:0] = _out;
         outen = 1;
     endtask
 
-    // task write_float(input [31:0] _out);
-    //     out[31:0] <= _out;
-    //     outflen <= 1;
-    // endtask
+    task write_float(input [31:0] _out);
+        out[31:0] <= _out;
+        outflen <= 1;
+    endtask
 
     task automatic op_imm(input [2:0] _funct, input [4:0] _rd, input [4:0] _rs1, input [31:0] _i_imm);
         case(_funct)
@@ -146,14 +154,6 @@ module proc(
         read_next_instr(pc + 4);
     endtask
 
-    function read_next_instr([31:0] _next_pc);
-        // assumes nothing else reading or writing to memory at same time...
-        next_pc = _next_pc;
-        mem_addr = next_pc;
-        mem_rd_req = 1;
-        next_state = C1;
-    endfunction
-
     task op_lui(input [31:0] _instr, input [4:0] _rd);
         regs[_rd] <= {_instr[31:12], {12{1'b0}} };
         read_next_instr(pc + 4);
@@ -176,10 +176,10 @@ module proc(
                 $display("1004: HALT");
                 halt = 1;
             end
-            // 1008: begin
-            //     write_float(regs[c1_rs2]);
-            //     read_next_instr(pc + 4);
-            // end
+            1008: begin
+                write_float(regs[c1_rs2]);
+                read_next_instr(pc + 4);
+            end
             default: begin
                 $display("default");
                 // first write to memory; in C2 we will load next instruction
@@ -306,7 +306,6 @@ module proc(
 
     always @(posedge clk or posedge rst) begin
         if (rst) begin  
-            // $display("rst");
             halt <= 0;
             outen <= 0;
             outflen <= 0;
@@ -318,7 +317,6 @@ module proc(
             next_pc <= 0;
             next_state = C0;
             state <= C0;
-    //     pc <= instr_addr;
            regs[0] <= '0;
         end else begin
             $display(
