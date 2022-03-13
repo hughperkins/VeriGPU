@@ -179,7 +179,7 @@ def run(args):
     label_pos_by_name = {}
     while len(asm_cmds) > 0:
         line = asm_cmds.popleft()
-        if line.strip() == '' or line.strip().startswith('#'):
+        if line.strip() == '' or line.strip().startswith('#') or line.strip().startswith(';'):
             continue
 
         line = line.replace(',', ' ').replace("(", " ").replace(")", " ").replace(

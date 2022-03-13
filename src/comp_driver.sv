@@ -79,7 +79,7 @@ module comp_driver(
         t_at_reset = $time;
 
         $monitor(
-            "driver monitor t=%0d rst=%b pc=%0h, out=%h outen=%0b op=%h imm1=%h %0d rd=%0d x1=%h state=%d",
+            "driver monitor t=%0d rst=%b pc=%0d, out=%0d outen=%0b op=%h imm1=%0d %0d rd=%0d x1=%0d state=%0d",
             $time(), rst, pc, out, outen,  op,   imm1, imm1,   rd, x1, state);
 
         // #500

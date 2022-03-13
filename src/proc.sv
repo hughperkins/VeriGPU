@@ -72,8 +72,11 @@ module proc(
             ADDI: begin
                 regs[_rd] = regs[_rs1] + _i_imm;
                 next_pc = pc + 4;
-                next_state = C0;
-                $display("ADDI next_pc %0d", next_pc);
+                mem_addr = next_pc;
+                mem_rd_req = 1;
+                next_state = C1;
+                // next_state = C0;
+                $display("ADDI _rd=%0d regs[_rs1]=%0d _i_imm=%0d next_pc=%0d", _rd, regs[_rs1], _i_imm, next_pc);
             end
             default: begin
             end
@@ -113,54 +116,59 @@ module proc(
         end
     endtask
 
-    // task op_op(input [9:0] _funct, input [4:0] _rd, input [4:0] _rs1, input [4:0] _rs2);
-    //     case(_funct)
-    //         ADD: begin
-    //             regs[_rd] <= regs[_rs1] + regs[_rs2];
-    //         end
-    //         SLT: begin
-    //             // this is actually unsigned. Need to fix...
-    //             regs[_rd] <= regs[_rs1] < regs[_rs2] ? '1 : '0;
-    //         end
-    //         SLTU: begin
-    //             regs[_rd] <= regs[_rs1] < regs[_rs2] ? '1 : '0;
-    //         end
-    //         AND: begin
-    //             regs[_rd] <= regs[_rs1] & regs[_rs2];
-    //         end
-    //         OR: begin
-    //             regs[_rd] <= regs[_rs1] | regs[_rs2];
-    //         end
-    //         XOR: begin
-    //             regs[_rd] <= regs[_rs1] ^ regs[_rs2];
-    //         end
-    //         SLL: begin
-    //             regs[_rd] <= regs[_rs1] << regs[_rs2][4:0];
-    //         end
-    //         SRL: begin
-    //             regs[_rd] <= regs[_rs1] >> regs[_rs2][4:0];
-    //         end
-    //         SUB: begin
-    //             regs[_rd] <= regs[_rs1] - regs[_rs2];
-    //         end
-    //         SRA: begin
-    //             // not sure what an 'arithmetic' shift is
-    //             // need to fix...
-    //             regs[_rd] <= regs[_rs1] >> regs[_rs2][4:0];
-    //         end
+    task op_op(input [9:0] _funct, input [4:0] _rd, input [4:0] _rs1, input [4:0] _rs2);
+        case(_funct)
+            ADD: begin
+                regs[_rd] = regs[_rs1] + regs[_rs2];
+            end
+            SLT: begin
+                // this is actually unsigned. Need to fix...
+                regs[_rd] = regs[_rs1] < regs[_rs2] ? '1 : '0;
+            end
+            SLTU: begin
+                regs[_rd] = regs[_rs1] < regs[_rs2] ? '1 : '0;
+            end
+            AND: begin
+                regs[_rd] = regs[_rs1] & regs[_rs2];
+            end
+            OR: begin
+                regs[_rd] = regs[_rs1] | regs[_rs2];
+            end
+            XOR: begin
+                regs[_rd] = regs[_rs1] ^ regs[_rs2];
+            end
+            SLL: begin
+                regs[_rd] = regs[_rs1] << regs[_rs2][4:0];
+            end
+            SRL: begin
+                regs[_rd] = regs[_rs1] >> regs[_rs2][4:0];
+            end
+            SUB: begin
+                regs[_rd] = regs[_rs1] - regs[_rs2];
+            end
+            SRA: begin
+                // not sure what an 'arithmetic' shift is
+                // need to fix...
+                regs[_rd] = regs[_rs1] >> regs[_rs2][4:0];
+            end
 
-    //         // RV32M
-    //         MUL: begin
-    //             regs[_rd] <= regs[_rs1] * regs[_rs2];
-    //         end
-    //         REM: begin
-    //         end
+            // RV32M
+            MUL: begin
+                regs[_rd] = regs[_rs1] * regs[_rs2];
+            end
+            REM: begin
+            end
 
-    //         default: begin
-    //         end
-    //     endcase
-    //     read_next_instr(pc + 4);
-    // endtask
+            default: begin
+            end
+        endcase
+        $display("op regs[_rd]=%0d _rd=%0d regs[_rs1]=%0d regs[_rs2]=%0d", regs[_rd], _rd, regs[_rs1], regs[_rs2]);
+        next_pc = pc + 4;
+        mem_addr = next_pc;
+        mem_rd_req = 1;
+        next_state = C1;
+        // read_next_instr(pc + 4);
+    endtask
 
     // task op_lui(input [31:0] _instr, input [4:0] _rd);
     //     regs[_rd] <= {_instr[31:12], {12{1'b0}} };
@@ -226,9 +234,9 @@ module proc(
                 // e.g. beq rs1, rs2, offset
                 op_branch(c1_funct3, c1_rs1, c1_rs2, c1_branch_offset);
             end
-            // OP: begin
-            //     op_op(c1_op_funct, c1_rd, c1_rs1, c1_rs2);
-            // end
+            OP: begin
+                op_op(c1_op_funct, c1_rd, c1_rs1, c1_rs2);
+            end
             // LUI: begin
             //     op_lui(c1_instr, c1_rd);
             // end
