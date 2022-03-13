@@ -88,7 +88,7 @@ module comp_driver(
         // rst = 1;
         // #1 rst = 0;
 
-        while(~halt && $time - t_at_reset < 1000) begin
+        while(~halt && $time - t_at_reset < 3000) begin
             #10;
         end
         $display("halt %0b t=%0d", halt, $time);

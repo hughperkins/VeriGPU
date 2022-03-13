@@ -201,7 +201,7 @@ module proc(
                 op_imm(c1_funct3, c1_rd, c1_rs1, c1_i_imm);
             end
             LOAD: begin
-                $display("LOAD");
+                $display("LOAD c1_rs1=%0d regs[c1_rs1]=%0d c1_load_offset=%0d", c1_rs1, regs[c1_rs1], c1_load_offset);
                 // read from memory
                 // lw rd, offset(rs1)
                 mem_addr = (regs[c1_rs1] + c1_load_offset);
@@ -237,10 +237,12 @@ module proc(
     task automatic instr_c2();
         case (op)
             LOAD: begin
-                $display("C2.load");
+                $display("C2.load mem_ack=%0b", mem_ack);
                 if(mem_ack) begin
+                    $display("C2.load next pc...");
                     regs[rd] = mem_rd_data;
                     next_pc = pc + 4;
+                    next_state = C0;
                     // read_next_instr(pc + 4);
                 end
             end
