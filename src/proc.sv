@@ -170,15 +170,27 @@ module proc(
         // read_next_instr(pc + 4);
     endtask
 
-    // task op_lui(input [31:0] _instr, input [4:0] _rd);
-    //     regs[_rd] <= {_instr[31:12], {12{1'b0}} };
-    //     read_next_instr(pc + 4);
-    // endtask
+    function read_next_instr([31:0] _next_pc);
+        // assumes nothing else reading or writing to memory at same time...
+        next_pc = _next_pc;
+        mem_addr = next_pc;
+        mem_rd_req = 1;
+        next_state = C1;
+    endfunction
 
-    // task op_auipc(input [31:0] _instr, input [4:0] _rd);
-    //     regs[_rd] <= {_instr[31:12], {12{1'b0}}} + pc;
-    //     read_next_instr(pc + 4);
-    // endtask
+    task op_lui(input [31:0] _instr, input [4:0] _rd);
+        regs[_rd] <= {_instr[31:12], {12{1'b0}} };
+        // next_pc = pc + 4;
+        // mem_addr = next_pc;
+        // mem_rd_req = 1;
+        // next_state = C1;
+        read_next_instr(pc + 4);
+    endtask
+
+    task op_auipc(input [31:0] _instr, input [4:0] _rd);
+        regs[_rd] <= {_instr[31:12], {12{1'b0}}} + pc;
+        read_next_instr(pc + 4);
+    endtask
 
     task automatic op_store(input [31:0] _addr);
         case (_addr)
@@ -237,14 +249,14 @@ module proc(
             OP: begin
                 op_op(c1_op_funct, c1_rd, c1_rs1, c1_rs2);
             end
-            // LUI: begin
-            //     op_lui(c1_instr, c1_rd);
-            // end
-            // AUIPC: begin
-            //     op_auipc(c1_instr, c1_rd);
-            // end
+            LUI: begin
+                op_lui(c1_instr, c1_rd);
+            end
+            AUIPC: begin
+                op_auipc(c1_instr, c1_rd);
+            end
             default: begin
-                $display("default: HALT c1_op %0b", c1_op);
+                $display("default: HALT c1_op %b", c1_op);
                 halt = 1;
             end
         endcase

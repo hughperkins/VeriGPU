@@ -8,7 +8,7 @@ outr x1
 auipc x1, 0x111
 outr x1
 
-# LI
+; LI
 li x2, 0xabcde321
 outr x2
 
