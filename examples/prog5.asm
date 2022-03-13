@@ -1,10 +1,6 @@
 # test li with different registers, using outr
 # (also test outr)
 
-out 0x1b
-out 0x2d
-out 0x32
-out 0x44
 li x1 0x01
 outr x1
 li x1 0x02

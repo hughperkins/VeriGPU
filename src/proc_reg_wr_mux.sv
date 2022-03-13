@@ -46,8 +46,8 @@ module proc_reg_wr_mux2(
             rf_wr_req <= 0;
             ack0 <= 0;
             ack1 <= 0;
-            ack2 <= 0;
-            ack3 <= 0;
+            // ack2 <= 0;
+            // ack3 <= 0;
 
             if (req0) begin
                 ack0 <= 1;
@@ -116,7 +116,7 @@ module proc_reg_wr_mux3(
             ack0 <= 0;
             ack1 <= 0;
             ack2 <= 0;
-            ack3 <= 0;
+            // ack3 <= 0;
 
             if (req0) begin
                 ack0 <= 1;
