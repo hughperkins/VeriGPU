@@ -49,14 +49,6 @@ module proc(
     wire signed [31:0] c1_branch_offset;
     wire [31:0] c1_instr;
 
-    // task read_next_instr(input [31:0] instr_addr);
-    //     mem_addr <= instr_addr;
-    //     mem_rd_req <= 1;
-    //     state <= C1;
-    //     pc <= instr_addr;
-    //     regs[0] <= '0;
-    // endtask
-
     task automatic write_out(input [31:0] _out);
         out[31:0] = _out;
         outen = 1;
@@ -71,11 +63,7 @@ module proc(
         case(_funct)
             ADDI: begin
                 regs[_rd] = regs[_rs1] + _i_imm;
-                next_pc = pc + 4;
-                mem_addr = next_pc;
-                mem_rd_req = 1;
-                next_state = C1;
-                // next_state = C0;
+                read_next_instr(pc + 4);
                 $display("ADDI _rd=%0d regs[_rs1]=%0d _i_imm=%0d next_pc=%0d", _rd, regs[_rs1], _i_imm, next_pc);
             end
             default: begin
@@ -102,17 +90,9 @@ module proc(
         endcase
 
         if (branch) begin
-            next_pc = pc + {_offset[30:0], 1'b0};
-            mem_rd_req = 1;
-            mem_addr = next_pc;
-            next_state = C1;
-            // read_next_instr(pc + {_offset[30:0], 1'b0});
+            read_next_instr(pc + {_offset[30:0], 1'b0});
         end else begin
-            next_pc = pc + 4;
-            mem_rd_req = 1;
-            mem_addr = next_pc;
-            next_state = C1;
-            // read_next_instr(pc + 4);
+            read_next_instr(pc + 4);
         end
     endtask
 
@@ -163,11 +143,7 @@ module proc(
             end
         endcase
         $display("op regs[_rd]=%0d _rd=%0d regs[_rs1]=%0d regs[_rs2]=%0d", regs[_rd], _rd, regs[_rs1], regs[_rs2]);
-        next_pc = pc + 4;
-        mem_addr = next_pc;
-        mem_rd_req = 1;
-        next_state = C1;
-        // read_next_instr(pc + 4);
+        read_next_instr(pc + 4);
     endtask
 
     function read_next_instr([31:0] _next_pc);
@@ -180,10 +156,6 @@ module proc(
 
     task op_lui(input [31:0] _instr, input [4:0] _rd);
         regs[_rd] <= {_instr[31:12], {12{1'b0}} };
-        // next_pc = pc + 4;
-        // mem_addr = next_pc;
-        // mem_rd_req = 1;
-        // next_state = C1;
         read_next_instr(pc + 4);
     endtask
 
@@ -198,8 +170,7 @@ module proc(
                 write_out(regs[c1_rs2]);
                 $display(" store 1000 %0d, next_state C2", c1_rs2);
                 // immediately jump to next instruction, since not a real store...
-                next_pc = pc + 4;
-                next_state = C0;
+                read_next_instr(pc + 4);
             end
             1004: begin
                 $display("1004: HALT");
@@ -211,6 +182,7 @@ module proc(
             // end
             default: begin
                 $display("default");
+                // first write to memory; in C2 we will load next instruction
                 mem_addr = (regs[c1_rs1] + c1_store_offset);
                 mem_wr_req = 1;
                 mem_wr_data = regs[c1_rs2];
@@ -269,17 +241,13 @@ module proc(
                 if(mem_ack) begin
                     $display("C2.load next pc...");
                     regs[rd] = mem_rd_data;
-                    next_pc = pc + 4;
-                    next_state = C0;
-                    // read_next_instr(pc + 4);
+                    read_next_instr(pc + 4);
                 end
             end
             STORE: begin
                 $display("C2.store mem_ack %0b", mem_ack);
                 if(mem_ack) begin
-                    next_pc = pc + 4;
-                    next_state = C0;
-                    // read_next_instr(pc + 4);
+                    read_next_instr(pc + 4);
                 end
             end
             default: begin
@@ -305,9 +273,7 @@ module proc(
                 if(~rst) begin
                     $display("comb C0");
                 end
-                mem_rd_req = 1;
-                mem_addr = pc;
-                next_state = C1;
+                read_next_instr(pc);
             end
             C1: begin
                 $display("comb C1");
