@@ -80,30 +80,38 @@ module proc(
         endcase
     endtask
 
-    // task op_branch(input [2:0] _funct, input [4:0] _rs1, input [4:0] _rs2, input [31:0] _offset);
-    //     reg branch;
-    //     branch = 0;
-    //     case(_funct)
-    //         BEQ: begin
-    //             if (regs[_rs1] == regs[_rs2]) begin
-    //                 branch = 1;
-    //             end
-    //         end
-    //         BNE: begin
-    //             if (regs[_rs1] != regs[_rs2]) begin
-    //                 branch = 1;
-    //             end
-    //         end
-    //         default: begin
-    //         end
-    //     endcase
+    task op_branch(input [2:0] _funct, input [4:0] _rs1, input [4:0] _rs2, input [31:0] _offset);
+        reg branch;
+        branch = 0;
+        case(_funct)
+            BEQ: begin
+                if (regs[_rs1] == regs[_rs2]) begin
+                    branch = 1;
+                end
+            end
+            BNE: begin
+                if (regs[_rs1] != regs[_rs2]) begin
+                    branch = 1;
+                end
+            end
+            default: begin
+            end
+        endcase
 
-    //     if (branch) begin
-    //         read_next_instr(pc + {_offset[30:0], 1'b0});
-    //     end else begin
-    //         read_next_instr(pc + 4);
-    //     end
-    // endtask
+        if (branch) begin
+            next_pc = pc + {_offset[30:0], 1'b0};
+            mem_rd_req = 1;
+            mem_addr = next_pc;
+            next_state = C1;
+            // read_next_instr(pc + {_offset[30:0], 1'b0});
+        end else begin
+            next_pc = pc + 4;
+            mem_rd_req = 1;
+            mem_addr = next_pc;
+            next_state = C1;
+            // read_next_instr(pc + 4);
+        end
+    endtask
 
     // task op_op(input [9:0] _funct, input [4:0] _rd, input [4:0] _rs1, input [4:0] _rs2);
     //     case(_funct)
@@ -214,10 +222,10 @@ module proc(
                 // sw rs2, offset(rs1)
                 op_store(regs[c1_rs1] + c1_store_offset);
             end
-            // BRANCH: begin
-            //     // e.g. beq rs1, rs2, offset
-            //     op_branch(c1_funct3, c1_rs1, c1_rs2, c1_branch_offset);
-            // end
+            BRANCH: begin
+                // e.g. beq rs1, rs2, offset
+                op_branch(c1_funct3, c1_rs1, c1_rs2, c1_branch_offset);
+            end
             // OP: begin
             //     op_op(c1_op_funct, c1_rd, c1_rs1, c1_rs2);
             // end
@@ -268,11 +276,15 @@ module proc(
         regs[0] = '0;
         next_state = state;
         next_pc = pc;
-        $display("comb t=%0d state=%0d pc=%0d c1_op=%0d mem_wr_req=%0b mem_rd_req=%0b mem_ack=%0b regs[1]=%0d", $time, state, pc, c1_op, mem_wr_req, mem_rd_req, mem_ack, regs[1]);
+        if(~rst) begin
+            $display("comb t=%0d state=%0d pc=%0d c1_op=%0d mem_wr_req=%0b mem_rd_req=%0b mem_ack=%0b regs[1]=%0d", $time, state, pc, c1_op, mem_wr_req, mem_rd_req, mem_ack, regs[1]);
+        end
         // $strobe("comb t=%0d state=%0d pc=%0d c1_op=%0d mem_wr_req=%0b mem_rd_req=%0b mem_ack=%0b regs[1]=%0d", $time, state, pc, c1_op, mem_wr_req, mem_rd_req, mem_ack, regs[1]);
         case(state)
             C0: begin
-                $display("comb C0");
+                if(~rst) begin
+                    $display("comb C0");
+                end
                 mem_rd_req = 1;
                 mem_addr = pc;
                 next_state = C1;
@@ -301,7 +313,9 @@ module proc(
                 halt = 1;
             end
         endcase
-        $display("comb end mem_rd_req=%0b",mem_rd_req);
+        if(~rst) begin
+            $display("comb end mem_rd_req=%0b",mem_rd_req);
+        end
     end
 
     always @(posedge clk or posedge rst) begin
@@ -321,7 +335,6 @@ module proc(
     //     pc <= instr_addr;
            regs[0] <= '0;
         end else begin
-
             $display(
                 "ff mem_addr %0d mem_wr_data %0d mem_rd_data %0d mem_wr_req %b mem_rd_req  %b mem_ack %b mem_busy %b",
                 mem_addr,     mem_wr_data,    mem_rd_data,    mem_wr_req,   mem_rd_req,    mem_ack,   mem_busy);
