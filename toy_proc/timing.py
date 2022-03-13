@@ -16,6 +16,7 @@ Will use 'unit times' for timings, which will look something like:
 - shr: 0 (it's just rewiring)
 """
 import argparse
+from typing import Dict, Optional
 from collections import deque, defaultdict
 import networkx as nx
 import subprocess
@@ -46,28 +47,56 @@ g_cell_times = {
 }
 
 
+# INPUT_PORT_NAMES = ['A', 'B', 'C', 'D', 'R', 'S']
+# OUTPUT_PORT_NAMES = ['Q', 'Y']
+
+INPUT_PORT_NAMES = ['a', 'b', 'c', 'd', 'r', 's']
+OUTPUT_PORT_NAMES = ['q', 'y']
+
+# INPUT_PORT_NAMES = ['d']
+# OUTPUT_PORT_NAMES = ['y']
+
+
 class Cell:
-    def __init__(self, cell_type, cell_name, inputs, outputs, output_delay: float = None):
+    def __init__(self, cell_type, cell_name, inputs, outputs, is_source_sink: bool = False):
         self.cell_type = cell_type
         self.cell_name = cell_name
         self.cell_inputs = inputs
         self.cell_outputs = outputs
-        self.cell_input_delay_by_name = {}
-        self.cell_delay = g_cell_times[cell_type]
-        self.output_delay = output_delay
+        self.cell_input_delay_by_name: Dict[str, float] = {}
+        self.is_source_sink = is_source_sink
+        self.output_delay: Optional[float] = None
+        if is_source_sink:
+            self.cell_delay = 1e8
+            self.output_delay = 0
+        # if cell_type.startswith('DFF'):
+            # self.cell_delay = 1e8
+            # self.is_source_sink = True
+        else:
+            self.cell_delay = g_cell_times[cell_type]
+            self.output_delay = None
+        # self.output_delay = output_delay
 
     def connect_input(self, input_name: str, delay: float):
         assert input_name not in self.cell_input_delay_by_name
         self.cell_input_delay_by_name[input_name] = delay
-        if len(self.cell_input_delay_by_name) == len(self.cell_inputs):
+        if len(self.cell_input_delay_by_name) == len(self.cell_inputs) and not self.is_source_sink:
             self._calc_output_delay()
+
+    def max_input_delay(self):
+        if len(self.cell_input_delay_by_name) == 0:
+            print(self)
+            max_delay = 0
+        else:
+            max_delay = max(self.cell_input_delay_by_name.values())
+        return max_delay
 
     def _calc_output_delay(self):
         self.output_delay = max(self.cell_input_delay_by_name.values()) + self.cell_delay
 
     def __repr__(self):
         return (
-            f'Cell({self.cell_type} {self.cell_name} output_delay={self.output_delay}'
+            f'Cell(type={self.cell_type} name={self.cell_name} output_delay={self.output_delay}'
             f' in={len(self.cell_input_delay_by_name)}/{len(self.cell_inputs)})')
 
 
@@ -88,7 +117,7 @@ def run(args):
             # it's a concatenation
             split_names_str = names_str[1:-1].split(',')
             for child_name_str in split_names_str:
-                names += str_to_names(child_name_str)
+                names += str_to_names(child_name_str.strip())
         elif names_str in vector_dims_by_name:
             start, end, step = vector_dims_by_name[names_str]
             names += [f'{names_str}[{i}]' for i in range(start, end, step)]
@@ -105,37 +134,50 @@ def run(args):
             # immediate constant, ignore
             pass
         else:
-            names.append(names_str)
+            names.append(names_str.strip())
         return list(set(names))
         return names
 
     if args.in_verilog is not None:
         # first need to synthesize
         # use check output, so we can suppress output (less spammy...)
-        subprocess.check_output([
-            sys.executable, 'toy_proc/run_yosys.py', '--verilog', args.in_verilog,
+        # verilog_file_args = []
+        # for file in args.in_verilog:
+        #     verilog_file_args.append('--verilog')
+        #     verilog_file_args.append(file)
+        child_args = [
+            sys.executable, 'toy_proc/run_yosys.py', '--verilog'] + args.in_verilog + [
             '--cell-lib', args.cell_lib
-        ])
+        ]
+        if args.top_module:
+            child_args += ['--top-module', args.top_module]
+        subprocess.check_output(child_args)
         # os.system(f'python src/tools/run_yosys.py --verilog {args.in_verilog}')
         args.in_netlist = 'build/netlist.v'
 
     with open(args.in_netlist) as f:
         netlist = f.read()
+    input_wires = set()  # from the lines starting with 'input ', at the top
+    output_wires = set()  # form the lines starting with 'output ' at the top
     cells = []
-    input_cell = Cell('START', 'START', [], [], output_delay=0)
-    output_cell = Cell('END', 'END', [], [])
-    cells.append(input_cell)
-    cells.append(output_cell)
-    input_cell_idx = 0
-    output_cell_idx = 1
+    start_cell = Cell('START', 'START', [], [], is_source_sink=True)
+    end_cell = Cell('END', 'END', [], [], is_source_sink=True)
+    cells.append(start_cell)
+    cells.append(end_cell)
+    start_cell_idx = 0
+    end_cell_idx = 1
     cell_inputs = {}
     cell_outputs = {}
-    cellidxs_by_input = defaultdict(list)
-    cellidx_by_output = {}
+    cellidxs_by_input = defaultdict(list)  # outputs fo the module are inputs to the END module, so appear here
+    cellidxs_by_output = defaultdict(list)  # inputs to the module are outputs of the START cell, so appear here
+    source_sink_nodes = set()  # START, END and DFF nodes. This contains the source and sink nodes
+    source_sink_nodes.add(start_cell)
+    source_sink_nodes.add(end_cell)
     cellidx_by_cell_name = {}
     in_declaration = False
     cell_type = ''
     cell_name = ''
+    assign_idx = 0  # 0-indexed
     # for empty cells that we should walk from straight away, since we know their
     # output_delay is 0
     empty_cells = []
@@ -146,15 +188,21 @@ def run(args):
     for line in netlist.split('\n'):
         line = line.strip()
         if in_declaration:
+            # inside a cell declaration
             if line.strip() == ');':
+                # write out the completed cell declaration
                 if cell_type.startswith('DFF'):
-                    # let's treat dff ports as input and output ports of the module
+                    # # let's treat dff ports as input and output ports of the module
+                    cell = Cell(cell_type, cell_name, cell_inputs, cell_outputs, is_source_sink=True)
+                    cell_idx = len(cells)
+                    cells.append(cell)
+                    source_sink_nodes.add(cell)
                     for cell_input in cell_inputs.keys():
-                        output_cell.cell_inputs.append(cell_input)
-                        cellidxs_by_input[cell_input].append(output_cell_idx)
+                        # end_cell.cell_inputs.append(cell_input)
+                        cellidxs_by_input[cell_input].append(cell_idx)
                     for cell_output in cell_outputs.keys():
-                        input_cell.cell_outputs.append(cell_output)
-                        cellidx_by_output[cell_output] = input_cell_idx
+                        # start_cell.cell_outputs.append(cell_output)
+                        cellidxs_by_output[cell_output.strip()].append(cell_idx)
                 else:
                     cell = Cell(cell_type, cell_name, cell_inputs, cell_outputs)
                     cell_idx = len(cells)
@@ -163,20 +211,28 @@ def run(args):
                     for cell_input in cell_inputs.keys():
                         cellidxs_by_input[cell_input].append(cell_idx)
                     for cell_output in cell_outputs.keys():
-                        cellidx_by_output[cell_output] = cell_idx
+                        cellidxs_by_output[cell_output.strip()].append(cell_idx)
                 in_declaration = False
             else:
-                port_name = line.split('.')[1].split('(')[0]
+                port_name = line.split('.')[1].split('(')[0].lower()
                 port_line = line.split('(')[1].split(')')[0]
                 # ignore immediate numbers
                 if port_line[0] in '0123456789':
                     continue
                 # yosys sometimes puts spaces between diensions. remove these
-                port_line = port_line.replace('] [', '][')
-                if port_name in ['A', 'B', 'C', 'D', 'R', 'S']:
+                port_line = port_line.replace('] [', '][').strip()
+                # print('cellidx_by_output', cellidx_by_output.keys())
+                # print('cellidxs_by_input', cellidxs_by_input.keys())
+                if port_name in input_wires:
                     cell_inputs[port_line] = port_line
-                else:
+                elif port_name in output_wires:
                     cell_outputs[port_line] = port_line
+                elif port_name in INPUT_PORT_NAMES:
+                    cell_inputs[port_line] = port_line
+                elif port_name in OUTPUT_PORT_NAMES:
+                    cell_outputs[port_line] = port_line
+                else:
+                    raise Exception('unknown port name', port_name)
         else:
             if line.startswith('input '):
                 try:
@@ -189,6 +245,7 @@ def run(args):
                 except Exception as e:
                     print('line ', line)
                     raise e
+                name = name.strip()
                 if dims is not None and dims.startswith('['):
                     start = int(dims.split('[')[1].split(':')[0])
                     end = int(dims.split(':')[1].split(']')[0])
@@ -199,11 +256,15 @@ def run(args):
                     else:
                         end += 1
                     for wire in range(start, end, step):
-                        input_cell.cell_outputs.append(f'{name}[{wire}]')
-                        cellidx_by_output[f'{name}[{wire}]'] = input_cell_idx
+                        start_cell.cell_outputs.append(f'{name}[{wire}]')
+                        cellidxs_by_output[f'{name}[{wire}]'.strip()].append(start_cell_idx)
+                        input_wires.add(f'{name}[{wire}]')
+                        # print('input [' + f'{name}[{wire}]' + ']')
                 else:
-                    input_cell.cell_outputs.append(f'{name}')
-                    cellidx_by_output[f'{name}'] = input_cell_idx
+                    start_cell.cell_outputs.append(f'{name}')
+                    cellidxs_by_output[f'{name}'].append(start_cell_idx)
+                    input_wires.add(name)
+                    # print('input [' + f'{name}' + ']')
             if line.startswith('output '):
                 try:
                     split_line = line[:-1].split()
@@ -223,11 +284,13 @@ def run(args):
                         else:
                             end += 1
                         for wire in range(start, end, step):
-                            output_cell.cell_inputs.append(f'{name}[{wire}]')
-                            cellidxs_by_input[f'{name}[{wire}]'].append(output_cell_idx)
+                            end_cell.cell_inputs.append(f'{name}[{wire}]')
+                            cellidxs_by_input[f'{name}[{wire}]'].append(end_cell_idx)
+                            output_wires.add(f'{name}[{wire}]')
                     else:
-                        output_cell.cell_inputs.append(f'{name}')
-                        cellidxs_by_input[f'{name}'].append(output_cell_idx)
+                        end_cell.cell_inputs.append(f'{name}')
+                        cellidxs_by_input[f'{name}'].append(end_cell_idx)
+                        output_wires.add(name)
                 except Exception as e:
                     print(line)
                     raise e
@@ -248,17 +311,19 @@ def run(args):
                     output_delay = 0
                 cell = Cell(
                     cell_type='ASSIGN',
-                    cell_name='assign' + str(len(cells)),
+                    cell_name='assign' + str(assign_idx),
                     inputs=cell_inputs,
                     outputs=cell_outputs,
-                    output_delay=output_delay
+                    # output_delay=output_delay
                 )
+                cell.output_delay = output_delay
+                assign_idx += 1
                 cell_idx = len(cells)
                 cells.append(cell)
                 for cell_input in cell_inputs:
-                    cellidxs_by_input[cell_input].append(cell_idx)
+                    cellidxs_by_input[cell_input.strip()].append(cell_idx)
                 for cell_output in cell_outputs:
-                    cellidx_by_output[cell_output] = cell_idx
+                    cellidxs_by_output[cell_output.strip()].append(cell_idx)
                 if len(cell_inputs) == 0:
                     empty_cells += cell_outputs
             elif line.startswith('wire'):
@@ -282,44 +347,66 @@ def run(args):
         to_name = to_cell.cell_name
         for cell_input in to_cell.cell_inputs:
             try:
-                from_idx = cellidx_by_output[cell_input]
+                from_idxs = cellidxs_by_output[cell_input]
             except Exception as e:
-                for wire in cellidx_by_output.keys():
-                    print('wire', wire)
+                print('failed to find ' + cell_input + ' in cellidx_by_output')
+                print('cellidx_by_output keys:')
+                # for wire in cellidx_by_output.keys():
+                #     print('- wire [' + wire + ']')
+                print('')
                 print('to_idx', to_idx, to_cell.cell_name, to_cell, 'cell_input', cell_input)
                 raise e
-            from_cell = cells[from_idx]
-            from_name = from_cell.cell_name
-            G.add_edge(from_name, to_name, name=cell_input)
-    nx.nx_pydot.write_dot(G, '/tmp/netlist.dot')
+            for from_idx in from_idxs:
+                from_cell = cells[from_idx]
+                from_name = from_cell.cell_name
+                G.add_edge(from_name, to_name, name=cell_input)
+    nx.nx_pydot.write_dot(G, 'build/netlist.dot')
 
     # walk graph, starting from inputs
     # we are looking for longest path through the graph
-    to_process = deque(input_cell.cell_outputs)
+    # to_process = deque(start_cell.cell_outputs)
+    to_process = deque()
+    for source_sink_cell in source_sink_nodes:
+        to_process.extend(source_sink_cell.cell_outputs)
+    print('to_process', to_process)
+    seen = set(to_process)
     to_process += empty_cells
     while len(to_process) > 0:
         wire_name = to_process.popleft()
-        from_idx = cellidx_by_output[wire_name]
+        from_idxs = cellidxs_by_output[wire_name]
         to_idxs = cellidxs_by_input[wire_name]
-        for to_idx in to_idxs:
-            from_cell = cells[from_idx]
-            to_cell = cells[to_idx]
-            delay = from_cell.output_delay
-            assert delay is not None
-            try:
-                to_cell.connect_input(wire_name, delay)
-            except Exception as e:
-                print(from_cell.cell_name, wire_name, to_cell.cell_name, delay)
-                print('to_cell inputs')
-                for _ in to_cell.cell_inputs:
-                    print('    ', _)
-                print('to_cell outputs')
-                for _ in to_cell.cell_outputs:
-                    print('    ', _)
-                raise e
-            if to_cell.output_delay is not None:
-                for wire in to_cell.cell_outputs:
-                    to_process.append(wire)
+        for from_idx in from_idxs:
+            for to_idx in to_idxs:
+                from_cell = cells[from_idx]
+                to_cell = cells[to_idx]
+                # print('wire', wire_name, 'from', from_cell.cell_name, 'to', to_cell.cell_name)
+                print(from_cell.cell_name, '---', wire_name, '---', to_cell.cell_name, 'delay=', from_cell.output_delay)
+                delay = from_cell.output_delay
+                # print('from_cell', from_cell, from_cell.cell_inputs, from_cell.cell_outputs)
+                assert delay is not None
+                try:
+                    to_cell.connect_input(wire_name, delay)
+                except Exception as e:
+                    print('input_name ' + wire_name + ' already in cell_input_delay_by_name')
+                    print('cell_input_delay_by_name:')
+                    for key, value in to_cell.cell_input_delay_by_name.items():
+                        print('-', key, value)
+                    print('')
+                    print(
+                        'from cell name', from_cell.cell_name, 'wire name', wire_name,
+                        'to cell name', to_cell.cell_name, 'delay', delay)
+                    print('to_cell inputs')
+                    for _ in to_cell.cell_inputs:
+                        print('    ', _)
+                    print('to_cell outputs')
+                    for _ in to_cell.cell_outputs:
+                        print('    ', _)
+                    raise e
+                if to_cell.output_delay is not None:
+                    for wire in to_cell.cell_outputs:
+                        if wire not in seen:
+                            to_process.append(wire)
+                            seen.add(wire)
 
     # check for unprocessed nodes
     printed_prologue = False
@@ -335,6 +422,12 @@ def run(args):
     if printed_prologue:
         return
 
+    max_delay = 0
+    for node in source_sink_nodes:
+        print(node, node.max_input_delay())
+        max_delay = max(max_delay, node.max_input_delay())
+    print('max_delay', max_delay)
+
     print('')
     print('Propagation delay is between any pair of combinatorially connected')
     print('inputs and outputs, drawn from:')
@@ -343,14 +436,15 @@ def run(args):
     print('    - flip-flop outputs (treated as inputs), and')
     print('    - flip-flop inputs (treated as outputs)')
     print('')
-    print('max propagation delay: %.1f nand units' % output_cell.output_delay)
+    print('max propagation delay: %.1f nand units' % max_delay)
     print('')
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--in-netlist', type=str, help='path to gate netlist verilog file')
-    parser.add_argument('--in-verilog', type=str, help='path to original verilog file')
+    parser.add_argument('--top-module', type=str, help='top module name, only needed if more than one module.')
+    parser.add_argument('--in-verilog', type=str, nargs='+', help='path to original verilog file')
     parser.add_argument(
         '--cell-lib', type=str, default='tech/osu018/osu018_stdcells.lib',
         help='e.g. path to osu018_stdcells.lib')
