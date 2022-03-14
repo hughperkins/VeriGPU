@@ -27,6 +27,9 @@ g_cell_times = {
     # based loosely on src/timings_ece474.txt
     # taking time for a nand or nor gate as ~1
     'INVX1': 0.6,
+    'BUFX1': 1.2,
+    'BUFX2': 1.5,
+    'BUFX4': 2.0,
     'NAND2X1': 1,
     'NAND3X1': 2.6,
     'NOR2X1': 1,
@@ -43,7 +46,7 @@ g_cell_times = {
     'MUX4X1': 3,
     'START': 0,
     'END': 0,
-    'ASSIGN': 0
+    'ASSIGN': 0,
 }
 
 
@@ -400,8 +403,6 @@ def run(args):
                 if name not in cell.cell_input_delay_by_name:
                     print('    missing', name)
     if printed_prologue:
-        return
-    else:
         sys.exit(1)
 
     print('')
