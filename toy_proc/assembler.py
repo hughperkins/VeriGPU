@@ -181,6 +181,7 @@ def run(args):
         if line.strip() == '' or line.strip().startswith('#') or line.strip().startswith(';'):
             continue
 
+        line = line.split(';')[0]
         line = line.replace(',', ' ').replace("(", " ").replace(")", " ").replace(
             '  ', ' ').replace("  ", " ")
         split_line = line.split()
