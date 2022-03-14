@@ -1,10 +1,10 @@
+- create register file
 - int division
 - int modulus
 - fuse LUI and ADDI
 - fuse LUI and JALR
 - fuse AUIPC and JALR
 - fuse DIV and MOD
-- create register file
 - parallel instruction execution
 - add area approximation to timing.py (eg count the number of cells :P)
 - floats:  mul, div, modulus, add, sub, beq, glt
@@ -24,6 +24,7 @@
 - (use actual memory module?)
 
 done:
+- experiment with migrating most of proc.sv to combinational always @(*) block (from posedge block)
 - add cicd to readme
 - tested store and load floats
 - fout.s; and modify assembler to handle floats for li
