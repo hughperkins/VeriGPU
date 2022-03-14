@@ -58,11 +58,25 @@ module proc(
     reg wr_reg_req;
 
     task read_next_instr(input [addr_width - 1:0] _next_pc);
-        // // assumes nothing else reading or writing to memory at same time...
+        // assumes nothing else reading or writing to memory at same time...
+        // to be be called from combinational code
+        // flip-flop code will update the pc to be next_pc
         next_pc = _next_pc;
         mem_addr = next_pc;
         mem_rd_req = 1;
         next_state = C1;
+    endtask
+
+    task write_reg(input [reg_sel_width - 1:0] reg_sel, input [data_width - 1:0] reg_data);
+        // to be called from combinational code
+        // flip flop code will do the actual write
+        // you can only call this once per clock cycle...
+        // (there is no queue of these; the last register to be selected 
+        // written is written; and everything else is ignored)
+        wr_reg_sel = reg_sel;
+        wr_reg_data = reg_data;
+        wr_reg_req = 1;
+
     endtask
 
     task write_out(input [data_width - 1:0] _out);
@@ -79,10 +93,7 @@ module proc(
         case(_funct)
             ADDI: begin
                 $display("ADDI _rd=%0d regs[_rs1]=%0d _i_imm=%0d next_pc=%0d", _rd, c1_rs1_data, _i_imm, next_pc);
-                // regs[_rd] = regs[_rs1] + _i_imm;
-                wr_reg_sel = _rd;
-                wr_reg_data = c1_rs1_data + _i_imm;
-                wr_reg_req = 1;
+                write_reg(_rd, c1_rs1_data + _i_imm);
                 read_next_instr(pc + 4);
             end
             default: begin
@@ -168,18 +179,12 @@ module proc(
     endtask
 
     task op_lui(input [31:0] _instr, input [4:0] _rd);
-        // regs[_rd] = {_instr[31:12], {12{1'b0}} };
-        wr_reg_sel = _rd;
-        wr_reg_req = 1;
-        wr_reg_data = {_instr[31:12], {12{1'b0}} };
+        write_reg(_rd, {_instr[31:12], {12{1'b0}} });
         read_next_instr(pc + 4);
     endtask
 
     task op_auipc(input [31:0] _instr, input [4:0] _rd);
-        // regs[_rd] = {_instr[31:12], {12{1'b0}}} + pc;
-        wr_reg_sel = _rd;
-        wr_reg_req = 1;
-        wr_reg_data = {_instr[31:12], {12{1'b0}}} + pc;
+        write_reg(_rd, {_instr[31:12], {12{1'b0}}} + pc);
         read_next_instr(pc + 4);
     endtask
 
@@ -261,10 +266,7 @@ module proc(
                 // $display("C2.load mem_ack=%0b", mem_ack);
                 if(mem_ack) begin
                     $display("C2.load next c2_rd_sel=%0d mem_rd_data=%0d", c2_rd_sel, mem_rd_data);
-                    // regs[rd] = mem_rd_data;
-                    wr_reg_req = 1;
-                    wr_reg_sel = c2_rd_sel;
-                    wr_reg_data = mem_rd_data;
+                    write_reg(c2_rd_sel, mem_rd_data);
                     read_next_instr(pc + 4);
                 end
             end
@@ -297,21 +299,6 @@ module proc(
         wr_reg_data = '0;
         wr_reg_req = 0;
 
-        // op = '0;
-        // rd = '0;
-        // funct = '0;
-        // rs1 = '0;
-        // rs2 = '0;
-        // imm1 = '0;
-        // out = '0;
-
-        // mem_rd_req = 0;
-        // mem_wr_req = 0;
-        // outen = 0;
-        // outflen = 0;
-        // regs[0] = '0;
-        // next_state = state;
-        // next_pc = pc;
         if(~rst) begin
             $display("comb t=%0d state=%0d pc=%0d c1_op=%0d mem_wr_req=%0b mem_rd_req=%0b mem_ack=%0b regs[1]=%0d", $time, state, pc, c1_op, mem_wr_req, mem_rd_req, mem_ack, regs[1]);
         end
@@ -329,13 +316,6 @@ module proc(
                     // $display("in mem_ack");
                     instr_c1();
                     c2_instr_next = mem_rd_data;
-                    // instruction = mem_rd_data;
-                    // op = mem_rd_data[6:0];
-                    // funct = mem_rd_data[14:12];
-                    // rd = mem_rd_data[11:7];
-                    // rs1 = mem_rd_data[19:15];
-                    // rs2 = mem_rd_data[24:20];
-                    // imm1 = mem_rd_data[31:25];
                 end
             end
             C2: begin
@@ -364,13 +344,13 @@ module proc(
             $display("ff tick t=%0d clk=%0b next_pc=%0d next_state=%0d", $time, clk, next_pc, next_state);
             pc <= next_pc;
             state <= next_state;
-            // op <= c1_op;
             c2_instr <= c2_instr_next;
             if (wr_reg_req) begin
                 regs[wr_reg_sel] <= wr_reg_data;
             end
         end
     end
+
     assign c1_rs1_data = regs[c1_rs1_sel];
     assign c1_rs2_data = regs[c1_rs2_sel];
     assign c1_op = mem_rd_data[6:0];
