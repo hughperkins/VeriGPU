@@ -1,6 +1,7 @@
 parameter num_regs = 32;
 parameter data_width = 32;
 parameter addr_width = 32;
+parameter instr_width = 32;
 parameter op_width = 10;
 
 // parameter num_regs = 4;

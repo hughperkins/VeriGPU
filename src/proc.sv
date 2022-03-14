@@ -7,9 +7,9 @@ module proc(
 
     output reg [6:0] c2_op,
     output reg [2:0] c2_funct,
-    output reg [4:0] c2_rd_sel,
-    output reg [4:0] c2_rs1_sel,
-    output reg [4:0] c2_rs2_sel,
+    output reg [reg_sel_width - 1:0] c2_rd_sel,
+    output reg [reg_sel_width - 1:0] c2_rs1_sel,
+    output reg [reg_sel_width - 1:0] c2_rs2_sel,
     output reg [6:0] c2_imm1,
 
     output reg [data_width - 1:0] x1,
@@ -28,9 +28,9 @@ module proc(
     reg [addr_width - 1:0] next_pc;
     reg [4:0] next_state;
 
-    reg [data_width - 1:0] regs[32];
-    reg [32:0] c2_instr_next;
-    reg [31:0] c2_instr;
+    reg [data_width - 1:0] regs[num_regs];
+    reg [instr_width - 1:0] c2_instr_next;
+    reg [instr_width - 1:0] c2_instr;
     typedef enum bit[4:0] {
         C0,
         C1,
@@ -40,9 +40,9 @@ module proc(
     wire [6:0] c1_op;
     wire [2:0] c1_funct3;
     wire [9:0] c1_op_funct;
-    wire [4:0] c1_rd_sel;
-    wire [4:0] c1_rs1_sel;
-    wire [4:0] c1_rs2_sel;
+    wire [reg_sel_width - 1:0] c1_rd_sel;
+    wire [reg_sel_width - 1:0] c1_rs1_sel;
+    wire [reg_sel_width - 1:0] c1_rs2_sel;
     wire [data_width - 1:0] c1_rs1_data;
     wire [data_width - 1:0] c1_rs2_data;
     wire [6:0] c1_imm1;
@@ -51,10 +51,10 @@ module proc(
     wire signed [addr_width - 1:0] c1_load_offset;
     wire signed [data_width - 1:0] c1_i_imm;
     wire signed [addr_width - 1:0] c1_branch_offset;
-    wire [31:0] c1_instr;
+    wire [instr_width - 1:0] c1_instr;
 
-    reg [6:0] wr_reg_sel;
-    reg [31:0] wr_reg_data;
+    reg [reg_sel_width - 1:0] wr_reg_sel;
+    reg [data_width - 1:0] wr_reg_data;
     reg wr_reg_req;
 
     task read_next_instr(input [addr_width - 1:0] _next_pc);
@@ -328,7 +328,7 @@ module proc(
                 if(mem_ack) begin
                     // $display("in mem_ack");
                     instr_c1();
-                    c2_instr_next <= mem_rd_data;
+                    c2_instr_next = mem_rd_data;
                     // instruction = mem_rd_data;
                     // op = mem_rd_data[6:0];
                     // funct = mem_rd_data[14:12];

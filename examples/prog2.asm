@@ -1,7 +1,7 @@
 # test out, halt
 
-out 0x1b
-out 0x2d
+out 123
+out 789
 out 0x32
 out 0x44
 out 50
