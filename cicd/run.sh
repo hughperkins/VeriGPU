@@ -2,6 +2,8 @@
 
 set -x
 set -e
+set -o pipefail
+
 iverilog -g2012 src/op_const.sv src/proc.sv
 verilator -sv --cc src/op_const.sv src/proc.sv
 python -V
