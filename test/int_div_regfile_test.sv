@@ -45,6 +45,7 @@ module int_div_regfile_test();
 
         #10
         rst = 0;
+        rf_wr_ack = 0;
         assert(~busy);
         assert(~rf_wr_req);
 
@@ -66,22 +67,25 @@ module int_div_regfile_test();
             #10;
         end
         $display("after cnt loop %0d", cnt);
-        assert (cnt == 32);
+        assert (cnt == 31);
 
         assert(rf_wr_req);
         assert(busy);
         assert (rf_wr_data == 81);
         assert(rf_wr_sel == 3);
+        rf_wr_ack = 1;
 
         #10
         assert(rf_wr_req);
-        assert(~busy);
+        assert(busy);
         assert (rf_wr_data == 37);
         assert(rf_wr_sel == 7);
+        rf_wr_ack = 1;
 
         #10
         assert(~rf_wr_req);
         assert(~busy);
+        rf_wr_ack = 0;
 
         #10 $finish;
     end
