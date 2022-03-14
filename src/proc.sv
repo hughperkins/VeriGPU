@@ -104,18 +104,9 @@ module proc(
         reg branch;
         branch = 0;
         case(_funct)
-            BEQ: begin
-                if (c1_rs1_data == c1_rs2_data) begin
-                    branch = 1;
-                end
-            end
-            BNE: begin
-                if (c1_rs1_data != c1_rs2_data) begin
-                    branch = 1;
-                end
-            end
-            default: begin
-            end
+            BEQ: if (c1_rs1_data == c1_rs2_data) branch = 1;
+            BNE: if (c1_rs1_data != c1_rs2_data) branch = 1;
+            default: begin end
         endcase
 
         if (branch) begin
