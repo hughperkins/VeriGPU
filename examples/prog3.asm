@@ -1,6 +1,6 @@
-# test outloc
+; test outloc
 
-outloc 0xf0
+outloc 0xf0; 240
 outloc 0xf4
 outloc 0xf0
 outloc 0xf4

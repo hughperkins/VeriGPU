@@ -40,9 +40,9 @@ module comp(
     );
 
     proc proc1(
-        .rst(rst), .clk(clk), .out(out), .op(op), .imm1(imm1), .pc(pc),
+        .rst(rst), .clk(clk), .out(out), .c2_op(op), .c2_imm1(imm1), .pc(pc),
         .outflen(outflen),
-        .rd(rd),
+        .c2_rd_sel(rd),
         .x1(x1),
         .state(state), .outen(outen), .halt(halt),
 
