@@ -401,6 +401,8 @@ def run(args):
                     print('    missing', name)
     if printed_prologue:
         return
+    else:
+        sys.exit(1)
 
     print('')
     print('Propagation delay is between any pair of combinatorially connected')
