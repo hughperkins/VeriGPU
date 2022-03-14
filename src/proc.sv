@@ -57,13 +57,36 @@ module proc(
     reg [data_width - 1:0] wr_reg_data;
     reg wr_reg_req;
 
+    task read_mem(input [addr_width - 1:0] addr);
+        // combinatorial task
+        // sends off read mem request
+        // you still have to wait for mem_ack, and then read
+        // mem_rd_data
+        // can only call this once per tick, later calls in same
+        // tick will simply overwrite earlier calls...
+        mem_addr = addr;
+        mem_rd_req = 1;
+    endtask
+
+    task write_mem(input [addr_width - 1:0] addr, input [data_width - 1:0] data);
+        // combinatorial task
+        // sends off write mem request
+        // you still have to wait for mem_ack
+        // can only call this once per tick, later calls in same
+        // tick will simply overwrite earlier calls...
+        // also, read_mem and write_mem use the same address port, so you can only
+        // call one or the other in a single tick too
+        mem_addr = addr;
+        mem_wr_data = data;
+        mem_wr_req = 1;
+    endtask
+
     task read_next_instr(input [addr_width - 1:0] _next_pc);
         // assumes nothing else reading or writing to memory at same time...
         // to be be called from combinational code
         // flip-flop code will update the pc to be next_pc
         next_pc = _next_pc;
-        mem_addr = next_pc;
-        mem_rd_req = 1;
+        read_mem(next_pc);
         next_state = C1;
     endtask
 
@@ -172,9 +195,7 @@ module proc(
             default: begin
                 // $display("default");
                 // first write to memory; in C2 we will load next instruction
-                mem_addr = (c1_rs1_data + c1_store_offset);
-                mem_wr_req = 1;
-                mem_wr_data = c1_rs2_data;
+                write_mem(c1_rs1_data + c1_store_offset, c1_rs2_data);
                 next_state = C2;
             end
         endcase
@@ -193,8 +214,7 @@ module proc(
                 $display("c1.LOAD c1_rs1=%0d regs[c1_rs1]=%0d c1_load_offset=%0d", c1_rs1_sel, regs[c1_rs1_sel], c1_load_offset);
                 // read from memory
                 // lw rd, offset(rs1)
-                mem_addr = (c1_rs1_data + c1_load_offset);
-                mem_rd_req = 1;
+                read_mem(c1_rs1_data + c1_load_offset);
                 next_state = C2;
             end
             STORE: begin
@@ -329,6 +349,7 @@ module proc(
     assign c1_i_imm = {{20{mem_rd_data[31]}}, mem_rd_data[31:20]};
     assign c1_branch_offset = {{20{mem_rd_data[31]}}, mem_rd_data[31], mem_rd_data[7], mem_rd_data[30:25], mem_rd_data[11:8]};
     assign c1_op_funct = {mem_rd_data[31:25], mem_rd_data[14:12]};
+
     assign x1 = regs[1];
 
     assign c2_op = c2_instr[6:0];
