@@ -13,6 +13,7 @@ module int_div_regfile_test();
     reg [reg_sel_width - 1:0] rf_wr_sel;
     reg [data_width - 1:0] rf_wr_data;
     reg rf_wr_req;
+    reg rf_wr_ack;
 
     reg [31:0] cnt;
 
@@ -27,7 +28,8 @@ module int_div_regfile_test();
         .b(b),
         .rf_wr_sel(rf_wr_sel),
         .rf_wr_data(rf_wr_data),
-        .rf_wr_req(rf_wr_req)
+        .rf_wr_req(rf_wr_req),
+        .rf_wr_ack(rf_wr_ack)
     );
 
     initial begin

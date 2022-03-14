@@ -5,6 +5,19 @@ required parameters:
 - data_width: how many bits in the input and output ints
 - num_regs: how many registers there are in the registry file
 
+protocol:
+- client wants to divide a by b; and put quotient into register r_quot_sel,
+  and modulus into r_mod_sel
+- client sets these lines to desired values, and sets req to 1, waits for clock tick
+- after clock tick, client sets req to 0
+- module takes over
+- each clock tick works way through the division
+- once done, writes the results to the registers, i.e. quotient then modulus
+     - if a register selector is 0, it is ignored,
+     - otherwise, for each register, one at a time (different clock ticks):
+         - puts selector and data onto rf_wr_sel and rf_wr_data, and sets rf_wr_req; then waits for rf_wr_ack to turn high
+         - once rf_wr_ack is high, sets rf_wr_req back to 0
+         - if required, continues with modulus, or moves back to IDLE state
 
 $ python toy_proc/timing.py --in-verilog src/const.sv src/int_div_regfile.sv
 
@@ -32,7 +45,8 @@ module int_div_regfile(
 
         output reg [reg_sel_width - 1:0] rf_wr_sel,
         output reg [data_width - 1:0] rf_wr_data,
-        output reg rf_wr_req
+        output reg rf_wr_req,
+        input rf_wr_ack
 );
     parameter data_width = 32;
     parameter num_regs = 32;
