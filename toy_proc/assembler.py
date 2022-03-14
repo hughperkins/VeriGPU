@@ -36,16 +36,16 @@ funct_bits_branch = {
 
 
 funct_bits_op = {
-    'ADD':  '0000000000',
-    'SLT':  '0000000010',
-    'SLTU': '0000000011',
-    'AND':  '0000000111',
-    'OR':   '0000000110',
-    'XOR':  '0000000100',
-    'SLL':  '0000000001',
-    'SRL':  '0000000101',
-    'SUB':  '0100000000',
-    'SRA':  '0100000101',
+    'ADD':    '0000000000',
+    'SLT':    '0000000010',
+    'SLTU':   '0000000011',
+    'AND':    '0000000111',
+    'OR':     '0000000110',
+    'XOR':    '0000000100',
+    'SLL':    '0000000001',
+    'SRL':    '0000000101',
+    'SUB':    '0100000000',
+    'SRA':    '0100000101',
 
     # RV32M extension:
     'MUL':    '0000001000',
@@ -395,7 +395,8 @@ def run(args):
                 hex_lines.append(bits_to_hex(instr_bits))
             elif cmd in [
                  'add', 'slt', 'sltu', 'and', 'or', 'xor', 'sll', 'srl', 'sub', 'sra',
-                 'mul', 'mulh', 'mulhsu', 'mulhu', 'div', 'divu', 'rem', 'remu'
+                 'mul', 'mulh', 'mulhsu', 'mulhu', 'div', 'divu', 'rem', 'remu',
+                 'udiv', 'div', 'mul', 'mulu', 'mod', 'modu'
             ]:
                 # e.g.
                 # add rd, rs1, rs2
