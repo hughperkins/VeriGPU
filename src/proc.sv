@@ -5,14 +5,14 @@ module proc(
     output reg outen,
     output reg outflen,
 
-    output [6:0] c2_op,
-    output [2:0] c2_funct,
-    output [reg_sel_width - 1:0] c2_rd_sel,
-    output [reg_sel_width - 1:0] c2_rs1_sel,
-    output [reg_sel_width - 1:0] c2_rs2_sel,
-    output [6:0] c2_imm1,
+    output reg [6:0] c2_op,
+    output reg [2:0] c2_funct,
+    output reg [reg_sel_width - 1:0] c2_rd_sel,
+    output reg [reg_sel_width - 1:0] c2_rs1_sel,
+    output reg [reg_sel_width - 1:0] c2_rs2_sel,
+    output reg [6:0] c2_imm1,
 
-    output wire [data_width - 1:0] x1,
+    output reg [data_width - 1:0] x1,
     output reg [addr_width - 1:0] pc,
     output reg [4:0] state,
 
@@ -37,21 +37,21 @@ module proc(
         C2
     } e_state;
 
-    wire [6:0] c1_op;
-    wire [2:0] c1_funct3;
-    wire [9:0] c1_op_funct;
-    wire [reg_sel_width - 1:0] c1_rd_sel;
-    wire [reg_sel_width - 1:0] c1_rs1_sel;
-    wire [reg_sel_width - 1:0] c1_rs2_sel;
-    wire [data_width - 1:0] c1_rs1_data;
-    wire [data_width - 1:0] c1_rs2_data;
-    wire [6:0] c1_imm1;
+    reg [6:0] c1_op;
+    reg [2:0] c1_funct3;
+    reg [9:0] c1_op_funct;
+    reg [reg_sel_width - 1:0] c1_rd_sel;
+    reg [reg_sel_width - 1:0] c1_rs1_sel;
+    reg [reg_sel_width - 1:0] c1_rs2_sel;
+    reg [data_width - 1:0] c1_rs1_data;
+    reg [data_width - 1:0] c1_rs2_data;
+    reg [6:0] c1_imm1;
 
-    wire signed [addr_width - 1:0] c1_store_offset;
-    wire signed [addr_width - 1:0] c1_load_offset;
-    wire signed [data_width - 1:0] c1_i_imm;
-    wire signed [addr_width - 1:0] c1_branch_offset;
-    wire [instr_width - 1:0] c1_instr;
+    reg signed [addr_width - 1:0] c1_store_offset;
+    reg signed [addr_width - 1:0] c1_load_offset;
+    reg signed [data_width - 1:0] c1_i_imm;
+    reg signed [addr_width - 1:0] c1_branch_offset;
+    reg [instr_width - 1:0] c1_instr;
 
     reg [reg_sel_width - 1:0] wr_reg_sel;
     reg [data_width - 1:0] wr_reg_data;
@@ -94,8 +94,7 @@ module proc(
         // to be called from combinational code
         // flip flop code will do the actual write
         // you can only call this once per clock cycle...
-        // (there is no queue of these; the last register to be selected 
-        // written is written; and everything else is ignored)
+        // (there is no queue of these; the last call overwrites any earlier calls)
         wr_reg_sel = reg_sel;
         wr_reg_data = reg_data;
         wr_reg_req = 1;
@@ -176,6 +175,7 @@ module proc(
     endtask
 
     task op_store(input [addr_width - 1:0] _addr);
+        $display("op_store addr %0d", _addr);
         case (_addr)
             1000: begin
                 // write_out(regs[c1_rs2]);
@@ -202,7 +202,7 @@ module proc(
     endtask
 
     task instr_c1();
-        $display("instr_c1 c1_op=%0d mem_rd_data=%b", c1_op, mem_rd_data);
+        $display("instr_c1 c1_op=%0d mem_rd_data=%b rs1_data=%0d c1_store_offset=%0d", c1_op, mem_rd_data, c1_rs1_data, c1_store_offset);
         // $strobe("strobe instr_c1 c1_op=%0d mem_rd_data=%b", c1_op, mem_rd_data);
         halt = 0;
         case (c1_op)
@@ -283,6 +283,29 @@ module proc(
         wr_reg_data = '0;
         wr_reg_req = 0;
 
+        c1_instr = mem_rd_data;
+
+        c1_op = c1_instr[6:0];
+        c1_rd_sel = c1_instr[11:7];
+        c1_rs1_sel = c1_instr[19:15];
+        c1_rs2_sel = c1_instr[24:20];
+        c1_funct3 = c1_instr[14:12];
+        c1_imm1 = c1_instr[31:25];
+
+        c1_rs1_data = regs[c1_rs1_sel];
+        c1_rs2_data = regs[c1_rs2_sel];
+
+        c1_store_offset = {{20{c1_instr[31]}}, c1_instr[31:25], c1_instr[11:7]};
+        c1_load_offset = {{20{c1_instr[31]}}, c1_instr[31:20]};
+        c1_i_imm = {{20{c1_instr[31]}}, c1_instr[31:20]};
+        c1_branch_offset = {{20{c1_instr[31]}}, c1_instr[31], c1_instr[7], c1_instr[30:25], c1_instr[11:8]};
+        c1_op_funct = {c1_instr[31:25], c1_instr[14:12]};
+
+        x1 = regs[1];
+
+        c2_op = c2_instr[6:0];
+        c2_rd_sel = c2_instr[11:7];
+
         if(~rst) begin
             $display("comb t=%0d state=%0d pc=%0d c1_op=%0d mem_wr_req=%0b mem_rd_req=%0b mem_ack=%0b regs[1]=%0d", $time, state, pc, c1_op, mem_wr_req, mem_rd_req, mem_ack, regs[1]);
         end
@@ -322,10 +345,10 @@ module proc(
             state <= C0;
             regs[0] <= '0;
         end else begin
-            $display(
-                "ff mem_addr %0d mem_wr_data %0d mem_rd_data %0d mem_wr_req %b mem_rd_req  %b mem_ack %b mem_busy %b",
-                mem_addr,     mem_wr_data,    mem_rd_data,    mem_wr_req,   mem_rd_req,    mem_ack,   mem_busy);
-            $display("ff tick t=%0d clk=%0b next_pc=%0d next_state=%0d", $time, clk, next_pc, next_state);
+            // $display(
+            //     "ff mem_addr %0d mem_wr_data %0d mem_rd_data %0d mem_wr_req %b mem_rd_req  %b mem_ack %b mem_busy %b",
+            //     mem_addr,     mem_wr_data,    mem_rd_data,    mem_wr_req,   mem_rd_req,    mem_ack,   mem_busy);
+            // $display("ff tick t=%0d clk=%0b next_pc=%0d next_state=%0d", $time, clk, next_pc, next_state);
             pc <= next_pc;
             state <= next_state;
             c2_instr <= c2_instr_next;
@@ -334,24 +357,4 @@ module proc(
             end
         end
     end
-
-    assign c1_rs1_data = regs[c1_rs1_sel];
-    assign c1_rs2_data = regs[c1_rs2_sel];
-    assign c1_op = mem_rd_data[6:0];
-    assign c1_rd_sel = mem_rd_data[11:7];
-    assign c1_rs1_sel = mem_rd_data[19:15];
-    assign c1_rs2_sel = mem_rd_data[24:20];
-    assign c1_funct3 = mem_rd_data[14:12];
-    assign c1_imm1 = mem_rd_data[31:25];
-    assign c1_instr = mem_rd_data;
-    assign c1_store_offset = {{20{mem_rd_data[31]}}, mem_rd_data[31:25], mem_rd_data[11:7]};
-    assign c1_load_offset = {{20{mem_rd_data[31]}}, mem_rd_data[31:20]};
-    assign c1_i_imm = {{20{mem_rd_data[31]}}, mem_rd_data[31:20]};
-    assign c1_branch_offset = {{20{mem_rd_data[31]}}, mem_rd_data[31], mem_rd_data[7], mem_rd_data[30:25], mem_rd_data[11:8]};
-    assign c1_op_funct = {mem_rd_data[31:25], mem_rd_data[14:12]};
-
-    assign x1 = regs[1];
-
-    assign c2_op = c2_instr[6:0];
-    assign c2_rd_sel = c2_instr[11:7];
 endmodule
