@@ -21,6 +21,7 @@ jobs:
           name: "Run tests"
           command: |
             cicd/run.sh
+          no_output_timeout: 2m
       - store_artifacts:
           path: build/timing-proc.txt
       - store_artifacts:
