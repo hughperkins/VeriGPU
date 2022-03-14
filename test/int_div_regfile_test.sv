@@ -66,7 +66,7 @@ module int_div_regfile_test();
             #10;
         end
         $display("after cnt loop %0d", cnt);
-        assert (cnt == 33);
+        assert (cnt == 32);
 
         assert(rf_wr_req);
         assert(busy);

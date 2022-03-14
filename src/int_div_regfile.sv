@@ -57,7 +57,7 @@ module int_div_regfile(
 
     reg [data_width - 1:0] quotient;
     reg [data_width - 1:0] remainder;
-    reg [data_width - 1: 0] a_;
+    reg [data_width - 1: 0] a_remaining;
     reg [2 * data_width - 1: 0] shiftedb;
 
     reg [pos_width - 1:0] pos;
@@ -73,61 +73,85 @@ module int_div_regfile(
 
     reg [1:0] state;
 
+    reg [1:0] next_state;
+    reg [pos_width -1:0] next_pos;
+    reg next_wrote_quotient;
+    reg next_wrote_modulus;
+    reg [data_width -1:0] next_quotient;
+    reg [data_width -1:0] next_a_remaining;
+
+    always @(*) begin
+        rf_wr_req = 0;
+        next_pos = pos;
+        busy = 0;
+        next_quotient = quotient;
+        next_wrote_modulus = wrote_modulus;
+        next_wrote_quotient = wrote_quotient;
+        next_a_remaining = a_remaining;
+
+        shiftedb = {{data_width{1'b0}}, b} << pos;
+
+        // $strobe("state %0d req=%0b", state, req);
+        case(state)
+            IDLE: begin
+                if(req) begin
+                    next_pos = data_width_minus_1;
+                    next_quotient = '0;
+                    next_a_remaining = a;
+                    busy = 1;
+                    next_state = CALC;
+                    next_wrote_quotient = 0;
+                    next_wrote_modulus = 0;
+                end
+            end
+            CALC: begin
+                busy = 1;
+                if (shiftedb < {{data_width{1'b0}}, next_a_remaining}) begin
+                    next_a_remaining = next_a_remaining - shiftedb[data_width - 1 :0];
+                    next_quotient[pos] = 1;
+                end
+                if (pos == 0) begin
+                    next_state = WRITE;
+                end else begin
+                    next_pos = pos - 1;
+                end
+            end
+            WRITE: begin
+                busy = 1;
+                remainder = next_a_remaining;
+                if(r_quot_sel != 0 && ~wrote_quotient) begin
+                    rf_wr_req = 1;
+                    rf_wr_sel = r_quot_sel;
+                    rf_wr_data = quotient;
+                    next_wrote_quotient = 1;
+                end else if(r_mod_sel != 0 && ~wrote_modulus) begin
+                    rf_wr_req = 1;
+                    rf_wr_sel = r_mod_sel;
+                    rf_wr_data = remainder;
+                    next_wrote_modulus = 1;
+                    busy = 0;
+                    next_state = IDLE;
+                end else begin
+                    busy = 0;
+                    next_state = IDLE;
+                    rf_wr_req = 0;
+                end
+            end
+        endcase
+    end
+
     always @(posedge clk, posedge rst) begin
         // $strobe("always %0d req=%0b rst=%0b", state, req, rst);
         if (rst) begin
-            busy <= 0;
-            rf_wr_req <= 0;
             state <= IDLE;
+            pos <= 0;
         end else begin
-            rf_wr_req <= 0;
-            // $strobe("state %0d req=%0b", state, req);
-            case(state)
-                IDLE: begin
-                    if(req) begin
-                        pos <= data_width_minus_1;
-                        quotient <= '0;
-                        a_ <= a;
-                        busy <= 1;
-                        state <= CALC;
-                        wrote_quotient <= 0;
-                        wrote_modulus <= 0;
-                    end
-                end
-                CALC: begin
-                    if (shiftedb < {{data_width{1'b0}}, a_}) begin
-                        a_ <= a_ - shiftedb[data_width - 1 :0];
-                        quotient[pos] <= 1;
-                    end
-                    if (pos == 0) begin
-                        state <= WRITE;
-                    end else begin
-                        pos <= pos - 1;
-                    end
-                end
-                WRITE: begin
-                    if(r_quot_sel != 0 && ~wrote_quotient) begin
-                        rf_wr_req <= 1;
-                        rf_wr_sel <= r_quot_sel;
-                        rf_wr_data <= quotient;
-                        wrote_quotient <= 1;
-                    end else if(r_mod_sel != 0 && ~wrote_modulus) begin
-                        rf_wr_req <= 1;
-                        rf_wr_sel <= r_mod_sel;
-                        rf_wr_data <= remainder;
-                        wrote_modulus <= 1;
-                        busy <= 0;
-                        state <= IDLE;
-                    end else begin
-                        busy <= 0;
-                        state <= IDLE;
-                        rf_wr_req <= 0;
-                    end
-                end
-            endcase
+            state <= next_state;
+            pos <= next_pos;
+            quotient <= next_quotient;
+            a_remaining <= next_a_remaining;
+            wrote_modulus <= next_wrote_modulus;
+            wrote_quotient <= next_wrote_quotient;
         end
     end
-
-    assign shiftedb = {{data_width{1'b0}}, b} << pos;
-    assign remainder = a_;
 endmodule
