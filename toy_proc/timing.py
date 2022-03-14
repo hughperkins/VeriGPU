@@ -109,7 +109,7 @@ def str_to_names(vector_dims_by_name: Dict[str, Tuple[int, int, int]], names_str
     elif names_str in vector_dims_by_name:
         start, end, step = vector_dims_by_name[names_str]
         names += [f'{names_str}[{i}]' for i in range(start, end, step)]
-    elif ':' in names_str:
+    elif '[' in names_str and ':' in names_str.split('[')[1]:
         # it's already a vector...
         # split into names
         basename = names_str.split('[')[0]

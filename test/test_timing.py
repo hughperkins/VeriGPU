@@ -8,7 +8,9 @@ from toy_proc import timing
         ("foo", {}, ["foo"]),
         ("foo", {"foo": (0, 2, 1)}, ["foo[0]", "foo[1]"]),
         ("{foo, bar}", {}, ["foo", "bar"]),
-        ("foo[2:0]", {}, ["foo[2]", "foo[1]", "foo[0]"])
+        ("foo[2:0]", {}, ["foo[2]", "foo[1]", "foo[0]"]),
+        ("foo[2]", {}, ["foo[2]"]),
+        ("\\op_branch$func$src/proc.sv:0$10.branch", {}, ["\\op_branch$func$src/proc.sv:0$10.branch"])
     ]
 )
 def test_str_to_names(name_str: str, vector_dims_by_name: Dict[str, Tuple[int, int, int]], expected_names: List[str]):
