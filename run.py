@@ -23,10 +23,16 @@ def run(args):
             output = '\n'.join([line for line in output.split('\n') if line.startswith('out')])
         with open(f'examples/{args.name}_expected.txt') as f:
             expected = f.read().strip()
+        print('')
+        print('Target prog: ' + args.name)
+        print('')
         if expected != output:
-            print('output mismatch')
+            print('TEST ERROR: output mismatch')
+            print('')
+            print('actual:')
             print(output)
             print('')
+            print('expected:')
             print(expected)
             raise Exception('assert failed')
         print('output verified')
