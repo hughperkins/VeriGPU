@@ -76,7 +76,6 @@ module proc(
         wr_reg_sel = reg_sel;
         wr_reg_data = reg_data;
         wr_reg_req = 1;
-
     endtask
 
     task write_out(input [data_width - 1:0] _out);
@@ -130,49 +129,23 @@ module proc(
         wr_reg_req = 1;
         wr_reg_sel = _rd;
         case(_funct)
-            ADD: begin
-                wr_reg_data = c1_rs1_data + c1_rs2_data;
-            end
-            SLT: begin
-                // this is actually unsigned. Need to fix...
-                wr_reg_data = c1_rs1_data < c1_rs2_data ? '1 : '0;
-            end
-            SLTU: begin
-                wr_reg_data = c1_rs1_data < c1_rs2_data ? '1 : '0;
-            end
-            AND: begin
-                wr_reg_data = c1_rs1_data & c1_rs2_data;
-            end
-            OR: begin
-                wr_reg_data = c1_rs1_data | c1_rs2_data;
-            end
-            XOR: begin
-                wr_reg_data = c1_rs1_data ^ c1_rs2_data;
-            end
-            SLL: begin
-                wr_reg_data = c1_rs1_data << c1_rs2_data[4:0];
-            end
-            SRL: begin
-                wr_reg_data = c1_rs1_data >> c1_rs2_data[4:0];
-            end
-            SUB: begin
-                wr_reg_data = c1_rs1_data - c1_rs2_data;
-            end
-            SRA: begin
-                // not sure what an 'arithmetic' shift is
-                // need to fix...
-                wr_reg_data = c1_rs1_data >> c1_rs2_data[4:0];
-            end
-
+            ADD: wr_reg_data = c1_rs1_data + c1_rs2_data;
+            // this is actually unsigned. Need to fix...
+            SLT: wr_reg_data = c1_rs1_data < c1_rs2_data ? '1 : '0;
+            SLTU: wr_reg_data = c1_rs1_data < c1_rs2_data ? '1 : '0;
+            AND: wr_reg_data = c1_rs1_data & c1_rs2_data;
+            OR: wr_reg_data = c1_rs1_data | c1_rs2_data;
+            XOR: wr_reg_data = c1_rs1_data ^ c1_rs2_data;
+            SLL: wr_reg_data = c1_rs1_data << c1_rs2_data[4:0];
+            SRL: wr_reg_data = c1_rs1_data >> c1_rs2_data[4:0];
+            SUB: wr_reg_data = c1_rs1_data - c1_rs2_data;
+            // not sure what an 'arithmetic' shift is
+            // need to fix...
+            SRA: wr_reg_data = c1_rs1_data >> c1_rs2_data[4:0];
             // RV32M
-            MUL: begin
-                wr_reg_data = c1_rs1_data * c1_rs2_data;
-            end
-            REM: begin
-            end
-
-            default: begin
-            end
+            MUL: wr_reg_data = c1_rs1_data * c1_rs2_data;
+            REM: begin end
+            default: begin end
         endcase
         // $display("op regs[_rd]=%0d _rd=%0d regs[_rs1]=%0d regs[_rs2]=%0d", regs[_rd], _rd, regs[_rs1], regs[_rs2]);
         read_next_instr(pc + 4);
