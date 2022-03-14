@@ -5,14 +5,14 @@ module proc(
     output reg outen,
     output reg outflen,
 
-    output reg [6:0] c2_op,
-    output reg [2:0] c2_funct,
-    output reg [reg_sel_width - 1:0] c2_rd_sel,
-    output reg [reg_sel_width - 1:0] c2_rs1_sel,
-    output reg [reg_sel_width - 1:0] c2_rs2_sel,
-    output reg [6:0] c2_imm1,
+    output [6:0] c2_op,
+    output [2:0] c2_funct,
+    output [reg_sel_width - 1:0] c2_rd_sel,
+    output [reg_sel_width - 1:0] c2_rs1_sel,
+    output [reg_sel_width - 1:0] c2_rs2_sel,
+    output [6:0] c2_imm1,
 
-    output reg [data_width - 1:0] x1,
+    output wire [data_width - 1:0] x1,
     output reg [addr_width - 1:0] pc,
     output reg [4:0] state,
 
