@@ -1,6 +1,5 @@
 - create register file
-- int division
-- int modulus
+- start measuring run time, in run.py (via comp_driver.sv)
 - fuse LUI and ADDI
 - fuse LUI and JALR
 - fuse AUIPC and JALR
@@ -24,6 +23,8 @@
 - (use actual memory module?)
 
 done:
+- int division
+- int modulus
 - experiment with migrating most of proc.sv to combinational always @(*) block (from posedge block)
 - add cicd to readme
 - tested store and load floats
