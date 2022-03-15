@@ -26,6 +26,8 @@ jobs:
           path: build/timing-proc.txt
       - store_artifacts:
           path: build/timing-apu.txt
+      - store_artifacts:
+          path: build/clock-cycles.txt
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows

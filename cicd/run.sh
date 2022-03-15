@@ -15,5 +15,7 @@ pytest -v .
 bash test/reg_test.sh
 bash test/run_sv_tests.sh
 
+python test/get_prog_cycles.py | tee build/clock-cycles.txt
+
 python toy_proc/timing.py --in-verilog src/op_const.sv src/const.sv src/int_div_regfile.sv src/proc.sv --top-module proc | tee build/timing-proc.txt
 # python toy_proc/timing.py --in-verilog src/const.sv src/int_div_regfile.sv src/apu.sv --top-module apu | tee build/timing-apu.txt
