@@ -16,7 +16,7 @@ Will use 'unit times' for timings, which will look something like:
 - shr: 0 (it's just rewiring)
 """
 import argparse
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, List
 from collections import deque, defaultdict
 import networkx as nx
 import subprocess
@@ -92,7 +92,7 @@ class Cell:
             f' in={len(self.cell_input_delay_by_name)}/{len(self.cell_inputs)})')
 
 
-def str_to_names(vector_dims_by_name: Dict[str, Tuple[int, int, int]], names_str: str):
+def str_to_names(vector_bits_by_name: Dict[str, List[int]], names_str: str):
     """
     example of names_str:
     some_name
@@ -108,10 +108,10 @@ def str_to_names(vector_dims_by_name: Dict[str, Tuple[int, int, int]], names_str
         # it's a concatenation
         split_names_str = names_str[1:-1].split(',')
         for child_name_str in split_names_str:
-            names += str_to_names(vector_dims_by_name, child_name_str.strip())
-    elif names_str in vector_dims_by_name:
-        start, end, step = vector_dims_by_name[names_str]
-        names += [f'{names_str}[{i}]' for i in range(start, end, step)]
+            names += str_to_names(vector_bits_by_name, child_name_str.strip())
+    elif names_str in vector_bits_by_name:
+        bits = vector_bits_by_name[names_str]
+        names += [f'{names_str}[{i}]' for i in bits]
     elif '[' in names_str and ':' in names_str.split('[')[1]:
         # it's already a vector...
         # split into names
@@ -170,11 +170,14 @@ def run(args):
     # output_delay is 0
     empty_cells = []
 
+    previous_unused_bits = []
+
     # each value is a tuple of (start_dim, end_dim_excl, step)
     # that we could feed to range(start, end_excl, step)
-    vector_dims_by_name = {}
+    vector_bits_by_name = {}
     for line in netlist.split('\n'):
         line = line.strip()
+        next_unused_bits = []
         if in_declaration:
             # inside a cell declaration
             if line.strip() == ');':
@@ -205,7 +208,7 @@ def run(args):
                 # ignore immediate numbers
                 if port_wire[0] in '0123456789':
                     continue
-                port_wires = str_to_names(vector_dims_by_name, port_wire)
+                port_wires = str_to_names(vector_bits_by_name, port_wire)
                 for port_wire in port_wires:
                     if port_name in input_wires:
                         cell_inputs[port_wire] = port_wire
@@ -278,14 +281,19 @@ def run(args):
                 except Exception as e:
                     print(line)
                     raise e
+            elif line.startswith('(* unused_bits'):
+                # print('unused bits line', line)
+                unused_bits = [int(s) for s in line.split('"')[1].split()]
+                # print('unused_bits', unused_bits)
+                next_unused_bits = unused_bits
             elif line.startswith('assign'):
                 # eg
                 # assign a = b;
                 line = line.replace('assign ', '').strip()
                 line = line[:-1]
                 lhs, _, rhs = line.partition(' = ')
-                lhs_names = str_to_names(vector_dims_by_name, lhs)
-                rhs_names = str_to_names(vector_dims_by_name, rhs)
+                lhs_names = str_to_names(vector_bits_by_name, lhs)
+                rhs_names = str_to_names(vector_bits_by_name, rhs)
 
                 cell_outputs = lhs_names
                 cell_inputs = rhs_names
@@ -316,12 +324,32 @@ def run(args):
                     end = int(dims.split(':')[1].split(']')[0])
                     step = 1 if end > start else -1
                     end_excl = end + step
-                    vector_dims_by_name[name] = (start, end_excl, step)
+                    vector_bits_by_name[name] = list(range(start, end_excl, step))
+                    if len(previous_unused_bits) > 0:
+                        # create a source cell that outputs each of the unused bits, like an immediate
+                        # for bit in previous_unused_bits:
+                        cell = Cell(
+                            cell_type='UNUSED_BITS',
+                            cell_name=f'{name}_unused_bits',
+                            inputs=[],
+                            outputs=[f'{name}[{bit}]' for bit in previous_unused_bits],
+                            is_source_sink=True
+                        )
+                        print('unused bits cell', cell)
+                        cell.output_delay = 0
+                        cell_idx = len(cells)
+                        cells.append(cell)
+                        source_sink_nodes.add(cell)
+                        for cell_output in cell.cell_outputs:
+                            cellidxs_by_output[cell_output.strip()].append(cell_idx)
+                    #         vector_bits_by_name[name].remove(bit)
+                    # print('vector_bits_by_name', name, vector_bits_by_name[name])
             if line.endswith('('):
                 in_declaration = True
                 cell_type, cell_name, _ = line.split()
                 cell_inputs = {}
                 cell_outputs = {}
+        previous_unused_bits = next_unused_bits
 
     G = nx.Graph()
     for i, cell in enumerate(cells):
