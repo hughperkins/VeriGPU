@@ -128,7 +128,7 @@ module int_div_regfile(
                 next_busy = 1;
                 if (shiftedb < {{data_width{1'b0}}, next_a_remaining}) begin
                     next_a_remaining = next_a_remaining - shiftedb[data_width - 1 :0];
-                    next_quotient[pos] = 1;
+                    next_quotient = next_quotient | (1 << pos);
                 end
                 if (pos == 0) begin
                     if(internal_r_quot_sel != 0) begin
