@@ -1,7 +1,7 @@
 - create register file
-- start measuring run time, in run.py (via comp_driver.sv)
 - gate level simulation (GLS); i.e. what happens if we simulate using yosys output?
 - fuse LUI and ADDI
+- change memory fetch time to 128
 - fuse LUI and JALR
 - fuse AUIPC and JALR
 - fuse DIV and MOD
@@ -24,6 +24,7 @@
 - (use actual memory module?)
 
 done:
+- start measuring run time, in run.py (via comp_driver.sv)
 - handle `(* unused_bits)` in timing.py
 - int division
 - int modulus
