@@ -31,6 +31,8 @@ module comp_driver(
 
     reg [31:0] t_at_reset;
 
+    reg [31:0] cycle_count;
+
     comp comp1(
         .clk(clk), .rst(rst),
         .pc(pc), .op(op), .rd(rd),
@@ -88,13 +90,17 @@ module comp_driver(
         // rst = 1;
         // #1 rst = 0;
 
-        while(~halt && $time - t_at_reset < 6000) begin
+        while(~halt && $time - t_at_reset < 60000) begin
+        // while(~halt && $time - t_at_reset < 6000) begin
         // while(~halt && $time - t_at_reset < 1200) begin
             #10;
         end
+
         $display("halt %0b t=%0d", halt, $time);
+        cycle_count = ($time - t_at_reset) / 10;
 
         $display("driver monitor outpos %0d", outpos);
+        $display("");
         for(int i = 0; i < outpos; i++) begin
             if (outtype[i]) begin
                 double = bitstosingle(outmem[i]);
@@ -103,6 +109,10 @@ module comp_driver(
                 $display("out %0d %b %h %0d", i, outmem[i], outmem[i], outmem[i]);
             end
         end
+        $monitor("");
+        $display("Cycle count is number of clock cycles from reset going low to halt received.");
+        $display("cycle_count %0d", cycle_count);
+        $display("");
         $finish();
     end
 endmodule
