@@ -64,15 +64,17 @@ module proc(
     reg [data_width - 1:0]    n_div_rs2_data;
 
     reg                       div_req;
-    reg                       div_busy;
     reg [reg_sel_width - 1:0] div_r_quot_sel;
     reg [reg_sel_width - 1:0] div_r_mod_sel;
     reg [data_width - 1:0]    div_rs1_data;
     reg [data_width - 1:0]    div_rs2_data;
+
+    reg                       div_wr_reg_ack;
+
+    reg                       div_busy;
     reg [reg_sel_width - 1:0] div_wr_reg_sel;
     reg [data_width - 1:0]    div_wr_reg_data;
     reg                       div_wr_reg_req;
-    reg                       div_wr_reg_ack;
 
     int_div_regfile int_div_regfile_(
         .clk(clk),
