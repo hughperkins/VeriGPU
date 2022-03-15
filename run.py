@@ -7,10 +7,10 @@ def run(args):
     args.name = args.name.replace('.asm', '').replace('src/', '')
     assert os.system(
         f'{sys.executable} toy_proc/assembler.py --in-asm examples/{args.name}.asm'
-        f' --out-hex build/{args.name}.hex') == 0
+        f' --out-hex build/prog.hex') == 0
     with open('src/comp_driver.sv') as f:
         comp_driver = f.read()
-    comp_driver = comp_driver.replace('{PROG}', args.name)
+    comp_driver = comp_driver.replace('{PROG}', 'prog')
     with open('build/comp_driver.sv', 'w') as f:
         f.write(comp_driver)
     os.system(f'cat examples/{args.name}.asm')
