@@ -58,6 +58,10 @@ module int_div_regfile_test();
 
         #10
         req = 0;
+        a = 0;
+        b = 0;
+        r_quot_sel = 0;
+        r_mod_sel = 0;
         assert(busy);
         assert(~rf_wr_req);
 

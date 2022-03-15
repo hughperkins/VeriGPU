@@ -63,10 +63,19 @@ module int_div_regfile(
     } e_state;
 
     reg [1:0] state;
+
+    reg [reg_sel_width -1:0] internal_r_quot_sel;
+    reg [reg_sel_width -1:0] internal_r_mod_sel;
+    reg [data_width -1:0] internal_b;
+
     reg [pos_width - 1:0] pos;
     reg [data_width - 1:0] quotient;
     reg [data_width - 1:0] remainder;
     reg [data_width - 1: 0] a_remaining;
+
+    reg [reg_sel_width -1:0] next_internal_r_quot_sel;
+    reg [reg_sel_width -1:0] next_internal_r_mod_sel;
+    reg [data_width -1:0] next_internal_b;
 
     reg [1:0] next_state;
     reg [pos_width -1:0] next_pos;
@@ -78,26 +87,25 @@ module int_div_regfile(
     reg next_rf_wr_req;
     reg next_busy;
 
-    // reg next_ack;
-
     always @(*) begin
     // always @(state, pos, req, rf_wr_ack) begin
         reg [2 * data_width - 1: 0] shiftedb;
 
-        // rf_wr_req = 0;
         next_state = state;
         next_pos = pos;
-        // busy = 0;
         next_quotient = quotient;
         next_a_remaining = a_remaining;
         next_busy = 0;
-        // next_ack = 0;
+
+        next_internal_r_quot_sel = internal_r_quot_sel;
+        next_internal_r_mod_sel = internal_r_mod_sel;
+        next_internal_b = internal_b;
 
         next_rf_wr_req = 0;
         next_rf_wr_sel = '0;
         next_rf_wr_data = '0;
 
-        shiftedb = {{data_width{1'b0}}, b} << pos;
+        shiftedb = {{data_width{1'b0}}, internal_b} << pos;
 
         $display("div comb req=%0d state=%0d pos=%0d rf_wr_ack=%0d", req, state, pos, rf_wr_ack);
         // $strobe("state %0d req=%0b", state, req);
@@ -110,6 +118,10 @@ module int_div_regfile(
                     next_a_remaining = a;
                     next_busy = 1;
                     next_state = CALC;
+
+                    next_internal_r_mod_sel = r_mod_sel;
+                    next_internal_r_quot_sel = r_quot_sel;
+                    next_internal_b = b;
                 end
             end
             CALC: begin
@@ -119,15 +131,15 @@ module int_div_regfile(
                     next_quotient[pos] = 1;
                 end
                 if (pos == 0) begin
-                    if(r_quot_sel != 0) begin
+                    if(internal_r_quot_sel != 0) begin
                         next_rf_wr_req = 1;
-                        next_rf_wr_sel = r_quot_sel;
+                        next_rf_wr_sel = internal_r_quot_sel;
                         next_rf_wr_data = next_quotient;
                         next_state = WRITING_QUOTIENT;
                         $display("div. wrote quotient");
-                    end else if(r_mod_sel != 0) begin
+                    end else if(internal_r_mod_sel != 0) begin
                         next_rf_wr_req = 1;
-                        next_rf_wr_sel = r_mod_sel;
+                        next_rf_wr_sel = internal_r_mod_sel;
                         next_rf_wr_data = next_a_remaining;
                         next_state = WRITING_MODULUS;
                     end else begin
@@ -140,11 +152,11 @@ module int_div_regfile(
             WRITING_QUOTIENT: begin
                 if(rf_wr_ack) begin
                     $display("div got ack, maybe write modulus");
-                    if(r_mod_sel != 0) begin
+                    if(internal_r_mod_sel != 0) begin
                         $display("div write modulus (for next cycle)");
                         next_busy = 1;
                         next_rf_wr_req = 1;
-                        next_rf_wr_sel = r_mod_sel;
+                        next_rf_wr_sel = internal_r_mod_sel;
                         next_rf_wr_data = next_a_remaining;
                         next_state = WRITING_MODULUS;
                     end else begin
@@ -154,7 +166,7 @@ module int_div_regfile(
                     $display("div waiting ack");
                     next_busy = 1;
                     next_rf_wr_req = 1;
-                    next_rf_wr_sel = r_quot_sel;
+                    next_rf_wr_sel = internal_r_quot_sel;
                     next_rf_wr_data = next_quotient;
                 end
             end
@@ -164,7 +176,7 @@ module int_div_regfile(
                 end else begin
                     next_busy = 1;
                     next_rf_wr_req = 1;
-                    next_rf_wr_sel = r_mod_sel;
+                    next_rf_wr_sel = internal_r_mod_sel;
                     next_rf_wr_data = next_a_remaining;
                 end
             end
@@ -182,7 +194,6 @@ module int_div_regfile(
             rf_wr_sel <= 0;
             rf_wr_data <= 0;
             busy <= 0;
-            // ack <= 0;
         end else begin
             // $display("div clk");
             state <= next_state;
@@ -190,12 +201,15 @@ module int_div_regfile(
             quotient <= next_quotient;
             a_remaining <= next_a_remaining;
 
+            internal_r_quot_sel <= next_internal_r_quot_sel;
+            internal_r_mod_sel <= next_internal_r_mod_sel;
+            internal_b <= next_internal_b;
+
             rf_wr_req <= next_rf_wr_req;
             rf_wr_sel <= next_rf_wr_sel;
             rf_wr_data <= next_rf_wr_data;
 
             busy <= next_busy;
-            // ack <= next_ack;
         end
     end
 endmodule
