@@ -55,7 +55,7 @@ module int_div_regfile(
     parameter pos_width = $clog2(data_width);
     parameter data_width_minus_1 = data_width - 1;
 
-    typedef enum {
+    typedef enum bit[1:0] {
         IDLE,
         CALC,
         WRITING_QUOTIENT,
@@ -105,7 +105,7 @@ module int_div_regfile(
             IDLE: begin
                 if(req) begin
                     $display("div unit got req");
-                    next_pos = data_width_minus_1;
+                    next_pos = data_width_minus_1[pos_width - 1:0];
                     next_quotient = '0;
                     next_a_remaining = a;
                     next_busy = 1;

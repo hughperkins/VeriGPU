@@ -354,6 +354,8 @@ module proc(
                             read_next_instr(pc + 4);
                         end
                     end
+                    default: begin
+                    end
                 endcase
             end
             default: begin
