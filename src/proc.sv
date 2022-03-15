@@ -197,11 +197,11 @@ module proc(
                 $display("DIVU.c1");
                 if(~div_busy) begin
                     $display("sending req to div unit a=%0d b=%0d quot_sel=%0d", c1_rs1_data, c1_rs2_data, _rd_sel);
-                    div_req = 1;
-                    div_r_quot_sel = _rd_sel;
-                    div_r_mod_sel = '0;
-                    div_rs1_data = c1_rs1_data;
-                    div_rs2_data = c1_rs2_data;
+                    n_div_req = 1;
+                    n_div_r_quot_sel = _rd_sel;
+                    n_div_r_mod_sel = '0;
+                    n_div_rs1_data = c1_rs1_data;
+                    n_div_rs2_data = c1_rs2_data;
                     // since we havent implemented any kind of instruction parallelism (i.e. wiatin for egister to 
                     // be vailable...), so we need to move to next state, and wait for div to finish first
                     // we can improve this later
@@ -216,11 +216,11 @@ module proc(
                 $display("REMU.c1");
                 if(~div_busy) begin
                     $display("sending req to div unit a=%0d b=%0d mod_sel=%0d", c1_rs1_data, c1_rs2_data, _rd_sel);
-                    div_req = 1;
-                    div_r_quot_sel = '0;
-                    div_r_mod_sel = _rd_sel;
-                    div_rs1_data = c1_rs1_data;
-                    div_rs2_data = c1_rs2_data;
+                    n_div_req = 1;
+                    n_div_r_quot_sel = '0;
+                    n_div_r_mod_sel = _rd_sel;
+                    n_div_rs1_data = c1_rs1_data;
+                    n_div_rs2_data = c1_rs2_data;
                     // since we havent implemented any kind of instruction parallelism (i.e. wiatin for egister to 
                     // be vailable...), so we need to move to next state, and wait for div to finish first
                     // we can improve this later
@@ -385,7 +385,6 @@ module proc(
         next_pc = pc;
         next_state = state;
 
-        div_req = 0;
         div_wr_reg_ack = 0;
 
         c2_instr_next = c2_instr;
