@@ -165,12 +165,12 @@ module proc(
     endtask
 
     task op_op(input [9:0] _funct, input [4:0] _rd_sel, input [4:0] _rs1_sel, input [4:0] _rs2_sel);
-        reg skip_next_instr;
+        reg skip_advance_pc;
 
         wr_reg_req = 1;
         wr_reg_sel = _rd_sel;
         $display("op_op.c1 op_funct=%0d", _funct);
-        skip_next_instr = 0;
+        skip_advance_pc = 0;
         case(_funct)
             ADD: wr_reg_data = c1_rs1_data + c1_rs2_data;
             // this is actually unsigned. Need to fix...
@@ -200,18 +200,35 @@ module proc(
                     // be vailable...), so we need to move to next state, and wait for div to finish first
                     // we can improve this later
                     next_state = C2;
-                    skip_next_instr = 1;
+                    skip_advance_pc = 1;
                 end else begin
                     // wait for not busy I suppose...
                     $display("waiting for div unit to be free");
                 end
-                // next_state = C2;
             end
-            REMU: begin end
+            REMU: begin
+                $display("REMU.c1");
+                if(~div_busy) begin
+                    $display("sending req to div unit a=%0d b=%0d mod_sel=%0d", c1_rs1_data, c1_rs2_data, _rd_sel);
+                    div_req = 1;
+                    div_r_quot_sel = '0;
+                    div_r_mod_sel = _rd_sel;
+                    div_rs1_data = c1_rs1_data;
+                    div_rs2_data = c1_rs2_data;
+                    // since we havent implemented any kind of instruction parallelism (i.e. wiatin for egister to 
+                    // be vailable...), so we need to move to next state, and wait for div to finish first
+                    // we can improve this later
+                    next_state = C2;
+                    skip_advance_pc = 1;
+                end else begin
+                    // wait for not busy I suppose...
+                    $display("waiting for div unit to be free");
+                end
+            end
             default: begin end
         endcase
         // $display("op regs[_rd]=%0d _rd=%0d regs[_rs1]=%0d regs[_rs2]=%0d", regs[_rd], _rd, regs[_rs1], regs[_rs2]);
-        if(~skip_next_instr) begin
+        if(~skip_advance_pc) begin
             read_next_instr(pc + 4);
         end
     endtask
@@ -317,6 +334,17 @@ module proc(
                 case(c2_op_funct)
                     DIVU: begin
                         $display("DIVU.C2 div busy=%0b div_wr_reg_req=%0b", div_busy, div_wr_reg_req);
+                        if(div_wr_reg_req) begin
+                            // go to next instruction
+                            // well, lets read the result for now
+                            $display("got write req from div, write ack");
+                            div_wr_reg_ack = 1;
+                            write_reg(div_wr_reg_sel, div_wr_reg_data);
+                            read_next_instr(pc + 4);
+                        end
+                    end
+                    REMU: begin
+                        $display("REMU.C2 div busy=%0b div_wr_reg_req=%0b", div_busy, div_wr_reg_req);
                         if(div_wr_reg_req) begin
                             // go to next instruction
                             // well, lets read the result for now
