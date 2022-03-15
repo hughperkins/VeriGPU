@@ -57,16 +57,22 @@ module proc(
     reg [data_width - 1:0] wr_reg_data;
     reg wr_reg_req;
 
-    reg div_req;
-    reg div_busy;
+    reg                       n_div_req;
+    reg [reg_sel_width - 1:0] n_div_r_quot_sel;
+    reg [reg_sel_width - 1:0] n_div_r_mod_sel;
+    reg [data_width - 1:0]    n_div_rs1_data;
+    reg [data_width - 1:0]    n_div_rs2_data;
+
+    reg                       div_req;
+    reg                       div_busy;
     reg [reg_sel_width - 1:0] div_r_quot_sel;
     reg [reg_sel_width - 1:0] div_r_mod_sel;
-    reg [data_width - 1:0] div_rs1_data;
-    reg [data_width - 1:0] div_rs2_data;
+    reg [data_width - 1:0]    div_rs1_data;
+    reg [data_width - 1:0]    div_rs2_data;
     reg [reg_sel_width - 1:0] div_wr_reg_sel;
-    reg [data_width - 1:0] div_wr_reg_data;
-    reg div_wr_reg_req;
-    reg div_wr_reg_ack;
+    reg [data_width - 1:0]    div_wr_reg_data;
+    reg                       div_wr_reg_req;
+    reg                       div_wr_reg_ack;
 
     int_div_regfile int_div_regfile_(
         .clk(clk),
@@ -388,10 +394,11 @@ module proc(
         wr_reg_data = '0;
         wr_reg_req = 0;
 
-        div_rs1_data = '0;
-        div_rs2_data = '0;
-        div_r_quot_sel = '0;
-        div_r_mod_sel = '0;
+        n_div_req = 0;
+        n_div_r_quot_sel = '0;
+        n_div_r_mod_sel = '0;
+        n_div_rs1_data = '0;
+        n_div_rs2_data = '0;
 
         c1_instr = mem_rd_data;
 
@@ -466,6 +473,12 @@ module proc(
             if (wr_reg_req) begin
                 regs[wr_reg_sel] <= wr_reg_data;
             end
+
+            div_req <= n_div_req;
+            div_r_quot_sel <= n_div_r_quot_sel;
+            div_r_mod_sel <= n_div_r_mod_sel;
+            div_rs1_data <= n_div_rs1_data;
+            div_rs2_data <= n_div_rs2_data;
         end
     end
 endmodule
