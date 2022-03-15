@@ -369,6 +369,7 @@ module proc(
         );
     // always_comb begin
         halt = 0;
+        out = '0;
         outen = 0;
         outflen = 0;
         mem_addr = '0;
@@ -386,6 +387,11 @@ module proc(
         wr_reg_sel = '0;
         wr_reg_data = '0;
         wr_reg_req = 0;
+
+        div_rs1_data = '0;
+        div_rs2_data = '0;
+        div_r_quot_sel = '0;
+        div_r_mod_sel = '0;
 
         c1_instr = mem_rd_data;
 
