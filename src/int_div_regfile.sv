@@ -190,6 +190,12 @@ module int_div_regfile(
             pos <= 0;
             busy <= 0;
 
+            quotient <= '0;
+            a_remaining <= '0;
+            internal_r_quot_sel <= '0;
+            internal_r_mod_sel <= '0;
+            internal_b <= '0;
+
             rf_wr_req <= 0;
             rf_wr_sel <= 0;
             rf_wr_data <= 0;
