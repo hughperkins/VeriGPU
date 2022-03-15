@@ -81,29 +81,29 @@ module mem_delayed_test();
         rst = 0;
 
         write(16'h8, 16'hab, mem_simulated_delay);
-        write(16'h10, 16'hcd, 5);
+        write(16'h10, 16'hcd, mem_simulated_delay);
 
-        check_read(16'h10, 16'hcd, 5);
-        check_read(16'h8, 16'hab, 5);
-        check_read(16'h10, 16'hcd, 5);
-        check_read(16'h8, 16'hab, 5);
+        check_read(16'h10, 16'hcd, mem_simulated_delay);
+        check_read(16'h8, 16'hab, mem_simulated_delay);
+        check_read(16'h10, 16'hcd, mem_simulated_delay);
+        check_read(16'h8, 16'hab, mem_simulated_delay);
 
-        write(16'h14, 16'h11, 5);
-        write(16'h18, 16'h22, 5);
-        check_read(16'h14, 16'h11, 5);
-        check_read(16'h18, 16'h22, 5);
+        write(16'h14, 16'h11, mem_simulated_delay);
+        write(16'h18, 16'h22, mem_simulated_delay);
+        check_read(16'h14, 16'h11, mem_simulated_delay);
+        check_read(16'h18, 16'h22, mem_simulated_delay);
 
-        check_read(16'h10, 16'hcd, 5);
-        check_read(16'h8, 16'hab, 5);
+        check_read(16'h10, 16'hcd, mem_simulated_delay);
+        check_read(16'h8, 16'hab, mem_simulated_delay);
 
-        write(16'd8, 16'hab, 5);
-        write(16'd11, 16'hcd, 5);
-        check_read(16'd8, 16'hcd, 5);
+        write(16'd8, 16'hab, mem_simulated_delay);
+        write(16'd11, 16'hcd, mem_simulated_delay);
+        check_read(16'd8, 16'hcd, mem_simulated_delay);
 
-        write(16'd8, 16'hab, 5);
-        write(16'd12, 16'hcd, 5);
-        check_read(16'd8, 16'hab, 5);
-        check_read(16'd12, 16'hcd, 5);
+        write(16'd8, 16'hab, mem_simulated_delay);
+        write(16'd12, 16'hcd, mem_simulated_delay);
+        check_read(16'd8, 16'hab, mem_simulated_delay);
+        check_read(16'd12, 16'hcd, mem_simulated_delay);
 
 
         assert(~busy);
