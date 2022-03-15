@@ -1,4 +1,3 @@
-- handle `(* unused_bits)` in timing.py
 - create register file
 - start measuring run time, in run.py (via comp_driver.sv)
 - gate level simulation (GLS); i.e. what happens if we simulate using yosys output?
@@ -25,6 +24,7 @@
 - (use actual memory module?)
 
 done:
+- handle `(* unused_bits)` in timing.py
 - int division
 - int modulus
 - experiment with migrating most of proc.sv to combinational always @(*) block (from posedge block)
