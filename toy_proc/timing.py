@@ -342,8 +342,27 @@ def run(args):
                         source_sink_nodes.add(cell)
                         for cell_output in cell.cell_outputs:
                             cellidxs_by_output[cell_output.strip()].append(cell_idx)
-                    #         vector_bits_by_name[name].remove(bit)
-                    # print('vector_bits_by_name', name, vector_bits_by_name[name])
+                else:
+                    # we dont care abou the vector bit, but if theres an unused bits, then
+                    # create an unused bits cell for this wire
+                    if len(previous_unused_bits) > 0:
+                        _, name = line[:-1].split()
+                        assert len(previous_unused_bits) == 1
+                        assert previous_unused_bits[0] == 0
+                        cell = Cell(
+                            cell_type='UNUSED_BITS',
+                            cell_name=f'{name}_unused_bit',
+                            inputs=[],
+                            outputs=[name],
+                            is_source_sink=True
+                        )
+                        print('unused bits cell', cell)
+                        cell.output_delay = 0
+                        cell_idx = len(cells)
+                        cells.append(cell)
+                        source_sink_nodes.add(cell)
+                        for cell_output in cell.cell_outputs:
+                            cellidxs_by_output[cell_output.strip()].append(cell_idx)
             if line.endswith('('):
                 in_declaration = True
                 cell_type, cell_name, _ = line.split()
