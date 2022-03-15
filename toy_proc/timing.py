@@ -366,7 +366,7 @@ def run(args):
                 try:
                     to_cell.connect_input(wire_name, delay)
                 except Exception as e:
-                    print('input_name ' + wire_name + ' already in cell_input_delay_by_name')
+                    print('input_name [' + wire_name + '] already in cell_input_delay_by_name')
                     print('cell_input_delay_by_name:')
                     for key, value in to_cell.cell_input_delay_by_name.items():
                         print('-', key, value)
