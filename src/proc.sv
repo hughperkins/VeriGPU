@@ -5,13 +5,6 @@ module proc(
     output reg outen,
     output reg outflen,
 
-    output reg [6:0] c2_op,
-    output reg [2:0] c2_funct,
-    output reg [reg_sel_width - 1:0] c2_rd_sel,
-    output reg [reg_sel_width - 1:0] c2_rs1_sel,
-    output reg [reg_sel_width - 1:0] c2_rs2_sel,
-    output reg [6:0] c2_imm1,
-
     output reg [data_width - 1:0] x1,
     output reg [addr_width - 1:0] pc,
     output reg [4:0] state,
@@ -53,9 +46,42 @@ module proc(
     reg signed [addr_width - 1:0] c1_branch_offset;
     reg [instr_width - 1:0] c1_instr;
 
+    reg [6:0] c2_op;
+    reg [9:0] c2_op_funct;
+    reg [reg_sel_width - 1:0] c2_rd_sel;
+    reg [reg_sel_width - 1:0] c2_rs1_sel;
+    reg [reg_sel_width - 1:0] c2_rs2_sel;
+    reg [6:0] c2_imm1;
+
     reg [reg_sel_width - 1:0] wr_reg_sel;
     reg [data_width - 1:0] wr_reg_data;
     reg wr_reg_req;
+
+    reg div_req;
+    reg div_busy;
+    reg [reg_sel_width - 1:0] div_r_quot_sel;
+    reg [reg_sel_width - 1:0] div_r_mod_sel;
+    reg [data_width - 1:0] div_rs1_data;
+    reg [data_width - 1:0] div_rs2_data;
+    reg [reg_sel_width - 1:0] div_wr_reg_sel;
+    reg [data_width - 1:0] div_wr_reg_data;
+    reg div_wr_reg_req;
+    reg div_wr_reg_ack;
+
+    int_div_regfile int_div_regfile_(
+        .clk(clk),
+        .rst(rst),
+        .req(div_req),
+        .busy(div_busy),
+        .r_quot_sel(div_r_quot_sel),
+        .r_mod_sel(div_r_mod_sel),
+        .a(div_rs1_data),
+        .b(div_rs2_data),
+        .rf_wr_sel(div_wr_reg_sel),
+        .rf_wr_data(div_wr_reg_data),
+        .rf_wr_req(div_wr_reg_req),
+        .rf_wr_ack(div_wr_reg_ack)
+    );
 
     task read_mem(input [addr_width - 1:0] addr);
         // combinatorial task
@@ -138,9 +164,13 @@ module proc(
         end
     endtask
 
-    task op_op(input [9:0] _funct, input [4:0] _rd, input [4:0] _rs1, input [4:0] _rs2);
+    task op_op(input [9:0] _funct, input [4:0] _rd_sel, input [4:0] _rs1_sel, input [4:0] _rs2_sel);
+        reg skip_next_instr;
+
         wr_reg_req = 1;
-        wr_reg_sel = _rd;
+        wr_reg_sel = _rd_sel;
+        $display("op_op.c1 op_funct=%0d", _funct);
+        skip_next_instr = 0;
         case(_funct)
             ADD: wr_reg_data = c1_rs1_data + c1_rs2_data;
             // this is actually unsigned. Need to fix...
@@ -157,11 +187,33 @@ module proc(
             SRA: wr_reg_data = c1_rs1_data >> c1_rs2_data[4:0];
             // RV32M
             MUL: wr_reg_data = c1_rs1_data * c1_rs2_data;
-            REM: begin end
+            DIVU: begin
+                $display("DIVU.c1");
+                if(~div_busy) begin
+                    $display("sending req to div unit a=%0d b=%0d quot_sel=%0d", c1_rs1_data, c1_rs2_data, _rd_sel);
+                    div_req = 1;
+                    div_r_quot_sel = _rd_sel;
+                    div_r_mod_sel = '0;
+                    div_rs1_data = c1_rs1_data;
+                    div_rs2_data = c1_rs2_data;
+                    // since we havent implemented any kind of instruction parallelism (i.e. wiatin for egister to 
+                    // be vailable...), so we need to move to next state, and wait for div to finish first
+                    // we can improve this later
+                    next_state = C2;
+                    skip_next_instr = 1;
+                end else begin
+                    // wait for not busy I suppose...
+                    $display("waiting for div unit to be free");
+                end
+                // next_state = C2;
+            end
+            REMU: begin end
             default: begin end
         endcase
         // $display("op regs[_rd]=%0d _rd=%0d regs[_rs1]=%0d regs[_rs2]=%0d", regs[_rd], _rd, regs[_rs1], regs[_rs2]);
-        read_next_instr(pc + 4);
+        if(~skip_next_instr) begin
+            read_next_instr(pc + 4);
+        end
     endtask
 
     task op_lui(input [31:0] _instr, input [4:0] _rd);
@@ -185,7 +237,7 @@ module proc(
                 read_next_instr(pc + 4);
             end
             1004: begin
-                // $display("1004: HALT");
+                $display("1004: HALT");
                 halt = 1;
             end
             1008: begin
@@ -260,12 +312,31 @@ module proc(
                     read_next_instr(pc + 4);
                 end
             end
+            OP: begin
+                $display("OP.C2 op_funct=%0d", c2_op_funct);
+                case(c2_op_funct)
+                    DIVU: begin
+                        $display("DIVU.C2 div busy=%0b div_wr_reg_req=%0b", div_busy, div_wr_reg_req);
+                        if(div_wr_reg_req) begin
+                            // go to next instruction
+                            // well, lets read the result for now
+                            $display("got write req from div, write ack");
+                            div_wr_reg_ack = 1;
+                            write_reg(div_wr_reg_sel, div_wr_reg_data);
+                            read_next_instr(pc + 4);
+                        end
+                    end
+                endcase
+            end
             default: begin
             end
         endcase
     endtask
 
-    always @(*) begin
+    always @(mem_rd_data, div_wr_reg_req, c2_instr, state, pc, mem_ack) begin
+        $display("mem_rd_data=%0d div_wr_reg_req=%0d c2_instr=%0h state=%0d pc=%0d mem_ack=%0d",
+            mem_rd_data, div_wr_reg_req, c2_instr, state, pc, mem_ack
+        );
     // always_comb begin
         halt = 0;
         outen = 0;
@@ -276,6 +347,9 @@ module proc(
         mem_wr_data = '0;
         next_pc = pc;
         next_state = state;
+
+        div_req = 0;
+        div_wr_reg_ack = 0;
 
         c2_instr_next = c2_instr;
 
@@ -304,6 +378,7 @@ module proc(
         x1 = regs[1];
 
         c2_op = c2_instr[6:0];
+        c2_op_funct = {c2_instr[31:25], c2_instr[14:12]};
         c2_rd_sel = c2_instr[11:7];
 
         if(~rst) begin
@@ -330,7 +405,7 @@ module proc(
                 instr_c2();
             end
             default: begin
-                // $display("Comb.default");
+                $display("Comb.default halt=1");
                 halt = 1;
             end
         endcase
