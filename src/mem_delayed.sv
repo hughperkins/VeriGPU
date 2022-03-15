@@ -1,3 +1,5 @@
+parameter mem_simulated_delay = 128;
+
 module mem_delayed(
     input clk,  rst, input wr_req, input rd_req,
     output reg busy, output reg ack,
@@ -46,14 +48,14 @@ module mem_delayed(
                 end
             end else if (wr_req) begin
                 received_wr_req <= 1;
-                clks_to_wait <= 4;
+                clks_to_wait <= mem_simulated_delay - 1;
                 received_addr <= addr;
                 received_data <= wr_data;
                 ack <= 0;
                 busy <= 1;
             end else if (rd_req) begin
                 received_rd_req <= 1;
-                clks_to_wait <= 4;
+                clks_to_wait <= mem_simulated_delay - 1;
                 received_addr <= addr;
                 ack <= 0;
                 busy <= 1;

@@ -80,7 +80,7 @@ module mem_delayed_test();
         #10
         rst = 0;
 
-        write(16'h8, 16'hab, 5);
+        write(16'h8, 16'hab, mem_simulated_delay);
         write(16'h10, 16'hcd, 5);
 
         check_read(16'h10, 16'hcd, 5);
