@@ -177,6 +177,11 @@ module int_div_regfile(
             state <= IDLE;
             pos <= 0;
             busy <= 0;
+
+            rf_wr_req <= 0;
+            rf_wr_sel <= 0;
+            rf_wr_data <= 0;
+            busy <= 0;
             // ack <= 0;
         end else begin
             // $display("div clk");
