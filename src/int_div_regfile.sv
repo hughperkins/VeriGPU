@@ -32,21 +32,21 @@ max propagation delay: 44.2 nand units
 */
 
 module int_div_regfile(
-        input clk,
-        input rst,
+    input clk,
+    input rst,
 
-        input req,
-        output reg busy,
+    input req,
+    output reg busy,
 
-        input [reg_sel_width - 1: 0] r_quot_sel,  // 0 means, dont write (i.e. x0)
-        input [reg_sel_width - 1: 0] r_mod_sel,   // 0 means, dont write  (i.e. x0)
-        input [data_width - 1:0] a,
-        input [data_width - 1:0] b,
+    input [reg_sel_width - 1: 0] r_quot_sel,  // 0 means, dont write (i.e. x0)
+    input [reg_sel_width - 1: 0] r_mod_sel,   // 0 means, dont write  (i.e. x0)
+    input [data_width - 1:0] a,
+    input [data_width - 1:0] b,
 
-        output reg [reg_sel_width - 1:0] rf_wr_sel,
-        output reg [data_width - 1:0] rf_wr_data,
-        output reg rf_wr_req,
-        input rf_wr_ack
+    output reg [reg_sel_width - 1:0] rf_wr_sel,
+    output reg [data_width - 1:0] rf_wr_data,
+    output reg rf_wr_req,
+    input rf_wr_ack
 );
     parameter data_width = 32;
     parameter num_regs = 32;
@@ -54,13 +54,6 @@ module int_div_regfile(
     parameter reg_sel_width = $clog2(num_regs);
     parameter pos_width = $clog2(data_width);
     parameter data_width_minus_1 = data_width - 1;
-
-    reg [data_width - 1:0] quotient;
-    reg [data_width - 1:0] remainder;
-    reg [data_width - 1: 0] a_remaining;
-    reg [2 * data_width - 1: 0] shiftedb;
-
-    reg [pos_width - 1:0] pos;
 
     typedef enum {
         IDLE,
@@ -70,48 +63,72 @@ module int_div_regfile(
     } e_state;
 
     reg [1:0] state;
+    reg [pos_width - 1:0] pos;
+    reg [data_width - 1:0] quotient;
+    reg [data_width - 1:0] remainder;
+    reg [data_width - 1: 0] a_remaining;
 
     reg [1:0] next_state;
     reg [pos_width -1:0] next_pos;
     reg [data_width -1:0] next_quotient;
     reg [data_width -1:0] next_a_remaining;
 
+    reg [reg_sel_width - 1:0] next_rf_wr_sel;
+    reg [data_width - 1:0] next_rf_wr_data;
+    reg next_rf_wr_req;
+    reg next_busy;
+
+    // reg next_ack;
+
     always @(*) begin
-        rf_wr_req = 0;
+    // always @(state, pos, req, rf_wr_ack) begin
+        reg [2 * data_width - 1: 0] shiftedb;
+
+        // rf_wr_req = 0;
+        next_state = state;
         next_pos = pos;
-        busy = 0;
+        // busy = 0;
         next_quotient = quotient;
         next_a_remaining = a_remaining;
+        next_busy = 0;
+        // next_ack = 0;
+
+        next_rf_wr_req = 0;
+        next_rf_wr_sel = '0;
+        next_rf_wr_data = '0;
 
         shiftedb = {{data_width{1'b0}}, b} << pos;
 
+        $display("div comb req=%0d state=%0d pos=%0d rf_wr_ack=%0d", req, state, pos, rf_wr_ack);
         // $strobe("state %0d req=%0b", state, req);
         case(state)
             IDLE: begin
                 if(req) begin
+                    $display("div unit got req");
                     next_pos = data_width_minus_1;
                     next_quotient = '0;
                     next_a_remaining = a;
-                    busy = 1;
+                    next_busy = 1;
                     next_state = CALC;
                 end
             end
             CALC: begin
-                busy = 1;
+                next_busy = 1;
                 if (shiftedb < {{data_width{1'b0}}, next_a_remaining}) begin
                     next_a_remaining = next_a_remaining - shiftedb[data_width - 1 :0];
                     next_quotient[pos] = 1;
                 end
                 if (pos == 0) begin
                     if(r_quot_sel != 0) begin
-                        rf_wr_req = 1;
-                        rf_wr_sel = r_quot_sel;
-                        rf_wr_data = next_quotient;
+                        next_rf_wr_req = 1;
+                        next_rf_wr_sel = r_quot_sel;
+                        next_rf_wr_data = next_quotient;
                         next_state = WRITING_QUOTIENT;
+                        $display("div. wrote quotient");
                     end else if(r_mod_sel != 0) begin
-                        rf_wr_req = 1;
-                        rf_wr_sel = r_mod_sel;
-                        rf_wr_data = next_a_remaining;
+                        next_rf_wr_req = 1;
+                        next_rf_wr_sel = r_mod_sel;
+                        next_rf_wr_data = next_a_remaining;
                         next_state = WRITING_MODULUS;
                     end else begin
                         next_state = IDLE;  // this should never normally happen :), but it's a possible input
@@ -122,26 +139,33 @@ module int_div_regfile(
             end
             WRITING_QUOTIENT: begin
                 if(rf_wr_ack) begin
+                    $display("div got ack, maybe write modulus");
                     if(r_mod_sel != 0) begin
-                        busy = 1;
-                        rf_wr_req = 1;
-                        rf_wr_sel = r_mod_sel;
-                        rf_wr_data = next_a_remaining;
+                        $display("div write modulus (for next cycle)");
+                        next_busy = 1;
+                        next_rf_wr_req = 1;
+                        next_rf_wr_sel = r_mod_sel;
+                        next_rf_wr_data = next_a_remaining;
                         next_state = WRITING_MODULUS;
                     end else begin
                         next_state = IDLE;
                     end
                 end else begin
-                    busy = 1;
-                    rf_wr_req = 1;
+                    $display("div waiting ack");
+                    next_busy = 1;
+                    next_rf_wr_req = 1;
+                    next_rf_wr_sel = r_quot_sel;
+                    next_rf_wr_data = next_quotient;
                 end
             end
             WRITING_MODULUS: begin
                 if(rf_wr_ack) begin
                     next_state = IDLE;
                 end else begin
-                    busy = 1;
-                    rf_wr_req = 1;
+                    next_busy = 1;
+                    next_rf_wr_req = 1;
+                    next_rf_wr_sel = r_mod_sel;
+                    next_rf_wr_data = next_a_remaining;
                 end
             end
         endcase
@@ -152,11 +176,21 @@ module int_div_regfile(
         if (rst) begin
             state <= IDLE;
             pos <= 0;
+            busy <= 0;
+            // ack <= 0;
         end else begin
+            // $display("div clk");
             state <= next_state;
             pos <= next_pos;
             quotient <= next_quotient;
             a_remaining <= next_a_remaining;
+
+            rf_wr_req <= next_rf_wr_req;
+            rf_wr_sel <= next_rf_wr_sel;
+            rf_wr_data <= next_rf_wr_data;
+
+            busy <= next_busy;
+            // ack <= next_ack;
         end
     end
 endmodule
