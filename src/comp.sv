@@ -1,5 +1,5 @@
-// represents a computer, i.e. the combination of processor (proc) and
-// memory controller (mem)
+// contains proc.sv, and any memory elements, such as cache, dummy memory controller, etc
+// this will be slower to syntehsize than proc.sv, because of the memory elements
 module comp(
     input clk,
     input rst,

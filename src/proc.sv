@@ -1,4 +1,4 @@
-// represents processor
+// represents processor, but not including any memory elements, such as mem and reg_file, which are slow to synthesize
 module proc(
     input rst, clk,
     output reg [data_width - 1:0] out,
