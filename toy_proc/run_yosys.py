@@ -10,15 +10,24 @@ def run(args):
     with open('build/yosys.tcl', 'w') as f:
         for file in args.in_verilog:
             f.write(f"read_verilog -sv {file}\n")
+        if not os.path.exists('build/netlist'):
+            os.makedirs('build/netlist')
         if args.top_module:
             f.write(f'hierarchy -top {args.top_module}')
         f.write(f"""
+write_verilog build/netlist/0.v
 flatten
+write_verilog build/netlist/1.v
 synth
+write_verilog build/netlist/2.v
 techmap;
+write_verilog build/netlist/3.v
 dfflibmap -liberty {args.cell_lib}
+write_verilog build/netlist/4.v
 abc -liberty {args.cell_lib}
+write_verilog build/netlist/5.v
 clean
+write_verilog build/netlist/6.v
 
 write_rtlil build/rtlil.rtl
 write_verilog build/netlist.v
