@@ -9,6 +9,7 @@ from toy_proc import timing
         ("foo", {"foo": [0, 1, 2, 4]}, ["foo[0]", "foo[1]", "foo[2]", "foo[4]"]),
         ("{foo, bar}", {}, ["foo", "bar"]),
         ("foo[2:0]", {}, ["foo[2]", "foo[1]", "foo[0]"]),
+        ("foo [2:0]", {}, ["foo[2]", "foo[1]", "foo[0]"]),
         ("foo[2]", {}, ["foo[2]"]),
         ("\\op_branch$func$src/proc.sv:0$10.branch", {}, ["\\op_branch$func$src/proc.sv:0$10.branch"])
     ]

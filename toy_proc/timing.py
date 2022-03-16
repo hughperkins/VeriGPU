@@ -115,7 +115,7 @@ def str_to_names(vector_bits_by_name: Dict[str, List[int]], names_str: str):
     elif '[' in names_str and ':' in names_str.split('[')[1]:
         # it's already a vector...
         # split into names
-        basename = names_str.split('[')[0]
+        basename = names_str.split('[')[0].strip()
         start = int(names_str.split('[')[1].split(':')[0])
         end = int(names_str.split(':')[1].split(']')[0])
         step = 1 if end >= start else -1
