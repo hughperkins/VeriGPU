@@ -43,7 +43,8 @@ module int_div_regfile_test();
         $monitor("t=%0d a=%0d b=%0d rf_wr_data=%0d rf_wr_sel=%0d busy=%0b rf_wr_req=%0b", $time, a, b, rf_wr_data, rf_wr_sel, busy, rf_wr_req);
         rst = 1;
 
-        #10
+        #10;
+        #5;
         rst = 0;
         rf_wr_ack = 0;
         assert(~busy);
