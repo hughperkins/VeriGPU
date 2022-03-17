@@ -20,27 +20,37 @@ module synth_out_test();
 
     initial begin
         $monitor("clk=%0b rst=%0b out=%0b a=%0b", clk, rst, out, a);
+        // posedge
         rst = 1;
-        #5
+
+        #10; // posedge
         a = 0;
-        #10
+
+        #10; // posedge
         rst = 0;
-        #10
 
+        #5;// negedge
         assert(~out);
 
-        #10
+        #5; // posedge
+
+        #5;// negedge
         assert(~out);
+
+        #5; // posedge
         a = 1;
 
-        #10;
-        #0;
+        #10; // posedge
+
+        #5; // negedge
         assert(out);
 
-        #9
+        #5; // posedge
+
+        #5; // negedge
         assert(out);
 
-        #10;
+        #5;
         $display("done");
 
         #100 $finish;
