@@ -180,6 +180,8 @@ module int_div_regfile(
                     next_rf_wr_data = next_a_remaining;
                 end
             end
+            default: begin
+            end
         endcase
     end
 
@@ -199,7 +201,6 @@ module int_div_regfile(
             rf_wr_req <= 0;
             rf_wr_sel <= 0;
             rf_wr_data <= 0;
-            busy <= 0;
         end else begin
             // $display("div clk");
             state <= next_state;
