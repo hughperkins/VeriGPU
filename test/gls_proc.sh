@@ -5,11 +5,6 @@
 # we'll use the original sv for mem_delayed, comp and comp_driver, since mem_delayed takes
 # forever to synthesize...
 
-# if [[ x$1 == x ]]; then {
-#     echo "Usage: $0 [progname]"
-#     exit 1
-# } fi
-
 set -ex
 set -o pipefail
 
