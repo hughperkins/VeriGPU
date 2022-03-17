@@ -108,6 +108,8 @@ SLTU  rd,  rs1, rs2
 MUL   rs,  rs1, rs2
 LI    rd   immediate
 AUIPC rd   immediate
+DIVU  rd,  rs1, rs2
+MODU  rd,  rs1, rs2
 location:  # to label a location that we will branch conditionally to
            # (for now, must precede the branch instruction)
 ```
