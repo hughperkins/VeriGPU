@@ -46,9 +46,21 @@ module int_div_regfile_test();
         #10;
         #5;
         rst = 0;
+        $display("reset going low");
         rf_wr_ack = 0;
+        req = 0;
         assert(~busy);
         assert(~rf_wr_req);
+
+        #10;
+        assert(~busy);
+        assert(~rf_wr_req);
+
+        #10;
+        assert(~busy);
+        assert(~rf_wr_req);
+
+        #10
 
         a = 10000;
         b = 123;  // 81 r 37
