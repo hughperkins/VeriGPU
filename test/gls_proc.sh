@@ -20,7 +20,10 @@ cat src/comp_driver.sv | sed -e "s/{PROG}/build/g" > build/comp_driver.sv
 iverilog -g2012 tech/osu018/osu018_stdcells.v build/netlist/6.v src/const.sv src/mem_delayed.sv \
     src/comp.sv build/comp_driver.sv
 ./a.out | tee build/out.txt
-cat build/out.txt | grep '^out ' > build/out_only.txt
+if  ! cat build/out.txt | grep '^out[ \.]' > build/out_only.txt; then {
+    echo "grep failed"
+    echo "" > build/out.txt
+} fi
 
 if diff build/out_only.txt examples/$1_expected.txt; then {
     echo SUCCESS
