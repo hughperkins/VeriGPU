@@ -13,11 +13,17 @@
 set -ex
 set -o pipefail
 
+progs="prog2 prog3 prog4 prog5 prog6 prog7 prog8 prog9 prog10 prog11 prog12 prog13 prog14 prog15 \
+        prog16 prog17 prog18 prog19 prog20 prog21"
+
+if [[ x$1 != x ]]; then {
+    progs=$1
+} fi
+
 python toy_proc/run_yosys.py --in-verilog src/op_const.sv src/const.sv src/int_div_regfile.sv src/proc.sv \
     --top-module proc >/dev/null
 
-for prog in prog2 prog3 prog4 prog5 prog6 prog7 prog8 prog9 prog10 prog11 prog12 prog13 prog14 prog15 \
-        prog16 prog17 prog18 prog19 prog20 prog21; do {
+for prog in ${progs}; do {
     python toy_proc/assembler.py --in-asm examples/${prog}.asm --out-hex build/build.hex
     cat src/comp_driver.sv | sed -e "s/{PROG}/build/g" > build/comp_driver.sv
 
