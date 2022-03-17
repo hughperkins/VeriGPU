@@ -16,6 +16,6 @@ bash test/reg_test.sh
 bash test/run_sv_tests.sh
 
 python test/get_prog_cycles.py | tee build/clock-cycles.txt
-bash test/gls_int_div_regfile.sh
-bash test/gls_proc.sh
+bash test/int_div_regfile_gls.sh
+bash test/proc_gls.sh
 bash test/delay_prop_proc.sh | tee build/timing-proc.txt
