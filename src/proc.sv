@@ -212,6 +212,7 @@ module proc(
                 end else begin
                     // wait for not busy I suppose...
                     $display("waiting for div unit to be free");
+                    skip_advance_pc = 1;
                 end
             end
             REMU: begin
@@ -231,6 +232,7 @@ module proc(
                 end else begin
                     // wait for not busy I suppose...
                     $display("waiting for div unit to be free");
+                    skip_advance_pc = 1;
                 end
             end
             default: begin end
