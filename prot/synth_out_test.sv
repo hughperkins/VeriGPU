@@ -11,48 +11,55 @@ module synth_out_test();
         .a(a)
     );
 
-    initial begin
-        clk = 1;
-        forever begin
-            #5 clk = ~clk;
-        end
-    end
+    task pos();
+        $display("  +");
+        #5 clk = 1;
+    endtask
+
+    task neg();
+        $display("-");
+        #5 clk = 0;
+    endtask
+
+    task tick();
+        $display("-");
+        #5 clk = 0;
+        $display("  +");
+        #5 clk = 1;
+    endtask
 
     initial begin
-        $monitor("clk=%0b rst=%0b out=%0b a=%0b", clk, rst, out, a);
-        // posedge
         rst = 1;
-
-        #10; // posedge
         a = 0;
+        tick();
+        tick();
 
-        #10; // posedge
         rst = 0;
+        $monitor("a=%0b out=%0b", a, out);
 
-        #5;// negedge
+        tick();
         assert(~out);
 
-        #5; // posedge
-
-        #5;// negedge
+        tick();
         assert(~out);
-
-        #5; // posedge
         a = 1;
 
-        #10; // posedge
+        neg();
+        pos();
 
-        #5; // negedge
+        neg();
+        assert(out);
+        pos();
+
         assert(out);
 
-        #5; // posedge
+        tick();
 
-        #5; // negedge
-        assert(out);
-
-        #5;
         $display("done");
 
-        #100 $finish;
+        tick();
+        tick();
+
+        $finish;
     end
 endmodule
