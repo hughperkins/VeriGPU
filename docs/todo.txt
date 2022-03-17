@@ -1,5 +1,5 @@
 - create register file
-- gate level simulation (GLS); i.e. what happens if we simulate using yosys output?
+- fix gls for prog22
 - fuse LUI and ADDI
 - fuse LUI and JALR
 - fuse AUIPC and JALR
@@ -23,6 +23,7 @@
 - (use actual memory module?)
 
 done:
+- gate level simulation (GLS); i.e. what happens if we simulate using yosys output?
 - change memory fetch time to 128
 - start measuring run time, in run.py (via comp_driver.sv)
 - handle `(* unused_bits)` in timing.py

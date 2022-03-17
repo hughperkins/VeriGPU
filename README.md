@@ -50,6 +50,15 @@ pytest -v
 ```
 - run some unit tests on the assembler (which is in python)
 
+## Testing using gate-level simulation
+
+We use yosys to synthesize proc.sv to gate-level verilog netlist, then run this file using comp_driver.sv, as per
+[test/reg_test.sh](test/reg_test.sh):
+
+```
+bash test/gls_proc.sh
+```
+
 # Timing
 
 ## Timing based on gate-level netlist
