@@ -72,7 +72,8 @@ module comp_driver(
         #10
         oob_wen = 0;
         outpos = 0;
-        #10
+        #10;
+        #5;
         $display("");
         $display("===========================================");
         $display("========== turning off reset ==============");
