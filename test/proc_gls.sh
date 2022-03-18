@@ -19,8 +19,8 @@ python toy_proc/run_yosys.py --in-verilog src/op_const.sv src/const.sv src/int_d
     --top-module proc >/dev/null
 
 for prog in ${progs}; do {
-    python toy_proc/assembler.py --in-asm examples/${prog}.asm --out-hex build/build.hex
-    cat src/comp_driver.sv | sed -e "s/{PROG}/build/g" > build/comp_driver.sv
+    python toy_proc/assembler.py --in-asm examples/${prog}.asm --out-hex build/prog.hex
+    cat src/comp_driver.sv | sed -e "s/{PROG}/prog/g" > build/comp_driver.sv
 
     iverilog -g2012 tech/osu018/osu018_stdcells.v build/netlist/6.v src/const.sv src/mem_delayed.sv \
         src/comp.sv build/comp_driver.sv
