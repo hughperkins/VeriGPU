@@ -1,4 +1,4 @@
-# toy_proc
+# OpenSource GPU
 
 Build an opensource GPU, in verilog. Hopefully we can get it to run either [OpenCL™](https://www.khronos.org/opencl/) or [CUDA®](https://developer.nvidia.com/cuda-zone) (for compatibility purposes), or both, but it's early days for now :)
 
