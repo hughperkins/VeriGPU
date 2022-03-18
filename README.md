@@ -37,3 +37,7 @@ If we want to tape-out, we need solid verification. Read more at:
 we want the GPU to run quickly. Read how we measure timings at:
 
 - [docs/timing.md](docs/timing.md)
+
+# Related projects
+
+- [Vortex GPU](https://github.com/vortexgpgpu/vortex), targeting FPGAs.
