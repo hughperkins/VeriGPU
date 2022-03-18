@@ -31,4 +31,4 @@ The GPU is aimed squarely at machine learning training. Therefore it should idea
 
 ## Tactical day-to-day backlog
 
-[docs/todo.txt](docs/todo.txt)
+[docs/todo.txt](/docs/todo.txt)

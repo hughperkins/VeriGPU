@@ -4,7 +4,7 @@
 
 ## Processor instruction set
 
-We are currently loosely basing the processor instruction set on the [RISC-V ISA](https://github.com/riscv/riscv-isa-manual/releases/download/Ratified-IMAFDQC/riscv-spec-20191213.pdf). The following sections list the available instructions in the [assembler](toy_proc/assembler.py).
+We are currently loosely basing the processor instruction set on the [RISC-V ISA](https://github.com/riscv/riscv-isa-manual/releases/download/Ratified-IMAFDQC/riscv-spec-20191213.pdf). The following sections list the available instructions in the [assembler](/toy_proc/assembler.py).
 
 ### RISC-V instructions
 
@@ -51,16 +51,16 @@ BNEZ rs, offset
 
 In order to run the processor, we need to provide a program for the processor to run. The verilog code in this repo describes the hardware, but we also need to provide software to run on this hardware.
 
-We use a python script [toy_proc/assembler.py](toy_proc/assembler.py) to convert assembly code into binary code that we can load into the processor simulations.
+We use a python script [toy_proc/assembler.py](/toy_proc/assembler.py) to convert assembly code into binary code that we can load into the processor simulations.
 
 ### Example assembly programs
 
-See [examples](examples)
+See [examples](/examples)
 
 Some specific programs:
 
-- sum integers from 0 to 5 [examples/prog16.asm](examples/prog16.asm)
-- factorial of integers 0 to 5 [examples/prog18.asm](examples/prog18.asm)
+- sum integers from 0 to 5 [examples/prog16.asm](/examples/prog16.asm)
+- factorial of integers 0 to 5 [examples/prog18.asm](/examples/prog18.asm)
 
 ## Memory
 

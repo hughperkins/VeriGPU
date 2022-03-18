@@ -20,7 +20,7 @@ You can see the current clock cycle propagation delay by opening the most recent
 
 - we first use [yosys](http://bygone.clairexen.net/yosys/) to synthesize our verilog file to a gate-level netlist
     - a gate-level netlist is also a verilog file, but with the behavioral bits (`always`, etc.) removed, and operations such as `+`, `-` etc all replaced by calls to standard cells, such as `NOR2X1`, `NAND2X1`, etc
-- then we use a custom script [toy_proc/timing.py](toy_proc/timing.py) to walk the graph of the resulting netlist, and find the longest propagation delay from the inputs to the outputs
+- then we use a custom script [toy_proc/timing.py](/toy_proc/timing.py) to walk the graph of the resulting netlist, and find the longest propagation delay from the inputs to the outputs
     - the delay units are in `nand` propagation units, where a `nand` propagation unit is defined as the time to propagate through a single nand gate
     - a NOT gate is 0.6
     - an AND gate is 1.6 (it's a NAND followed by a NOT)
@@ -39,7 +39,7 @@ pip install networkx pydot
 
 ### Procedure
 
-e.g. for the module at [prot/add_one_2chunks.sv](prot/add_one_2chunks.sv), run:
+e.g. for the module at [prot/add_one_2chunks.sv](/prot/add_one_2chunks.sv), run:
 
 ```
 python toy_proc/timing.py --in-verilog prot/add_one_2chunks.sv
@@ -106,7 +106,7 @@ total 17584
 avg 837.3
 ```
 
-`progxx` refers to one of the example programs in [examples](examples). These cycle counts are currently long because:
+`progxx` refers to one of the example programs in [examples](/examples). These cycle counts are currently long because:
 - we don't have data memory caching
 - we don't have instruction memory caching
 - we don't have parallel execution, either for memory feteches, or for maths operations such as division
