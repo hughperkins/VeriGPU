@@ -1,5 +1,5 @@
+- add piccie for gate level simulation to readme/docs
 - create register file
-- fix gls for prog22
 - fuse LUI and ADDI
 - fuse LUI and JALR
 - fuse AUIPC and JALR
@@ -18,11 +18,13 @@
 - check spir-v vs risc-v
 - gpu structure
 - opencl
+- CUDA(R)
 - change bits of address to 64-bit, to allow 16GB+ of memory
 - (out of order execution?)
 - (use actual memory module?)
 
 done:
+- fix gls for prog22
 - gate level simulation (GLS); i.e. what happens if we simulate using yosys output?
 - change memory fetch time to 128
 - start measuring run time, in run.py (via comp_driver.sv)
