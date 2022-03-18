@@ -22,6 +22,7 @@ synth
 write_verilog build/netlist/2.v
 techmap;
 write_verilog build/netlist/3.v
+# ltp
 dfflibmap -liberty {args.cell_lib}
 write_verilog build/netlist/4.v
 abc -liberty {args.cell_lib}
