@@ -27,7 +27,7 @@ We use the `iverilog` simulator to run simulation of our design at the behaviora
 bash test/reg_test.sh
 ```
 
-- under the hood, this will run many of the examples in [examples](examples), and check the outputs against the expected outputs, which are in the paired files, with suffix `_expected.txt`, also in [examples](examples) folder.
+- under the hood, this will run many of the examples in [examples](/examples), and check the outputs against the expected outputs, which are in the paired files, with suffix `_expected.txt`, also in [examples](/examples) folder.
 
 ## Gate-level simulation and testing
 
@@ -54,7 +54,7 @@ You can view execution of these tests in the CI server linked above.
 bash test/gls_tests.sh
 ```
 
-See [test/gls_tests.sh](test/gls_tests.sh).
+See [test/gls_tests.sh](/test/gls_tests.sh).
 
 
 ## Unit-tests for the assembler and some of the test scripts themselves
