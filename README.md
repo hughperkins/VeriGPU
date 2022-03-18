@@ -40,4 +40,4 @@ we want the GPU to run quickly. Read how we measure timings at:
 
 # Related projects
 
-- [Vortex GPU](https://github.com/vortexgpgpu/vortex), targeting FPGAs.
+- [Vortex GPU](https://github.com/vortexgpgpu/vortex), targeting FPGAs, compatible with OpenCL.
