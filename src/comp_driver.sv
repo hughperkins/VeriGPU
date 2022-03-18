@@ -61,7 +61,7 @@ module comp_driver(
     endfunction
 
     initial begin
-        $readmemh("build/{PROG}.hex", mem_load);
+        $readmemh("build/prog.hex", mem_load);
         rst = 1;
         for(int i = 0; i < 255; i++) begin
             #10
@@ -82,8 +82,8 @@ module comp_driver(
         t_at_reset = $time;
 
         $monitor(
-            "driver monitor t=%0d rst=%b pc=%0d, out=%0d outen=%0b op=%h imm1=%0d %0d rd=%0d x1=%0d state=%0d",
-            $time(), rst, pc, out, outen,  op,   imm1, imm1,   rd, x1, state);
+            "t=%0d comp_driver rst=%b pc=%0d =============",
+            $time(), rst, pc);
 
         // #500
         // $finish;
@@ -91,16 +91,18 @@ module comp_driver(
         // rst = 1;
         // #1 rst = 0;
 
-        while(~halt && $time - t_at_reset < 60000) begin
+        // while(~halt && $time < 4040) begin
+        // while(~halt && $time - t_at_reset < 3940) begin
         // while(~halt && $time - t_at_reset < 6000) begin
+        while(~halt && $time - t_at_reset < 10000) begin
         // while(~halt && $time - t_at_reset < 1200) begin
             #10;
         end
 
-        $display("halt %0b t=%0d", halt, $time);
+        $display("t=%0d comp_driver.halt %0b", $time, halt);
         cycle_count = ($time - t_at_reset) / 10;
 
-        $display("driver monitor outpos %0d", outpos);
+        $display("t=%0d comp_driver monitor outpos %0d", $time, outpos);
         $display("");
         for(int i = 0; i < outpos; i++) begin
             if (outtype[i]) begin
