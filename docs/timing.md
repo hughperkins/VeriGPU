@@ -39,7 +39,7 @@ pip install networkx pydot
 
 ### Procedure
 
-e.g. for the module at [prot/add_one_2chunks.sv](/prot/add_one_2chunks.sv), run:
+e.g. for the module at [prot/add_one_2chunks.sv](/prot/add/add_one_2chunks.sv), run:
 
 ```
 python toy_proc/timing.py --in-verilog prot/add_one_2chunks.sv
