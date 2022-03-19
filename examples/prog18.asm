@@ -10,3 +10,4 @@ loop:
     bne x1, x3, loop
 
 outr x2
+halt
