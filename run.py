@@ -17,7 +17,7 @@ def run(args):
     assert os.system(
         'iverilog -Wall -g2012 -pfileline=1 src/assert.sv src/op_const.sv'
         ' src/const.sv src/int_div_regfile.sv src/proc.sv src/comp.sv'
-        ' src/mem_delayed_small.sv src/mem_delayed.sv build/comp_driver.sv') == 0
+        ' src/mem_delayed_large.sv src/mem_delayed.sv build/comp_driver.sv') == 0
     os.system('./a.out | tee /tmp/out.txt')
     with open('/tmp/out.txt') as f:
         output = f.read()
