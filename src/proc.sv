@@ -221,23 +221,6 @@ module proc(
                     $display("waiting for div unit to be free");
                     skip_advance_pc = 1;
                 end
-                // if(~div_busy) begin
-                //     $display("sending req to div unit a=%0d b=%0d quot_sel=%0d", c1_rs1_data, c1_rs2_data, _rd_sel);
-                //     n_div_req = 1;
-                //     n_div_r_quot_sel = _rd_sel;
-                //     n_div_r_mod_sel = '0;
-                //     n_div_rs1_data = c1_rs1_data;
-                //     n_div_rs2_data = c1_rs2_data;
-                //     // since we havent implemented any kind of instruction parallelism (i.e. wiatin for egister to 
-                //     // be vailable...), so we need to move to next state, and wait for div to finish first
-                //     // we can improve this later
-                //     next_state = C2;
-                //     skip_advance_pc = 1;
-                // end else begin
-                //     // wait for not busy I suppose...
-                //     $display("waiting for div unit to be free");
-                //     skip_advance_pc = 1;
-                // end
             end
             REMU: begin
                 $display("REMU.c1");
