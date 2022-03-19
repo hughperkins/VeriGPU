@@ -22,7 +22,7 @@ cat <<EOF > build/insert_monitor.txt
       \$time, rst, ena, rd_req, wr_req, addr, rd_data, wr_data, busy, ack, clks_to_wait);
   end
 EOF
-sed -i -e '/_0000_/r build/insert_monitor.txt' build/netlist/4.v
+sed -i -e '/_0000_/r build/insert_monitor.txt' build/netlist/6.v
 
 iverilog -Wall -g2012 tech/osu018/osu018_stdcells.v build/netlist/6.v src/const.sv src/assert.sv \
     src/mem_delayed_small.sv test/mem_delayed_test.sv
