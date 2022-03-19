@@ -4,6 +4,7 @@ module comp_driver(
 );
     reg rst;
     reg clk;
+    reg ena;
 
     wire [31:0] out;
     wire outen;
@@ -34,7 +35,7 @@ module comp_driver(
     reg [31:0] cycle_count;
 
     comp comp1(
-        .clk(clk), .rst(rst),
+        .clk(clk), .rst(rst), .ena(ena),
         .pc(pc), .op(op), .rd(rd),
         .x1(x1), .imm1(imm1), .state(state),
         .out(out), .outen(outen), .outflen(outflen),
@@ -62,25 +63,29 @@ module comp_driver(
 
     initial begin
         $readmemh("build/prog.hex", mem_load);
-        rst = 1;
-        oob_wen = 0;
+        rst <= 1;
+        ena <= 0;
+        oob_wen <= 0;
+        #10
+        rst <= 0;
         #10
 
         for(int i = 0; i < 255; i++) begin
-            oob_wen = 1;
-            oob_wr_addr = i;
-            oob_wr_data = mem_load[i];
+            oob_wen <= 1;
+            oob_wr_addr <= i;
+            oob_wr_data <= mem_load[i];
             #10;
         end
-        oob_wen = 0;
-        outpos = 0;
+        oob_wen <= 0;
+        outpos <= 0;
         #10;
         #5;
         $display("");
         $display("===========================================");
-        $display("========== turning off reset ==============");
+        $display("========== turning on enable ==============");
         $display("");
-        rst = 0;
+        // rst = 0;
+        ena <= 1;
         t_at_reset = $time;
 
         $monitor(
@@ -95,9 +100,10 @@ module comp_driver(
 
         // while(~halt && $time < 4040) begin
         // while(~halt && $time - t_at_reset < 3940) begin
-        // while(~halt && $time - t_at_reset < 6000) begin
-        while(~halt && $time - t_at_reset < 20000) begin
+        while(~halt && $time - t_at_reset < 6000) begin
+        // while(~halt && $time - t_at_reset < 50000) begin
         // while(~halt && $time - t_at_reset < 1200) begin
+        // while(~halt && $time - t_at_reset < 50) begin
             #10;
         end
 

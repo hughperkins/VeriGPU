@@ -3,6 +3,7 @@
 module comp(
     input clk,
     input rst,
+    input ena,
 
     input [31:0] oob_wr_addr,
     input [31:0] oob_wr_data,
@@ -30,6 +31,7 @@ module comp(
     mem_delayed mem1(
         .clk(clk),
         .rst(rst),
+        .ena(ena),
 
         .addr(mem_addr),
         .wr_req(mem_wr_req), .rd_req(mem_rd_req),

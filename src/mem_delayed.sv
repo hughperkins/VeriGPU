@@ -3,6 +3,10 @@
 module mem_delayed (
     input clk,
     input rst,
+    input ena,  // enables incoming requests to be processed. whilst this is low, incoming requests are stored
+                // (only a single request can be stored), and once this goes high, it will be processed
+                // this lets us turn off reset, load in our program into memory, then turn on enable
+                // and the processor starts running
 
     input rd_req,
     input wr_req,
@@ -63,7 +67,8 @@ module mem_delayed (
         `assert_known(received_wr_req);
         `assert_known(wr_req);
         `assert_known(rd_req);
-        if (received_rd_req) begin
+        `assert_known(ena);
+        if (received_rd_req & ena) begin
             `assert_known(clks_to_wait);
             if (clks_to_wait == 0) begin
                 n_ack = 1;
@@ -76,7 +81,7 @@ module mem_delayed (
                 n_clks_to_wait = clks_to_wait - 1;
                 n_busy = 1;
             end
-        end else if(received_wr_req) begin
+        end else if(received_wr_req & ena) begin
             `assert_known(clks_to_wait);
             if (clks_to_wait == 0) begin
                 n_ack = 1;
@@ -119,13 +124,11 @@ module mem_delayed (
 
             received_rd_req <= 0;
             received_wr_req <= 0;
-
+        end else begin
             `assert_known(oob_wen);
             if(oob_wen) begin
                 mem[oob_wr_addr] <= oob_wr_data;
             end
-
-        end else begin
             $display(
                 "t=%0d mem_delayed.ff n_clks=%0d n_received_rd_req=%0d n_received_wr_req=%0d n_ack=%0d n_busy=%0d n_received_addr=%0d n_read_now=%0d mem[n_received_addr]=%0d",
                 $time, n_clks_to_wait, n_received_rd_req, n_received_wr_req, n_ack, n_busy, n_received_addr, n_read_now, mem[n_received_addr]);
