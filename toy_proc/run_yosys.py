@@ -15,6 +15,7 @@ def run(args):
         if args.top_module:
             f.write(f'hierarchy -top {args.top_module}')
         f.write(f"""
+delete t:$assert
 write_verilog build/netlist/0.v
 flatten
 write_verilog build/netlist/1.v

@@ -105,13 +105,18 @@ module int_div_regfile(
         next_rf_wr_sel = '0;
         next_rf_wr_data = '0;
 
+        if(~rst) begin
+            assert(~$isunknown(internal_b));
+            assert(~$isunknown(pos));
+        end
         shiftedb = {{data_width{1'b0}}, internal_b} << pos;
 
         $display("div comb req=%0d state=%0d pos=%0d rf_wr_ack=%0d", req, state, pos, rf_wr_ack);
         // $strobe("state %0d req=%0b", state, req);
         case(state)
             IDLE: begin
-                if(req) begin
+                assert(~$isunknown(req));
+                if (req) begin
                     $display("div unit got req");
                     next_pos = data_width_minus_1[pos_width - 1:0];
                     next_quotient = '0;
@@ -126,11 +131,16 @@ module int_div_regfile(
             end
             CALC: begin
                 next_busy = 1;
+                assert(~$isunknown(next_a_remaining));
+                assert(~$isunknown(shiftedb));
                 if (shiftedb < {{data_width{1'b0}}, next_a_remaining}) begin
                     next_a_remaining = next_a_remaining - shiftedb[data_width - 1 :0];
                     next_quotient = next_quotient | (1 << pos);
                 end
-                if (pos == 0) begin
+                assert(~ $isunknown(pos));
+                if(pos == 0) begin
+                    assert(~$isunknown(internal_r_quot_sel));
+                    assert(~$isunknown(internal_r_mod_sel));
                     if(internal_r_quot_sel != 0) begin
                         next_rf_wr_req = 1;
                         next_rf_wr_sel = internal_r_quot_sel;
@@ -150,8 +160,10 @@ module int_div_regfile(
                 end
             end
             WRITING_QUOTIENT: begin
+                assert(~$isunknown(rf_wr_ack));
                 if(rf_wr_ack) begin
                     $display("div got ack, maybe write modulus");
+                    assert(~$isunknown(internal_r_mod_sel));
                     if(internal_r_mod_sel != 0) begin
                         $display("div write modulus (for next cycle)");
                         next_busy = 1;
@@ -171,6 +183,7 @@ module int_div_regfile(
                 end
             end
             WRITING_MODULUS: begin
+                assert(~$isunknown(rf_wr_ack));
                 if(rf_wr_ack) begin
                     next_state = IDLE;
                 end else begin
@@ -181,12 +194,17 @@ module int_div_regfile(
                 end
             end
             default: begin
+                if(~rst) $display("ERROR: got to default state state=%0d", state);
             end
         endcase
     end
 
     always @(posedge clk, posedge rst) begin
-        // $strobe("always %0d req=%0b rst=%0b", state, req, rst);
+        $strobe(
+            "t=%0d int.ff state=%0d req=%0b rst=%0b next_internal_b=%0d",
+            $time,
+            state, req, rst, next_internal_b);
+        // assert(~$isunknown(rst));
         if (rst) begin
             state <= IDLE;
             pos <= 0;

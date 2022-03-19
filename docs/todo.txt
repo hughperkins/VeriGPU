@@ -1,4 +1,8 @@
+- convert `if`s to either assert initialized before them, or be case with a deafult that catches `x`
+- add tests to bheavioral tests, that feed in `x`, and check caught somehow?- maybe create a lint checker that tests taht if statements have 
+- try GLS on entire comp.sv?
 - add piccie for gate level simulation to readme/docs
+- simplify workflow piccie, just to have 'verilog' rather than filenames
 - create register file
 - fuse LUI and ADDI
 - fuse LUI and JALR
@@ -24,6 +28,7 @@
 - (use actual memory module?)
 
 done:
+- see if using case instead of if detects bugs prior to gate-level simulation
 - fix gls for prog22
 - gate level simulation (GLS); i.e. what happens if we simulate using yosys output?
 - change memory fetch time to 128
@@ -32,19 +37,6 @@ done:
 - int division
 - int modulus
 - experiment with migrating most of proc.sv to combinational always @(*) block (from posedge block)
-- add cicd to readme
-- tested store and load floats
-- fout.s; and modify assembler to handle floats for li
-- cicd for iverilog reg_test
-- cicd for timing
-- cicd for verilator compilation
-- lui
-- change time units to clock cycles
-- fix stdout in circleci
-- factorial calculator
-- int multiplication
-- measure timing/maximum clock speed somehow
-- handle assigns in timing.py
 - [older stuff truncated]
 
 things for gpu:

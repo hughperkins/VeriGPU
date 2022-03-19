@@ -63,13 +63,15 @@ module comp_driver(
     initial begin
         $readmemh("build/prog.hex", mem_load);
         rst = 1;
+        oob_wen = 0;
+        #10
+
         for(int i = 0; i < 255; i++) begin
-            #10
             oob_wen = 1;
             oob_wr_addr = i;
             oob_wr_data = mem_load[i];
+            #10;
         end
-        #10
         oob_wen = 0;
         outpos = 0;
         #10;

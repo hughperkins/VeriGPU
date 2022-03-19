@@ -24,11 +24,12 @@ module comp(
     output [4:0] state,
     output halt
 );
-    reg [31:0] mem_addr;
-    reg [31:0] mem_rd_data, mem_wr_data;
+    wire [31:0] mem_addr;
+    wire [31:0] mem_rd_data, mem_wr_data;
 
     mem_delayed mem1(
         .clk(clk),
+        .rst(rst),
 
         .addr(mem_addr),
         .wr_req(mem_wr_req), .rd_req(mem_rd_req),
