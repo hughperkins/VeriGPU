@@ -105,17 +105,15 @@ module int_div_regfile(
         next_rf_wr_sel = '0;
         next_rf_wr_data = '0;
 
-        if(~rst) begin
-            assert(~$isunknown(internal_b));
-            assert(~$isunknown(pos));
-        end
+        `assert_known(internal_b);
+        `assert_known(pos);
         shiftedb = {{data_width{1'b0}}, internal_b} << pos;
 
         $display("div comb req=%0d state=%0d pos=%0d rf_wr_ack=%0d", req, state, pos, rf_wr_ack);
         // $strobe("state %0d req=%0b", state, req);
         case(state)
             IDLE: begin
-                assert(rst | ~$isunknown(req));
+                `assert_known(req);
                 if (req) begin
                     $display("div unit got req");
                     next_pos = data_width_minus_1[pos_width - 1:0];
@@ -131,16 +129,16 @@ module int_div_regfile(
             end
             CALC: begin
                 next_busy = 1;
-                assert(~$isunknown(next_a_remaining));
-                assert(~$isunknown(shiftedb));
+                `assert_known(next_a_remaining);
+                `assert_known(shiftedb);
                 if (shiftedb < {{data_width{1'b0}}, next_a_remaining}) begin
                     next_a_remaining = next_a_remaining - shiftedb[data_width - 1 :0];
                     next_quotient = next_quotient | (1 << pos);
                 end
-                assert(~ $isunknown(pos));
+                `assert_known(pos);
                 if(pos == 0) begin
-                    assert(~$isunknown(internal_r_quot_sel));
-                    assert(~$isunknown(internal_r_mod_sel));
+                    `assert_known(internal_r_quot_sel);
+                    `assert_known(internal_r_mod_sel);
                     if(internal_r_quot_sel != 0) begin
                         next_rf_wr_req = 1;
                         next_rf_wr_sel = internal_r_quot_sel;
@@ -160,10 +158,10 @@ module int_div_regfile(
                 end
             end
             WRITING_QUOTIENT: begin
-                assert(~$isunknown(rf_wr_ack));
+                `assert_known(rf_wr_ack);
                 if(rf_wr_ack) begin
                     $display("div got ack, maybe write modulus");
-                    assert(~$isunknown(internal_r_mod_sel));
+                    `assert_known(internal_r_mod_sel);
                     if(internal_r_mod_sel != 0) begin
                         $display("div write modulus (for next cycle)");
                         next_busy = 1;
@@ -183,7 +181,7 @@ module int_div_regfile(
                 end
             end
             WRITING_MODULUS: begin
-                assert(~$isunknown(rf_wr_ack));
+                `assert_known(rf_wr_ack);
                 if(rf_wr_ack) begin
                     next_state = IDLE;
                 end else begin
