@@ -1,2 +1,2 @@
-parameter mem_simulated_delay = 128;
-parameter memory_size = 5;
+parameter mem_simulated_delay = 5;
+parameter memory_size = 256;
