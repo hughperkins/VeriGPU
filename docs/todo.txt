@@ -1,3 +1,6 @@
+- maybe clean up reset vs run for memroy vs gpu
+- proc_gls.sh should check output for "ERROR"
+- fix failing asserts in proc_gls.sh
 - add tests to bheavioral tests, that feed in `x`, and check caught somehow?
 - maybe create a lint checker that tests taht if statements have
 - try GLS on entire comp.sv?
