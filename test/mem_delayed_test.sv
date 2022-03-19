@@ -50,6 +50,7 @@ module mem_delayed_test();
             #10;
         end while(~ack && cycles < 1000);
         `assert(~busy);
+        $display("cycles %d rd_data=%0d expected_data=%0d, == %0d", cycles, rd_data, expected_data, (rd_data == expected_data));
         `assert(rd_data == expected_data);
         `assert (cycles == expected_cycles);
     endtask
@@ -96,8 +97,7 @@ module mem_delayed_test();
     end
 
     initial begin
-        $monitor("t=%0d test.mon ack=%d busy=%d rd_req=%h wr_req=%h addr=%0h rd_data=%0h wr_data=%0h", $time, ack, busy, rd_req, wr_req, addr, rd_data, wr_data);
-        rst = 1;
+        // $monitor("t=%0d test.mon ack=%d busy=%d rd_req=%h wr_req=%h addr=%0h rd_data=%0h wr_data=%0h", $time, ack, busy, rd_req, wr_req, addr, rd_data, wr_data);
         rst <= 1;
         wr_req <= 0;
         rd_req <= 0;
