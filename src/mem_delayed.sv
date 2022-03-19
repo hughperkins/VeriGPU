@@ -57,7 +57,7 @@ module mem_delayed
         n_write_now = 0;
         n_read_now = 0;
 
-        assert(~$isunknown(oob_wen));
+        assert(rst | ~$isunknown(oob_wen));
 
         if(~rst) begin
             assert(~$isunknown(received_rd_req));
