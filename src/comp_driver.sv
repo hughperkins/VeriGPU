@@ -69,6 +69,7 @@ module comp_driver(
         #10
         rst <= 0;
         #10
+        #5;
 
         for(int i = 0; i < 255; i++) begin
             oob_wen <= 1;
@@ -79,7 +80,6 @@ module comp_driver(
         oob_wen <= 0;
         outpos <= 0;
         #10;
-        #5;
         $display("");
         $display("===========================================");
         $display("========== turning on enable ==============");
