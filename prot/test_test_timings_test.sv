@@ -57,6 +57,7 @@ module test_test_timings_test();
         tick();
         // 10
         rst <= 0;
+        $display("rst <= 0");
         tick();
         // 20
         `assert(~out);
@@ -64,8 +65,10 @@ module test_test_timings_test();
         // 30
         `assert(~out);
         req <= 1;
+        $display("req <= 1");
         tick();
         // 40
+        `assert(~out);
         neg();
         // 45
         `assert(out);
@@ -73,19 +76,23 @@ module test_test_timings_test();
         // 50
         req <= 0;
         clr <= 1;
+        $display("req <= 0; clr <= 1;");
         tick();
         clr <= 0;
+        $display("          clr <= 0;");
         neg();
         `assert(~out);
         pos();
         autoclock = 1;
         #5
-        assert(clk == 0);
+        `assert(clk == 0);
         #5
-        assert(clk == 1);
+        `assert(clk == 1);
 
         req <= 1;
+        $display("req <= 1");
         #10;
+        `assert(~out);
         #5;
         `assert(out);
 
