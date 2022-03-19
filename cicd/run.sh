@@ -4,8 +4,8 @@ set -x
 set -e
 set -o pipefail
 
-iverilog -g2012 src/op_const.sv src/const.sv src/int_div_regfile.sv src/proc.sv
-verilator -sv --cc src/op_const.sv src/const.sv src/int_div_regfile.sv src/proc.sv
+# iverilog -g2012 src/op_const.sv src/const.sv src/int_div_regfile.sv src/proc.sv
+verilator -sv --cc src/op_const.sv src/assert.sv src/const.sv src/int_div_regfile.sv src/proc.sv
 python -V
 pip freeze
 yosys -V
