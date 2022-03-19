@@ -120,6 +120,11 @@ module mem_delayed (
             received_rd_req <= 0;
             received_wr_req <= 0;
 
+            `assert_known(oob_wen);
+            if(oob_wen) begin
+                mem[oob_wr_addr] <= oob_wr_data;
+            end
+
         end else begin
             $display(
                 "t=%0d mem_delayed.ff n_clks=%0d n_received_rd_req=%0d n_received_wr_req=%0d n_ack=%0d n_busy=%0d n_received_addr=%0d n_read_now=%0d mem[n_received_addr]=%0d",
@@ -128,11 +133,6 @@ module mem_delayed (
             busy <= n_busy;
             ack <= n_ack;
             rd_data <= '0;
-
-            `assert_known(oob_wen);
-            if(oob_wen) begin
-                mem[oob_wr_addr] <= oob_wr_data;
-            end
 
             received_addr <= n_received_addr;
             received_data <= n_received_data;
