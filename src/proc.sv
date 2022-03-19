@@ -461,6 +461,7 @@ module proc(
                 "t=%0d proc.comb state=%0d pc=%0d c1_op=%0d mem_rd_data=%0d mem_wr_req=%0b mem_rd_req=%0b mem_ack=%0b regs[1]=%0d",
                 $time, state, pc, c1_op, mem_rd_data, mem_wr_req, mem_rd_req, mem_ack, regs[1]);
         end
+        `assert_known(state);
         case(state)
             C0: begin
                 // if(~rst) begin
