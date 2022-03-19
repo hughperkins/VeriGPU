@@ -1,5 +1,5 @@
-- convert `if`s to either assert initialized before them, or be case with a deafult that catches `x`
-- add tests to bheavioral tests, that feed in `x`, and check caught somehow?- maybe create a lint checker that tests taht if statements have 
+- add tests to bheavioral tests, that feed in `x`, and check caught somehow?
+- maybe create a lint checker that tests taht if statements have
 - try GLS on entire comp.sv?
 - add piccie for gate level simulation to readme/docs
 - simplify workflow piccie, just to have 'verilog' rather than filenames
@@ -28,6 +28,7 @@
 - (use actual memory module?)
 
 done:
+- convert `if`s to either assert initialized before them, or be case with a deafult that catches `x`
 - see if using case instead of if detects bugs prior to gate-level simulation
 - fix gls for prog22
 - gate level simulation (GLS); i.e. what happens if we simulate using yosys output?
