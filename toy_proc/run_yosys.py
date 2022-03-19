@@ -27,10 +27,14 @@ write_verilog build/netlist/3.v
 dfflibmap -liberty {args.cell_lib}
 write_verilog build/netlist/4.v
 abc -liberty {args.cell_lib}
+""")
+        if not args.no_cells:
+            f.write("""
 write_verilog build/netlist/5.v
 clean
 write_verilog build/netlist/6.v
-
+""")
+        f.write("""
 write_rtlil build/rtlil.rtl
 write_verilog build/netlist.v
 ltp
@@ -51,6 +55,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--top-module', type=str, help='top module name, only needed if more than one module.')
     parser.add_argument('--show', action='store_true', help='show xdot on the result')
+    parser.add_argument('--no-cells', action='store_true', help='stop after dfflibmap')
     parser.add_argument(
         '--cell-lib', type=str, default='tech/osu018/osu018_stdcells.lib',
         help='e.g. path to osu018_stdcells.lib')

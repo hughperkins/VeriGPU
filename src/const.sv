@@ -1,5 +1,4 @@
 parameter num_regs = 32;
-parameter memory_size = 256;
 
 parameter data_width = 32;
 parameter addr_width = 32;

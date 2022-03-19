@@ -1,5 +1,6 @@
-module mem_delayed
-    #(parameter mem_simulated_delay=5) (
+`timescale 1ns/10ps
+
+module mem_delayed (
     input clk,
     input rst,
 
@@ -17,8 +18,6 @@ module mem_delayed
     input [addr_width - 1:0] oob_wr_addr,
     input [data_width - 1:0] oob_wr_data
 );
-    // parameter mem_simulated_delay = 128;
-
     reg [data_width - 1:0] mem[memory_size];
 
     reg [addr_width - 1:0] received_addr;
@@ -57,16 +56,15 @@ module mem_delayed
         n_write_now = 0;
         n_read_now = 0;
 
-        assert(rst | ~$isunknown(oob_wen));
+        n_clks_to_wait = 0;
 
-        if(~rst) begin
-            assert(~$isunknown(received_rd_req));
-            assert(~$isunknown(received_wr_req));
-            assert(~$isunknown(wr_req));
-            assert(~$isunknown(rd_req));
-        end
+        $display("rst %0d received_rd_req=%0d", rst, received_rd_req);
+        `assert_known(received_rd_req);
+        `assert_known(received_wr_req);
+        `assert_known(wr_req);
+        `assert_known(rd_req);
         if (received_rd_req) begin
-            assert(~$isunknown(clks_to_wait));
+            `assert_known(clks_to_wait);
             if (clks_to_wait == 0) begin
                 n_ack = 1;
                 n_read_now = 1;
@@ -79,7 +77,7 @@ module mem_delayed
                 n_busy = 1;
             end
         end else if(received_wr_req) begin
-            assert(~$isunknown(clks_to_wait));
+            `assert_known(clks_to_wait);
             if (clks_to_wait == 0) begin
                 n_ack = 1;
                 n_write_now = 1;
@@ -93,6 +91,7 @@ module mem_delayed
         end else if (wr_req) begin
             n_received_wr_req = 1;
             n_clks_to_wait = mem_simulated_delay - 1;
+            $display("writing addr=%0d", addr);
             n_received_addr = addr;
             n_received_data = wr_data;
             n_ack = 0;
@@ -100,6 +99,7 @@ module mem_delayed
         end else if (rd_req) begin
             n_received_rd_req = 1;
             n_clks_to_wait = mem_simulated_delay - 1;
+            $display("reading addr=%0d", addr);
             n_received_addr = addr;
             n_ack = 0;
             n_busy = 1;
@@ -107,7 +107,7 @@ module mem_delayed
     end
 
     always @(posedge clk, posedge rst) begin
-        assert(~$isunknown(rst));
+        `assert_known(rst);
         if(rst) begin
             clks_to_wait <= 0;
             busy <= 0;
@@ -120,9 +120,6 @@ module mem_delayed
             received_rd_req <= 0;
             received_wr_req <= 0;
 
-            if(oob_wen) begin
-                mem[oob_wr_addr] <= oob_wr_data;
-            end
         end else begin
             $display(
                 "t=%0d mem_delayed.ff n_clks=%0d n_received_rd_req=%0d n_received_wr_req=%0d n_ack=%0d n_busy=%0d n_received_addr=%0d n_read_now=%0d mem[n_received_addr]=%0d",
@@ -132,17 +129,28 @@ module mem_delayed
             ack <= n_ack;
             rd_data <= '0;
 
+            `assert_known(oob_wen);
+            if(oob_wen) begin
+                mem[oob_wr_addr] <= oob_wr_data;
+            end
+
             received_addr <= n_received_addr;
             received_data <= n_received_data;
 
             received_rd_req <= n_received_rd_req;
             received_wr_req <= n_received_wr_req;
 
+            `assert_known(n_write_now);
             if(n_write_now) begin
+                $display("writing now n_received_data=%0d n_received_addr=%0d", n_received_data, n_received_addr);
                 mem[{2'b0, n_received_addr[31:2]}] <= n_received_data;
             end
 
+            `assert_known(n_read_now);
             if(n_read_now) begin
+                $display(
+                    "reading rd data n_received_addr=%0d mem[ {2'b0, n_received_addr[31:2]} ]=%0d",
+                    n_received_addr, mem[ {2'b0, n_received_addr[31:2]} ]);
                 rd_data <= mem[ {2'b0, n_received_addr[31:2]} ];
             end
         end
