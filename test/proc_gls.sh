@@ -30,6 +30,11 @@ for prog in ${progs}; do {
         echo "" > build/out.txt
     } fi
 
+    if cat build/out.txt | grep 'ERROR'; then {
+        echo "ERROR"
+        exit 1
+    } fi
+
     if diff build/out_only.txt examples/${prog}_expected.txt; then {
         echo SUCCESS
     } else {
