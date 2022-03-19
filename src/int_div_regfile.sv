@@ -115,7 +115,7 @@ module int_div_regfile(
         // $strobe("state %0d req=%0b", state, req);
         case(state)
             IDLE: begin
-                assert(~$isunknown(req));
+                assert(rst | ~$isunknown(req));
                 if (req) begin
                     $display("div unit got req");
                     next_pos = data_width_minus_1[pos_width - 1:0];
