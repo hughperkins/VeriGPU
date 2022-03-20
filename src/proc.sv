@@ -152,11 +152,29 @@ module proc(
             ADDI: begin
                 $display("%0d ADDI x%0d <= %0d + %0d", pc, _rd, c1_rs1_data, _i_imm);
                 write_reg(_rd, c1_rs1_data + _i_imm);
-                read_next_instr(pc + 4);
+            end
+            SLTI: begin
+                // FIXME
+                write_reg(_rd, c1_rs1_data < _i_imm);
+            end
+            SLTIU: begin
+                write_reg(_rd, c1_rs1_data < _i_imm);
+            end
+            XORI: begin
+                write_reg(_rd, c1_rs1_data ^ _i_imm);
+            end
+            ORI: begin
+                write_reg(_rd, c1_rs1_data | _i_imm);
+            end
+            ANDI: begin
+                write_reg(_rd, c1_rs1_data & _i_imm);
             end
             default: begin
+                $display("op immm unhandled funct %0d", _funct);
+                halt = 1;
             end
         endcase
+        read_next_instr(pc + 4);
     endtask
 
     task op_branch(input [2:0] _funct, input [4:0] _rs1, input [4:0] _rs2, input [addr_width - 1:0] _offset);

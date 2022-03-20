@@ -19,8 +19,16 @@
     } e_op;
 
     typedef enum bit[2:0] {
-        ADDI = 3'b000
-    } e_funct;
+        ADDI  = 3'b000,
+        SLTI  = 3'b010,
+        SLTIU = 3'b011,
+        XORI  = 3'b100,
+        ORI   = 3'b110,
+        ANDI  = 3'b111
+        // SLLI  = 3'b001,
+        // SRLI  = 3'b101,
+        // SRAI  = 3'b101
+    } e_funct_opimm;
 
     typedef enum bit[2:0] {
         BEQ = 3'b000,

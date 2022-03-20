@@ -59,6 +59,19 @@ funct_bits_op = {
 }
 
 
+funct_bits_opimm = {
+    'ADDI':   '000',
+    'SLTI':   '010',
+    'SLTIU':  '011',
+    'XORI':   '100',
+    'ORI':    '110',
+    'ANDI':   '111',
+    'SLLI':   '001',
+    'SRLI':   '010',
+    'SRAI':   '101'
+}
+
+
 def int_to_binary(int_value, num_bits):
     if int_value < 0:
         offset = int(math.pow(2, num_bits))
@@ -213,7 +226,7 @@ def run(args):
                 offset_bits = int_str_to_bits(p2, 12)
                 instr_bits = f'{offset_bits}{rs1_bits}010{rd_bits}{op_bits}'
                 hex_lines.append(bits_to_hex(instr_bits))
-            elif cmd == 'addi':
+            elif cmd in ['addi', 'slti', 'sltiu', 'xori', 'ori', 'andi', 'slli', 'srli', 'srai']:
                 # e.g.
                 # addi x1,    x2,    123
                 #      rd     rs1    imm
@@ -222,7 +235,9 @@ def run(args):
                 print('addi imm_bits', imm_bits)
                 rd_bits = reg_str_to_bits(p1)
                 rs1_bits = reg_str_to_bits(p2)
-                funct_bits = '000'
+
+                funct_bits = funct_bits_opimm[cmd.upper()]
+                # funct_bits = '000'
                 instr_bits = f'{imm_bits}{rs1_bits}{funct_bits}{rd_bits}{op_bits}'
                 hex_lines.append(bits_to_hex(instr_bits))
             elif cmd in ['lui', 'auipc']:
