@@ -155,10 +155,10 @@ module proc(
             end
             SLTI: begin
                 // FIXME
-                write_reg(_rd, c1_rs1_data < _i_imm);
+                write_reg(_rd, { {31{1'b0}}, (c1_rs1_data < _i_imm)});
             end
             SLTIU: begin
-                write_reg(_rd, c1_rs1_data < _i_imm);
+                write_reg(_rd, { {31{1'b0}}, (c1_rs1_data < _i_imm)});
             end
             XORI: begin
                 write_reg(_rd, c1_rs1_data ^ _i_imm);
