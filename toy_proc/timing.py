@@ -14,6 +14,41 @@ Will use 'unit times' for timings, which will look something like:
 
 - shl: 0 (it's just rewiring)
 - shr: 0 (it's just rewiring)
+
+
+
+Some details:
+- in the gate-level netlist, the only active 'things' are 'cells'
+- cells comprise mostly logic gates (NAND etc) and flip-flops (DFFxxx)
+- we also have assigns, which we represents as cells with no propagation delay
+    - the rhs of the assign is the inputs, and the lhs is the outputs
+- the outputs of a DFF are treated as inputs into the module, and the inputs to
+  the DFF are outputs from the module
+- we measure the longest path between any input and any output, where input means
+  any module input, or any dff output; and output means any module output, or any
+  dff input
+
+cells data structures:
+- cells are stored in cells list
+- there are multiple indexes into this list, eg cell_idx_by_input_name, cell_idx_by_cell_name,
+  etc
+- using these indexes, we can locate a particular cell in O(1) time, using a hashtable lookup
+    - so the entire script runs relatively fast (much faster than the synthesis step beforehand)
+- the module inputs are represented by a 'START' cell, and the module outputs are represented
+  by an 'END' cell
+
+vectors:
+- some wires are vectors. They are represented in the netlist sometimes as individual
+  wires (foo[2]), and sometimes as entire vectors. We use the original wire declaration
+  of each wire to determine whether it's a vector or not. Then, in assigns, we
+  expand vectors into the individual wires, where necessary
+- the vector declarations are stored in vector_bits_by_name
+
+whitespace:
+- sometimes wires have a space between their name and a vector index, eg `foo [2]`
+- we strip whitespace as standard
+- where whitespace is not stripped, that is a bug
+    - typically this will manifest as a bug sooner or later
 """
 import argparse
 from typing import Dict, Optional, List
@@ -186,6 +221,7 @@ def run(args):
                     # # let's treat dff ports as input and output ports of the module
                     cell = Cell(cell_type, cell_name, cell_inputs, cell_outputs, is_source_sink=True)
                     cell_idx = len(cells)
+                    cellidx_by_cell_name[cell_name] = cell_idx
                     cells.append(cell)
                     source_sink_nodes.add(cell)
                     for cell_input in cell_inputs.keys():
