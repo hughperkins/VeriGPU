@@ -10,7 +10,6 @@
 - fuse LUI and JALR
 - fuse AUIPC and JALR
 - fuse DIV and MOD
-- rename examples....
 - verilator driver file?
 - maybe use a C/C++ -> RISC-V compiler, instead of writing assembler?
 - instruction cache
@@ -28,6 +27,7 @@
 - (use actual memory module?)
 
 done:
+- rename examples....
 - remove networkx
 - fix timing artifact
 - split cicd job into 2-3 jobs (eg gls, timing, beh)
