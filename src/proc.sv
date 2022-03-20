@@ -235,8 +235,8 @@ module proc(
                 wr_reg_data = c1_rs1_data + c1_rs2_data;
             end
             // this is actually unsigned. Need to fix...
-            SLT: wr_reg_data = c1_rs1_data < c1_rs2_data ? '1 : '0;
-            SLTU: wr_reg_data = c1_rs1_data < c1_rs2_data ? '1 : '0;
+            SLT: wr_reg_data = c1_rs1_data < c1_rs2_data ? 1 : 0;
+            SLTU: wr_reg_data = c1_rs1_data < c1_rs2_data ? 1 : 0;
             AND: wr_reg_data = c1_rs1_data & c1_rs2_data;
             OR: wr_reg_data = c1_rs1_data | c1_rs2_data;
             XOR: wr_reg_data = c1_rs1_data ^ c1_rs2_data;
