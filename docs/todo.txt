@@ -1,4 +1,4 @@
-- try GLS on entire comp.sv?
+- check timings on entire comp.sv?
 - figure out a way to have asserts displayed over if it is the last run through the comb block before the flip-flops flip?
 - add piccie for gate level simulation to readme/docs
 - simplify workflow piccie, just to have 'verilog' rather than filenames
@@ -12,7 +12,7 @@
 - floats:  mul, div, modulus, add, sub, beq, glt
 - rename examples....
 - matrix multiplication
-- verilator driver file
+- verilator driver file?
 - prime numbers calculator
 - maybe use a C/C++ -> RISC-V compiler, instead of writing assembler?
 - instruction cache
@@ -29,6 +29,7 @@
 - (use actual memory module?)
 
 done:
+- try GLS on entire comp.sv?
 - fix failing asserts in proc_gls.sh
 - maybe clean up reset vs run for memroy vs gpu
 - proc_gls.sh should check output for "ERROR"
@@ -36,12 +37,6 @@ done:
 - see if using case instead of if detects bugs prior to gate-level simulation
 - fix gls for prog22
 - gate level simulation (GLS); i.e. what happens if we simulate using yosys output?
-- change memory fetch time to 128
-- start measuring run time, in run.py (via comp_driver.sv)
-- handle `(* unused_bits)` in timing.py
-- int division
-- int modulus
-- experiment with migrating most of proc.sv to combinational always @(*) block (from posedge block)
 - [older stuff truncated]
 
 things for gpu:
