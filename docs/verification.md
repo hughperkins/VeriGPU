@@ -38,7 +38,7 @@ This will run various behavioral-level unit-tests at [/test/behav](test/behav). 
 bash test/behav/run_examples.sh
 ```
 
-- under the hood, this will run many of the examples in [examples](/examples), and check the outputs against the expected outputs, which are in the paired files, with suffix `_expected.txt`, also in [examples](/examples) folder.
+- under the hood, this will run many of the examples in [examples](/examples), and check the outputs against the expected outputs, which are in the paired files, with suffix `_expected.txt`, in the sub-folder [examples/expected](/examples/expected) folder.
 
 ## Gate-level simulation and testing
 

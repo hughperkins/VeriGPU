@@ -40,7 +40,7 @@ for prog in ${progs}; do {
         exit 1
     } fi
 
-    if diff build/out_only.txt examples/${prog}_expected.txt; then {
+    if diff build/out_only.txt examples/expected/${prog}_expected.txt; then {
         echo SUCCESS
     } else {
         echo FAIL

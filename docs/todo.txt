@@ -1,6 +1,8 @@
 - parallel instruction execution
 - add area approximation to timing.py (eg count the number of cells :P)
-- floats:  mul, div, modulus, add, sub, beq, glt
+- float add
+- float mul
+- floats:  div, modulus, sub, beq, glt
 - matrix multiplication
 - add piccie for gate level simulation to readme/docs
 - simplify workflow piccie, just to have 'verilog' rather than filenames
@@ -13,6 +15,7 @@
 - maybe use a C/C++ -> RISC-V compiler, instead of writing assembler?
 - instruction cache
 - level 1 cache
+- memory can have byte access (via cache)
 - check endian-ness relative to risc-v spec
 - check spir-v vs risc-v
 - gpu structure

@@ -31,7 +31,7 @@ def run(args):
         with open('/tmp/out.txt') as f:
             output = f.read()
             output = '\n'.join([line for line in output.split('\n') if line.startswith('out')])
-        with open(f'examples/{args.name}_expected.txt') as f:
+        with open(f'examples/expected/{args.name}_expected.txt') as f:
             expected = f.read().strip()
         print('')
         print('Target prog: ' + args.name)
