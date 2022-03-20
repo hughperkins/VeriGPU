@@ -12,6 +12,10 @@ We are currently loosely basing the processor instruction set on the [RISC-V ISA
 SW    rs2, offset(rs1)     # use for both integers and floats
 LW    rd,  offset(rs1)     # use for both integers and floats
 ADDI  rd,  rs1, immediate
+SLTIU rd,  rs1, immediate
+ANDI  rd,  rs1, immediate
+ORI  rd,  rs1, immediate
+XORI  rd,  rs1, immediate
 BEQ   rs1, rs2, location
 BNE   rs1, rs2, location
 BLTU   rs1, rs2, location
@@ -29,8 +33,7 @@ LI    rd   immediate
 AUIPC rd   immediate
 DIVU  rd,  rs1, rs2
 MODU  rd,  rs1, rs2
-location:  # to label a location that we will branch conditionally to
-           # (for now, must precede the branch instruction)
+location:  # to label a location that we can branch conditionally to
 ```
 
 ### Pseudoinstructions
