@@ -120,5 +120,5 @@ avg 837.3
 ### Procedure
 
 ```
-python test/get_prog_cycles.py
+python test/timing/get_prog_cycles.py
 ```

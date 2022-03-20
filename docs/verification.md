@@ -9,6 +9,8 @@ We run the following verification:
 
 [![CircleCI](https://circleci.com/gh/hughperkins/toy_proc/tree/main.svg?style=svg)](https://circleci.com/gh/hughperkins/toy_proc/tree/main)
 
+The CI server runs [/cicd/run.sh](/cicd/run.sh).
+
 ## Behavioral-level simulation and testing
 
 ### Concept
@@ -24,7 +26,13 @@ We use the `iverilog` simulator to run simulation of our design at the behaviora
 ### Procedure
 
 ```
-bash test/reg_test.sh
+bash test/behav/run_sv_tests.sh
+```
+
+This will run various behavioral-level unit-tests at [/test/behav](test/behav). The script is [/test/behav/run_sv_tests.sh](/test/behav/run_sv_tests.sh).
+
+```
+bash test/behav/run_examples.sh
 ```
 
 - under the hood, this will run many of the examples in [examples](/examples), and check the outputs against the expected outputs, which are in the paired files, with suffix `_expected.txt`, also in [examples](/examples) folder.
@@ -51,10 +59,10 @@ You can view execution of these tests in the CI server linked above.
 ### Procedure
 
 ```
-bash test/gls_tests.sh
+bash test/gls/gls_tests.sh
 ```
 
-See [test/gls_tests.sh](/test/gls_tests.sh).
+See [test/gls/gls_tests.sh](/test/gls/gls_tests.sh).
 
 
 ## Unit-tests for the assembler and some of the test scripts themselves

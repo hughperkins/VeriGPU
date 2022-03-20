@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# run all the examples, in examples folder
+# each example comprises an assembler program, that we can compile, and feed to a simulator
+# running our processor/gpu verilog
+
 set -e
 set -x
 set -o pipefail
