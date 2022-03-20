@@ -150,7 +150,7 @@ module proc(
         `assert_known(_funct);
         case(_funct)
             ADDI: begin
-                $display("ADDI _rd=%0d regs[_rs1]=%0d _i_imm=%0d next_pc=%0d", _rd, c1_rs1_data, _i_imm, next_pc);
+                $display("%0d ADDI x%0d <= %0d + %0d", pc, _rd, c1_rs1_data, _i_imm);
                 write_reg(_rd, c1_rs1_data + _i_imm);
                 read_next_instr(pc + 4);
             end
@@ -161,18 +161,27 @@ module proc(
 
     task op_branch(input [2:0] _funct, input [4:0] _rs1, input [4:0] _rs2, input [addr_width - 1:0] _offset);
         reg branch;
+        reg [addr_width - 1:0] branch_dest;
+
         branch = 0;
+        branch_dest = pc + {_offset[30:0], 1'b0};
 
         `assert_known(_funct);
         case(_funct)
-            BEQ: if (c1_rs1_data == c1_rs2_data) branch = 1;
-            BNE: if (c1_rs1_data != c1_rs2_data) branch = 1;
+            BEQ: begin
+                $display("%0d BEQ %0d == %0d => %0d", pc, c1_rs1_data, c1_rs2_data, branch_dest);
+                if (c1_rs1_data == c1_rs2_data) branch = 1;
+            end
+            BNE: begin
+                $display("%0d BNE %0d != %0d => %0d", pc, c1_rs1_data, c1_rs2_data, branch_dest);
+                if (c1_rs1_data != c1_rs2_data) branch = 1;
+            end
             default: begin end
         endcase
 
         `assert_known(branch);
         if (branch) begin
-            read_next_instr(pc + {_offset[30:0], 1'b0});
+            read_next_instr(branch_dest);
         end else begin
             read_next_instr(pc + 4);
         end
@@ -183,7 +192,7 @@ module proc(
 
         wr_reg_req = 1;
         wr_reg_sel = _rd_sel;
-        $display("op_op.c1 op_funct=%0d", _funct);
+        // $display("op_op.c1 op_funct=%0d", _funct);
         skip_advance_pc = 0;
         `assert_known(_funct);
         case(_funct)
@@ -203,10 +212,10 @@ module proc(
             // RV32M
             MUL: wr_reg_data = c1_rs1_data * c1_rs2_data;
             DIVU: begin
-                $display("DIVU.c1");
+                $display("%0d DIVU.c1 %0d / %0d => x%0d", pc, c1_rs1_data, c1_rs2_data, _rd_sel);
                 `assert_known(div_busy);
                 if(div_busy == 0) begin
-                    $display("sending req to div unit a=%0d b=%0d quot_sel=%0d", c1_rs1_data, c1_rs2_data, _rd_sel);
+                    // $display("sending req to div unit a=%0d b=%0d quot_sel=%0d", c1_rs1_data, c1_rs2_data, _rd_sel);
                     n_div_req = 1;
                     n_div_r_quot_sel = _rd_sel;
                     n_div_r_mod_sel = '0;
@@ -218,15 +227,15 @@ module proc(
                     next_state = C2;
                     skip_advance_pc = 1;
                 end else begin
-                    $display("waiting for div unit to be free");
+                    // $display("waiting for div unit to be free");
                     skip_advance_pc = 1;
                 end
             end
             REMU: begin
-                $display("REMU.c1");
+                $display("%0d REMU.c1 x%0d <= %0d / %0d", pc, _rd_sel, c1_rs1_data, c1_rs2_data);
                 `assert_known(div_busy);
                 if(~div_busy) begin
-                    $display("sending req to div unit a=%0d b=%0d mod_sel=%0d", c1_rs1_data, c1_rs2_data, _rd_sel);
+                    // $display("sending req to div unit a=%0d b=%0d mod_sel=%0d", c1_rs1_data, c1_rs2_data, _rd_sel);
                     n_div_req = 1;
                     n_div_r_quot_sel = '0;
                     n_div_r_mod_sel = _rd_sel;
@@ -239,7 +248,7 @@ module proc(
                     skip_advance_pc = 1;
                 end else begin
                     // wait for not busy I suppose...
-                    $display("waiting for div unit to be free");
+                    // $display("waiting for div unit to be free");
                     skip_advance_pc = 1;
                 end
             end
@@ -265,22 +274,23 @@ module proc(
     endtask
 
     task op_store(input [addr_width - 1:0] _addr);
-        $display("op_store addr %0d", _addr);
+        $display("%0d STORE addr %0d <= %0d", pc, _addr, c1_rs2_data);
         `assert_known(_addr);
         case (_addr)
             1000: begin
                 // write_out(regs[c1_rs2]);
                 write_out(c1_rs2_data);
-                $display(" store 1000 %0d", c1_rs2_data);
+                $display("OUT %0d", c1_rs2_data);
                 // immediately jump to next instruction, since not a real store...
                 read_next_instr(pc + 4);
             end
             1004: begin
-                $display("1004: HALT");
+                $display("%0d 1004: HALT", pc);
                 halt = 1;
             end
             1008: begin
                 write_float(c1_rs2_data);
+                $display("OUTR %0f", c1_rs2_data);
                 read_next_instr(pc + 4);
             end
             default: begin
@@ -293,15 +303,15 @@ module proc(
     endtask
 
     task instr_c1();
-        $display(
-            "instr_c1 c1_op=%0d mem_rd_data=%b rs1_data=%0d rs2_data=%0d rd_sel=%0d c1_store_offset=%0d",
-            c1_op, mem_rd_data, c1_rs1_data, c1_rs2_data, c1_rd_sel, c1_store_offset);
+        // $display(
+        //     "instr_c1 c1_op=%0d mem_rd_data=%b rs1_data=%0d rs2_data=%0d rd_sel=%0d c1_store_offset=%0d",
+        //     c1_op, mem_rd_data, c1_rs1_data, c1_rs2_data, c1_rd_sel, c1_store_offset);
         // $strobe("strobe instr_c1 c1_op=%0d mem_rd_data=%b", c1_op, mem_rd_data);
         halt = 0;
         `assert_known(c1_op);
         case (c1_op)
             OPIMM: begin
-                $display("c1.OPIMM");
+                // $display("c1.OPIMM");
                 op_imm(c1_funct3, c1_rd_sel, c1_rs1_sel, c1_i_imm);
             end
             LOAD: begin
@@ -312,18 +322,18 @@ module proc(
                 next_state = C2;
             end
             STORE: begin
-                $display("STORE");
+                // $display("STORE");
                 // write to memory
                 // sw rs2, offset(rs1)
                 op_store(c1_rs1_data + c1_store_offset);
             end
             BRANCH: begin
-                $display("c1.BRANCH");
+                // $display("c1.BRANCH");
                 // e.g. beq rs1, rs2, offset
                 op_branch(c1_funct3, c1_rs1_sel, c1_rs2_sel, c1_branch_offset);
             end
             OP: begin
-                $display("c1.OP");
+                // $display("c1.OP");
                 op_op(c1_op_funct, c1_rd_sel, c1_rs1_sel, c1_rs2_sel);
             end
             LUI: begin
@@ -342,7 +352,7 @@ module proc(
     endtask
 
     task instr_c2();
-        $display("C2 pc=%0d op=%0d %0b", pc, c2_op, c2_op);
+        // $display("C2 pc=%0d op=%0d %0b", pc, c2_op, c2_op);
         `assert_known(c2_op);
         case (c2_op)
             LOAD: begin
@@ -362,28 +372,28 @@ module proc(
                 end
             end
             OP: begin
-                $display("OP.C2 op_funct=%0d", c2_op_funct);
+                // $display("OP.C2 op_funct=%0d", c2_op_funct);
                 `assert_known(c2_op_funct);
                 case(c2_op_funct)
                     DIVU: begin
-                        $display("DIVU.C2 div busy=%0b div_wr_reg_req=%0b", div_busy, div_wr_reg_req);
+                        // $display("DIVU.C2 div busy=%0b div_wr_reg_req=%0b", div_busy, div_wr_reg_req);
                         `assert_known(div_wr_reg_req);
                         if(div_wr_reg_req) begin
                             // go to next instruction
                             // well, lets read the result for now
-                            $display("got write req from div, write ack");
+                            $display("DIVU.C2 x%0d <= %0d", div_wr_reg_sel, div_wr_reg_data);
                             div_wr_reg_ack = 1;
                             write_reg(div_wr_reg_sel, div_wr_reg_data);
                             read_next_instr(pc + 4);
                         end
                     end
                     REMU: begin
-                        $display("REMU.C2 div busy=%0b div_wr_reg_req=%0b", div_busy, div_wr_reg_req);
+                        // $display("REMU.C2 div busy=%0b div_wr_reg_req=%0b", div_busy, div_wr_reg_req);
                         `assert_known(div_wr_reg_req);
                         if(div_wr_reg_req) begin
                             // go to next instruction
                             // well, lets read the result for now
-                            $display("got write req from div, write ack");
+                            $display("REMU.C2 x%0d <= %0d", div_wr_reg_sel, div_wr_reg_data);
                             div_wr_reg_ack = 1;
                             write_reg(div_wr_reg_sel, div_wr_reg_data);
                             read_next_instr(pc + 4);
@@ -399,11 +409,11 @@ module proc(
         endcase
     endtask
 
-    // always @(mem_rd_data, div_wr_reg_req, c2_instr, state, pc, mem_ack) begin
-    always @(*) begin
-        $display("t=%0d proc.comb mem_rd_data=%0d div_wr_reg_req=%0d c2_instr=%0h state=%0d pc=%0d mem_ack=%0d",
-            $time, mem_rd_data, div_wr_reg_req, c2_instr, state, pc, mem_ack
-        );
+    always @(mem_rd_data, div_wr_reg_req, c2_instr, state, pc, mem_ack) begin
+    // always @(*) begin
+        // $display("t=%0d proc.comb mem_rd_data=%0d div_wr_reg_req=%0d c2_instr=%0h state=%0d pc=%0d mem_ack=%0d",
+        //     $time, mem_rd_data, div_wr_reg_req, c2_instr, state, pc, mem_ack
+        // );
     // always_comb begin
         halt = 0;
         out = '0;
@@ -456,11 +466,11 @@ module proc(
         c2_op_funct = {c2_instr[31:25], c2_instr[14:12]};
         c2_rd_sel = c2_instr[11:7];
 
-        if(~rst) begin
-            $display(
-                "t=%0d proc.comb state=%0d pc=%0d c1_op=%0d mem_rd_data=%0d mem_wr_req=%0b mem_rd_req=%0b mem_ack=%0b regs[1]=%0d",
-                $time, state, pc, c1_op, mem_rd_data, mem_wr_req, mem_rd_req, mem_ack, regs[1]);
-        end
+        // if(~rst) begin
+        //     $display(
+        //         "t=%0d proc.comb state=%0d pc=%0d c1_op=%0d mem_rd_data=%0d mem_wr_req=%0b mem_rd_req=%0b mem_ack=%0b regs[1]=%0d",
+        //         $time, state, pc, c1_op, mem_rd_data, mem_wr_req, mem_rd_req, mem_ack, regs[1]);
+        // end
         `assert_known(state);
         case(state)
             C0: begin
@@ -470,10 +480,10 @@ module proc(
                 read_next_instr(pc);
             end
             C1: begin
-                $display("comb C1");
+                // $display("comb C1 instr=%h", c1_instr);
                 mem_rd_req = 0;
                 if(mem_ack) begin
-                    $display("in mem_ack mem_ack=%0d mem_rd_data=%0d", mem_ack, mem_rd_data);
+                    // $display("in mem_ack mem_ack=%0d mem_rd_data=%0d", mem_ack, mem_rd_data);
                     instr_c1();
                     c2_instr_next = mem_rd_data;
                 end
@@ -507,10 +517,10 @@ module proc(
             div_rs1_data <= '0;
             div_rs2_data <= '0;
         end else begin
-            $display(
-                "t=%0d proc.ff mem_addr %0d mem_wr_data %0d mem_rd_data %0d mem_wr_req %b mem_rd_req  %b mem_ack %b mem_busy %b",
-                $time,
-                mem_addr,     mem_wr_data,    mem_rd_data,    mem_wr_req,   mem_rd_req,    mem_ack,   mem_busy);
+            // $display(
+            //     "t=%0d proc.ff mem_addr %0d mem_wr_data %0d mem_rd_data %0d mem_wr_req %b mem_rd_req  %b mem_ack %b mem_busy %b",
+            //     $time,
+            //     mem_addr,     mem_wr_data,    mem_rd_data,    mem_wr_req,   mem_rd_req,    mem_ack,   mem_busy);
             // $display("ff tick t=%0d clk=%0b next_pc=%0d next_state=%0d", $time, clk, next_pc, next_state);
             pc <= next_pc;
             state <= next_state;
