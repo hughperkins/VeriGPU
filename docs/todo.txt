@@ -1,4 +1,3 @@
-- check timings on entire comp.sv?
 - figure out a way to have asserts displayed over if it is the last run through the comb block before the flip-flops flip?
 - add piccie for gate level simulation to readme/docs
 - simplify workflow piccie, just to have 'verilog' rather than filenames
@@ -29,6 +28,7 @@
 - (use actual memory module?)
 
 done:
+- check timings on entire comp.sv?
 - try GLS on entire comp.sv?
 - fix failing asserts in proc_gls.sh
 - maybe clean up reset vs run for memroy vs gpu
