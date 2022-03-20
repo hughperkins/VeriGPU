@@ -1,7 +1,5 @@
-- fix failing asserts in proc_gls.sh
-- add tests to bheavioral tests, that feed in `x`, and check caught somehow?
-- maybe create a lint checker that tests taht if statements have
 - try GLS on entire comp.sv?
+- figure out a way to have asserts displayed over if it is the last run through the comb block before the flip-flops flip?
 - add piccie for gate level simulation to readme/docs
 - simplify workflow piccie, just to have 'verilog' rather than filenames
 - create register file
@@ -25,10 +23,13 @@
 - opencl
 - CUDA(R)
 - change bits of address to 64-bit, to allow 16GB+ of memory
+- (maybe create a lint checker that tests taht if statements have)
+- (add tests to bheavioral tests, that feed in `x`, and check caught somehow?)
 - (out of order execution?)
 - (use actual memory module?)
 
 done:
+- fix failing asserts in proc_gls.sh
 - maybe clean up reset vs run for memroy vs gpu
 - proc_gls.sh should check output for "ERROR"
 - convert `if`s to either assert initialized before them, or be case with a deafult that catches `x`
