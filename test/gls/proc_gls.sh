@@ -8,8 +8,7 @@
 set -ex
 set -o pipefail
 
-progs="prog2 prog3 prog4 prog5 prog6 prog7 prog8 prog9 prog10 prog11 prog12 prog13 prog14 prog15 \
-        prog16 prog17 prog18 prog19 prog20 prog21 prog22"
+progs=$(ls -b examples/*.sm)
 
 if [[ x$1 != x ]]; then {
     progs=$1
