@@ -39,10 +39,6 @@ You can see the current clock cycle propagation delay by opening the most recent
 
 - python3
 - [yosys](http://bygone.clairexen.net/yosys/)
-- have installed the following python packages
-```
-pip install networkx pydot
-```
 
 ### Procedure
 

@@ -76,8 +76,10 @@ The assembler is written in python, as are some of the test scripts, such as for
 
 ### Pre-requities
 
-- `python3`
-- `pip install pytest`
+- have python3
+- from this repo, have done:
+    - `pip install -e .`
+    - `pip install -r test/py/requirements.txt`
 
 ### Procedure
 

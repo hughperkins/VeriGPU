@@ -1,4 +1,4 @@
-- fix timing artifact
+- remove networkx
 - move pip install into dockerfile
 - figure out a way to have asserts displayed over if it is the last run through the comb block before the flip-flops flip?
 - add piccie for gate level simulation to readme/docs
@@ -30,6 +30,7 @@
 - (use actual memory module?)
 
 done:
+- fix timing artifact
 - split cicd job into 2-3 jobs (eg gls, timing, beh)
 - check timings on entire comp.sv?
 - try GLS on entire comp.sv?

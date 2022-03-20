@@ -49,16 +49,10 @@ whitespace:
 - we strip whitespace as standard
 - where whitespace is not stripped, that is a bug
     - typically this will manifest as a bug sooner or later
-
-networkx
-- we initially used networkx to represent the graph. Later we just used our own structures
-- we can probalby remove networkx, and the dependency, just haven't gotten around to removing it yet
-  (it can sometimes provide a helpful graphical representation)
 """
 import argparse
 from typing import Dict, Optional, List
 from collections import deque, defaultdict
-import networkx as nx
 import subprocess
 import sys
 
@@ -413,28 +407,6 @@ def run(args):
                 cell_outputs = {}
         previous_unused_bits = next_unused_bits
 
-    G = nx.Graph()
-    for i, cell in enumerate(cells):
-        G.add_node(cell.cell_name)
-    for to_idx, to_cell in enumerate(cells):
-        to_name = to_cell.cell_name
-        for cell_input in to_cell.cell_inputs:
-            try:
-                from_idxs = cellidxs_by_output[cell_input]
-            except Exception as e:
-                print('failed to find ' + cell_input + ' in cellidx_by_output')
-                print('cellidx_by_output keys:')
-                # for wire in cellidx_by_output.keys():
-                #     print('- wire [' + wire + ']')
-                print('')
-                print('to_idx', to_idx, to_cell.cell_name, to_cell, 'cell_input', cell_input)
-                raise e
-            for from_idx in from_idxs:
-                from_cell = cells[from_idx]
-                from_name = from_cell.cell_name
-                G.add_edge(from_name, to_name, name=cell_input)
-    nx.nx_pydot.write_dot(G, 'build/netlist.dot')
-
     # walk graph, starting from inputs
     # we are looking for longest path through the graph
     # to_process = deque(start_cell.cell_outputs)
@@ -510,9 +482,13 @@ def run(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--in-netlist', type=str, help='path to gate netlist verilog file')
+    parser.add_argument(
+        '--in-netlist', type=str,
+        help='path to gate netlist verilog file, choose one of --in-netlist or --in-verilog')
     parser.add_argument('--top-module', type=str, help='top module name, only needed if more than one module.')
-    parser.add_argument('--in-verilog', type=str, nargs='+', help='path to original verilog file')
+    parser.add_argument(
+        '--in-verilog', type=str, nargs='+',
+        help='path to original verilog file, choose one of --in-verilog or --in-netlist')
     parser.add_argument(
         '--cell-lib', type=str, default='tech/osu018/osu018_stdcells.lib',
         help='e.g. path to osu018_stdcells.lib')
