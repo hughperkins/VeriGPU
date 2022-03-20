@@ -75,6 +75,7 @@ Some specific programs:
 - sum integers from 0 to 5 [examples/sum_ints.asm](/examples/sum_ints.asm)
 - factorial of integers 0 to 5 [examples/calc_factorial.asm](/examples/calc_factorial.asm)
 - prime numbers up to 31 [examples/calc_primes.asm](/examples/calc_primes.asm)
+- sieve of eratosthenes, up to 31 [examples/sieve_eratosthenes.asm](/examples/sieve_eratosthenes.asm)
 
 ## Memory
 
