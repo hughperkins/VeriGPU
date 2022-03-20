@@ -1,3 +1,4 @@
+- add slt
 - parallel instruction execution
 - sieve aristophenes
 - add area approximation to timing.py (eg count the number of cells :P)

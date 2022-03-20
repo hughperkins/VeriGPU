@@ -14,6 +14,8 @@ LW    rd,  offset(rs1)     # use for both integers and floats
 ADDI  rd,  rs1, immediate
 BEQ   rs1, rs2, location
 BNE   rs1, rs2, location
+BLTU   rs1, rs2, location
+BGEU   rs1, rs2, location
 ADD   rd,  rs1, rs2
 SUB   rd,  rs1, rs2
 SLL   rd,  rs1, rs2
@@ -45,6 +47,12 @@ MV rd, rs
 NEG rd, rs
 BEQZ rs, offset
 BNEZ rs, offset
+BLTZ rs, offset
+BGTZ rs, offset
+BLEZ rs, offset
+BGEZ rs, offset
+BLEU rs1, rs2, offset
+BGTU rs1, rs2, offset
 ```
 
 ## Assembler
