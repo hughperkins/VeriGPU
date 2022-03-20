@@ -5,7 +5,7 @@ version: 2.1
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  test:
+  behavioral:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
     resource_class: small  # see https://circleci.com/docs/2.0/configuration-reference/#resource_class
@@ -18,9 +18,63 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "Run tests"
+          name: "Run behavioral tests"
           command: |
-            cicd/run.sh
+            cicd/run-behav.sh
+          no_output_timeout: 2m
+
+  py:
+    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
+    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+    resource_class: small  # see https://circleci.com/docs/2.0/configuration-reference/#resource_class
+    docker:
+      - image: hughperkins/chip_design:latest
+      # - image: hughperkins/toy_proc:0.2
+      # - image: cimg/python:3.10.1
+    # Add steps to the job
+    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+    steps:
+      - checkout
+      - run:
+          name: "Run python tests"
+          command: |
+            cicd/run-py.sh
+          no_output_timeout: 2m
+
+  gls:
+    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
+    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+    resource_class: small  # see https://circleci.com/docs/2.0/configuration-reference/#resource_class
+    docker:
+      - image: hughperkins/chip_design:latest
+      # - image: hughperkins/toy_proc:0.2
+      # - image: cimg/python:3.10.1
+    # Add steps to the job
+    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+    steps:
+      - checkout
+      - run:
+          name: "Run GLS tests"
+          command: |
+            cicd/run-gls.sh
+          no_output_timeout: 2m
+
+  timing:
+    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
+    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+    resource_class: small  # see https://circleci.com/docs/2.0/configuration-reference/#resource_class
+    docker:
+      - image: hughperkins/chip_design:latest
+      # - image: hughperkins/toy_proc:0.2
+      # - image: cimg/python:3.10.1
+    # Add steps to the job
+    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+    steps:
+      - checkout
+      - run:
+          name: "Run timing measurements"
+          command: |
+            cicd/run-timing.sh
           no_output_timeout: 2m
       - store_artifacts:
           path: build/timing-proc.txt
@@ -34,4 +88,7 @@ jobs:
 workflows:
   test-workflow:
     jobs:
-      - test
+      - py
+      - behavioral
+      - gls
+      - timing
