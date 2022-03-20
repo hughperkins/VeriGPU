@@ -27,7 +27,7 @@ def run(args):
                     print(line)
             print('')
             raise Exception('Error')
-    if os.path.exists(f'examples/{args.name}_expected.txt'):
+    if os.path.exists(f'examples/expected/{args.name}_expected.txt'):
         with open('/tmp/out.txt') as f:
             output = f.read()
             output = '\n'.join([line for line in output.split('\n') if line.startswith('out')])

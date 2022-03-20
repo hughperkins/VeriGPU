@@ -494,6 +494,8 @@ def run(args):
                 assert p1.endswith(':')
                 loc_int = int_str_to_int(p1[:-1])
                 location = loc_int // 4
+                if len(hex_lines) > location:
+                    print("len(hex_lines)", len(hex_lines), "loc_int//4", location)
                 assert len(hex_lines) <= location
                 while len(hex_lines) < location:
                     hex_lines.append('00000000')
