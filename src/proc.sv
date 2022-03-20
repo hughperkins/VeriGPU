@@ -176,6 +176,22 @@ module proc(
                 $display("%0d BNE %0d != %0d => %0d", pc, c1_rs1_data, c1_rs2_data, branch_dest);
                 if (c1_rs1_data != c1_rs2_data) branch = 1;
             end
+            BGE: begin
+                $display("%0d BGE %0d >= %0d => %0d", pc, c1_rs1_data, c1_rs2_data, branch_dest);
+                if (c1_rs1_data >= c1_rs2_data) branch = 1;
+            end
+            BLT: begin  //fix me: BLT and BLTU should not be the same... (ditto for BGE and BGEU)
+                $display("%0d BLT %0d < %0d => %0d", pc, c1_rs1_data, c1_rs2_data, branch_dest);
+                if (c1_rs1_data < c1_rs2_data) branch = 1;
+            end
+            BGEU: begin
+                $display("%0d BGEU %0d >= %0d => %0d", pc, c1_rs1_data, c1_rs2_data, branch_dest);
+                if (c1_rs1_data >= c1_rs2_data) branch = 1;
+            end
+            BLTU: begin
+                $display("%0d BLTU %0d < %0d => %0d", pc, c1_rs1_data, c1_rs2_data, branch_dest);
+                if (c1_rs1_data < c1_rs2_data) branch = 1;
+            end
             default: begin end
         endcase
 
@@ -196,7 +212,10 @@ module proc(
         skip_advance_pc = 0;
         `assert_known(_funct);
         case(_funct)
-            ADD: wr_reg_data = c1_rs1_data + c1_rs2_data;
+            ADD: begin
+                $display("%0d ADD x%0d <= %0d + %0d", pc, _rd_sel, c1_rs1_data, c1_rs2_data);
+                wr_reg_data = c1_rs1_data + c1_rs2_data;
+            end
             // this is actually unsigned. Need to fix...
             SLT: wr_reg_data = c1_rs1_data < c1_rs2_data ? '1 : '0;
             SLTU: wr_reg_data = c1_rs1_data < c1_rs2_data ? '1 : '0;
@@ -315,7 +334,8 @@ module proc(
                 op_imm(c1_funct3, c1_rd_sel, c1_rs1_sel, c1_i_imm);
             end
             LOAD: begin
-                $display("c1.LOAD c1_rs1=%0d regs[c1_rs1]=%0d c1_load_offset=%0d", c1_rs1_sel, regs[c1_rs1_sel], c1_load_offset);
+                // $display("c1.LOAD c1_rs1=%0d regs[c1_rs1]=%0d c1_load_offset=%0d", c1_rs1_sel, regs[c1_rs1_sel], c1_load_offset);
+                $display("%0d LOAD.C1  <= addr %0d", pc, c1_rs1_data + c1_load_offset);
                 // read from memory
                 // lw rd, offset(rs1)
                 read_mem(c1_rs1_data + c1_load_offset);
@@ -359,7 +379,8 @@ module proc(
                 // $display("C2.load mem_ack=%0b", mem_ack);
                 `assert_known(mem_ack);
                 if(mem_ack) begin
-                    $display("C2.load next c2_rd_sel=%0d mem_rd_data=%0d", c2_rd_sel, mem_rd_data);
+                    // $display("C2.load next c2_rd_sel=%0d mem_rd_data=%0d", c2_rd_sel, mem_rd_data);
+                    $display("%0d LOAD.C2 x%0d <= %0d", pc, c2_rd_sel, mem_rd_data);
                     write_reg(c2_rd_sel, mem_rd_data);
                     read_next_instr(pc + 4);
                 end

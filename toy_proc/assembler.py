@@ -326,35 +326,49 @@ def run(args):
                 continue
             elif cmd == 'blez':
                 # blez rs, offset
+                # p1 <= x0
+                # x0 >= p1
                 asm_cmds.appendleft(f'bge x0 {p1} {p2}')
                 continue
             elif cmd == 'bgez':
                 # bgez rs, offset
+                # p1 >= x0
                 asm_cmds.appendleft(f'bge {p1} x0 {p2}')
                 continue
             elif cmd == 'bltz':
                 # bltz rs, offset
+                # p1 < x0
                 asm_cmds.appendleft(f'blt {p1} x0 {p2}')
                 continue
-            elif cmd == 'blgz':
+            elif cmd == 'bgtz':
                 # blgz rs, offset
+                # p1 > 0
+                # 0 < p1
                 asm_cmds.appendleft(f'blt x0 {p1} {p2}')
                 continue
             elif cmd == 'bgt':
                 # bgt rs, rt offset
-                asm_cmds.appendleft(f'blt {p2} {p2} {p3}')
+                # p1 > p2
+                # p2 < p1
+                asm_cmds.appendleft(f'blt {p2} {p1} {p3}')
                 continue
             elif cmd == 'ble':
                 # bge rs, rt offset
-                asm_cmds.appendleft(f'bge {p2} {p2} {p3}')
+                # p1 <= p2
+                # p2 >= p1
+                asm_cmds.appendleft(f'bge {p2} {p1} {p3}')
                 continue
             elif cmd == 'bgtu':
                 # bge rs, rt offset
-                asm_cmds.appendleft(f'bltu {p2} {p2} {p3}')
+                # p1 > p2
+                # p2 < p1
+                asm_cmds.appendleft(f'bltu {p2} {p1} {p3}')
                 continue
             elif cmd == 'bleu':
                 # bge rs, rt offset
-                asm_cmds.appendleft(f'bgeu {p2} {p2} {p3}')
+                # p1 <= p2
+                # p2 >= p1
+                asm_cmds.appendleft(f'bgeu {p2} {p1} {p3}')
                 continue
             elif cmd == 'half':
                 bits = int_str_to_bits(p1, 16)
