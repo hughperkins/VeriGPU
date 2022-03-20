@@ -9,12 +9,17 @@ the timings. It uses subprocess.check_output, so you cant see the runs in progre
 import argparse
 import subprocess
 import sys
+import glob
 
 
-progs = [f'prog{i}' for i in range(2, 23)]
+# progs = [f'prog{i}' for i in range(2, 23)]
+# progs=$(ls -b examples/*.sm)
 
 
 def run(args):
+    progs = glob.glob('examples/*.asm')
+    print('progs', progs)
+
     cycle_counts = []
     for prog in progs:
         output = subprocess.check_output([
