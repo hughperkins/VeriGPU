@@ -30,7 +30,7 @@ for prog in ${progs}; do {
     python toy_proc/assembler.py --in-asm examples/${prog}.asm --out-hex build/prog.hex
     cat src/comp_driver.sv | sed -e "s/{PROG}/prog/g" > build/comp_driver.sv
 
-    iverilog -g2012 tech/osu018/osu018_stdcells.v build/netlist/6.v src/assert.sv src/const.sv \
+    iverilog -g2012 tech/osu018/osu018_stdcells.v build/netlist/6.v src/assert_ignore.sv src/const.sv \
         src/mem_delayed_large.sv src/mem_delayed.sv src/comp.sv build/comp_driver.sv
     ./a.out | tee build/out.txt
     if  ! cat build/out.txt | grep '^out[ \.]' > build/out_only.txt; then {
