@@ -49,6 +49,11 @@ whitespace:
 - we strip whitespace as standard
 - where whitespace is not stripped, that is a bug
     - typically this will manifest as a bug sooner or later
+
+networkx
+- we initially used networkx to represent the graph. Later we just used our own structures
+- we can probalby remove networkx, and the dependency, just haven't gotten around to removing it yet
+  (it can sometimes provide a helpful graphical representation)
 """
 import argparse
 from typing import Dict, Optional, List
