@@ -1,5 +1,5 @@
-- prime numbers calculator
 - parallel instruction execution
+- sieve aristophenes
 - add area approximation to timing.py (eg count the number of cells :P)
 - floats:  mul, div, modulus, add, sub, beq, glt
 - matrix multiplication
@@ -27,6 +27,7 @@
 - (use actual memory module?)
 
 done:
+- prime numbers calculator
 - rename examples....
 - remove networkx
 - fix timing artifact
