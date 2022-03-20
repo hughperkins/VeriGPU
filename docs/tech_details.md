@@ -13,6 +13,8 @@ SW    rs2, offset(rs1)     # use for both integers and floats
 LW    rd,  offset(rs1)     # use for both integers and floats
 ADDI  rd,  rs1, immediate
 SLTIU rd,  rs1, immediate
+SLLI  rd,  rs1, immediate
+SRLI  rd,  rs1, immediate
 ANDI  rd,  rs1, immediate
 ORI  rd,  rs1, immediate
 XORI  rd,  rs1, immediate
