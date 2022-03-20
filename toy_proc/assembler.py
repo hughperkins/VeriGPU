@@ -67,7 +67,7 @@ funct_bits_opimm = {
     'ORI':    '110',
     'ANDI':   '111',
     'SLLI':   '001',
-    'SRLI':   '010',
+    'SRLI':   '101',
     'SRAI':   '101'
 }
 
@@ -401,7 +401,22 @@ def run(args):
                 offset_bits = int_str_to_bits(p2, 12)
                 instr_bits = f'{offset_bits}{rs1_bits}010{rd_bits}{op_bits}'
                 hex_lines.append(bits_to_hex(instr_bits))
-            elif cmd in ['addi', 'slti', 'sltiu', 'xori', 'ori', 'andi', 'slli', 'srli', 'srai']:
+            elif cmd in ['slli', 'srli', 'srai']:
+                # e.g.
+                # slli x1, x2, 3
+                # slri x1, x2, 2
+                #      p1  p2  p3
+                assert cmd != 'srai'  # not supported yet
+                op_bits = op_bits_by_op['OPIMM']  # "0010011"
+                imm_bits = int_str_to_bits(p3, 5)
+                print('addi imm_bits', imm_bits)
+                rd_bits = reg_str_to_bits(p1)
+                rs1_bits = reg_str_to_bits(p2)
+                funct_bits = funct_bits_opimm[cmd.upper()]
+
+                instr_bits = f'0000000{imm_bits}{rs1_bits}{funct_bits}{rd_bits}{op_bits}'
+                hex_lines.append(bits_to_hex(instr_bits))
+            elif cmd in ['addi', 'slti', 'sltiu', 'xori', 'ori', 'andi']:
                 # e.g.
                 # addi x1,    x2,    123
                 #      rd     rs1    imm

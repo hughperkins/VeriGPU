@@ -24,9 +24,9 @@
         SLTIU = 3'b011,
         XORI  = 3'b100,
         ORI   = 3'b110,
-        ANDI  = 3'b111
-        // SLLI  = 3'b001,
-        // SRLI  = 3'b101,
+        ANDI  = 3'b111,
+        SLLI  = 3'b001,
+        SRLI  = 3'b101
         // SRAI  = 3'b101
     } e_funct_opimm;
 
