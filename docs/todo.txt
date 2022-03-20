@@ -1,6 +1,8 @@
-- remove networkx
-- move pip install into dockerfile
-- figure out a way to have asserts displayed over if it is the last run through the comb block before the flip-flops flip?
+- prime numbers calculator
+- parallel instruction execution
+- add area approximation to timing.py (eg count the number of cells :P)
+- floats:  mul, div, modulus, add, sub, beq, glt
+- matrix multiplication
 - add piccie for gate level simulation to readme/docs
 - simplify workflow piccie, just to have 'verilog' rather than filenames
 - create register file
@@ -8,13 +10,8 @@
 - fuse LUI and JALR
 - fuse AUIPC and JALR
 - fuse DIV and MOD
-- parallel instruction execution
-- add area approximation to timing.py (eg count the number of cells :P)
-- floats:  mul, div, modulus, add, sub, beq, glt
 - rename examples....
-- matrix multiplication
 - verilator driver file?
-- prime numbers calculator
 - maybe use a C/C++ -> RISC-V compiler, instead of writing assembler?
 - instruction cache
 - level 1 cache
@@ -24,12 +21,14 @@
 - opencl
 - CUDA(R)
 - change bits of address to 64-bit, to allow 16GB+ of memory
+- (figure out a way to have asserts displayed over if it is the last run through the comb block before the flip-flops flip?)
 - (maybe create a lint checker that tests taht if statements have)
 - (add tests to bheavioral tests, that feed in `x`, and check caught somehow?)
 - (out of order execution?)
 - (use actual memory module?)
 
 done:
+- remove networkx
 - fix timing artifact
 - split cicd job into 2-3 jobs (eg gls, timing, beh)
 - check timings on entire comp.sv?

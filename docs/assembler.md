@@ -14,5 +14,5 @@ See [examples](/examples)
 
 Some specific programs:
 
-- sum integers from 0 to 5 [examples/prog16.asm](/examples/prog16.asm)
-- factorial of integers 0 to 5 [examples/prog18.asm](/examples/prog18.asm)
+- sum integers from 0 to 5 [examples/sum_ints.asm](/examples/sum_ints.asm)
+- factorial of integers 0 to 5 [examples/calc_factorial.asm](/examples/calc_factorial.asm)

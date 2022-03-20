@@ -4,7 +4,7 @@ import sys
 
 
 def run(args):
-    args.name = args.name.replace('.asm', '').replace('src/', '')
+    args.name = args.name.replace('.asm', '').replace('examples/', '')
     assert os.system(
         f'{sys.executable} toy_proc/assembler.py --in-asm examples/{args.name}.asm'
         f' --out-hex build/prog.hex') == 0
