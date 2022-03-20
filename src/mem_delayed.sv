@@ -47,6 +47,13 @@ module mem_delayed (
     reg [data_width - 1:0] n_rd_data;
 
     always @(*) begin
+    // $monitor("t=%0d mem.always*.mon rst=%0d ena=%0d rd_req=%0d wr_req=%0d addr=%0d rd_data=%0d wr_data=%0d busy=%0d ack=%0d clks_to_wait=%0d",
+    //   $time, rst, ena, rd_req, wr_req, addr, rd_data, wr_data, busy, ack, clks_to_wait);
+    // $display("t=%0d mem.always*.disp rst=%0d ena=%0d rd_req=%0d wr_req=%0d addr=%0d rd_data=%0d wr_data=%0d busy=%0d ack=%0d clks_to_wait=%0d",
+    //   $time, rst, ena, rd_req, wr_req, addr, rd_data, wr_data, busy, ack, clks_to_wait);
+    // $display("t=%0d mem.always*.strb rst=%0d ena=%0d rd_req=%0d wr_req=%0d addr=%0d rd_data=%0d wr_data=%0d busy=%0d ack=%0d clks_to_wait=%0d",
+    //   $time, rst, ena, rd_req, wr_req, addr, rd_data, wr_data, busy, ack, clks_to_wait);
+
         n_ack = 0;
         n_busy = 0;
 
@@ -62,7 +69,7 @@ module mem_delayed (
 
         n_clks_to_wait = 0;
 
-        $display("rst %0d received_rd_req=%0d", rst, received_rd_req);
+        // $display("rst %0d received_rd_req=%0d", rst, received_rd_req);
         `assert_known(received_rd_req);
         `assert_known(received_wr_req);
         `assert_known(wr_req);
@@ -129,9 +136,11 @@ module mem_delayed (
             if(oob_wen) begin
                 mem[oob_wr_addr] <= oob_wr_data;
             end
-            $display(
-                "t=%0d mem_delayed.ff n_clks=%0d n_received_rd_req=%0d n_received_wr_req=%0d n_ack=%0d n_busy=%0d n_received_addr=%0d n_read_now=%0d mem[n_received_addr]=%0d",
-                $time, n_clks_to_wait, n_received_rd_req, n_received_wr_req, n_ack, n_busy, n_received_addr, n_read_now, mem[n_received_addr]);
+            // if(ena) begin
+            //     $display(
+            //         "t=%0d mem_delayed.ff n_clks=%0d n_received_rd_req=%0d n_received_wr_req=%0d n_ack=%0d n_busy=%0d n_received_addr=%0d n_read_now=%0d mem[n_received_addr]=%0d",
+            //         $time, n_clks_to_wait, n_received_rd_req, n_received_wr_req, n_ack, n_busy, n_received_addr, n_read_now, mem[n_received_addr]);
+            // end
             clks_to_wait <= n_clks_to_wait;
             busy <= n_busy;
             ack <= n_ack;
@@ -142,6 +151,7 @@ module mem_delayed (
 
             received_rd_req <= n_received_rd_req;
             received_wr_req <= n_received_wr_req;
+
 
             `assert_known(n_write_now);
             if(n_write_now) begin
