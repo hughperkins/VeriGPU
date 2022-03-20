@@ -11,10 +11,12 @@ python toy_proc/assembler.py --in-asm examples/${prog}.asm --out-hex build/build
 cat src/comp_driver.sv | sed -e "s/{PROG}/build/g" > build/comp_driver.sv
 
 # first output gate-level netlists for int_div_regfile.sv
-python toy_proc/run_yosys.py --in-verilog src/const.sv src/int_div_regfile.sv --top-module int_div_regfile >/dev/null
+python toy_proc/run_yosys.py --in-verilog src/const.sv src/mem_delayed_large.sv \
+    src/assert_ignore.sv src/int_div_regfile.sv --top-module int_div_regfile >/dev/null
 
 # now try running with proc, comp etc
 iverilog -g2012 tech/osu018/osu018_stdcells.v build/netlist/6.v src/const.sv \
+    src/assert_ignore.sv src/mem_delayed_large.sv \
     src/op_const.sv src/proc.sv src/mem_delayed.sv src/comp.sv src/comp_driver.sv
 # iverilog -g2012 tech/osu018/osu018_stdcells.v build/netlist/2_simple_int_broken.v src/const.sv \
 #     src/op_const.sv src/proc.sv src/mem_delayed.sv src/comp.sv src/comp_driver.sv
