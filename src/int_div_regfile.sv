@@ -109,13 +109,19 @@ module int_div_regfile(
         `assert_known(pos);
         shiftedb = {{data_width{1'b0}}, internal_b} << pos;
 
-        $display("div comb req=%0d state=%0d pos=%0d rf_wr_ack=%0d", req, state, pos, rf_wr_ack);
+        // $display("div comb req=%0d state=%0d pos=%0d rf_wr_ack=%0d", req, state, pos, rf_wr_ack);
         // $strobe("state %0d req=%0b", state, req);
         case(state)
             IDLE: begin
                 `assert_known(req);
                 if (req) begin
-                    $display("div unit got req");
+                    // $display("div unit got req");
+
+                    `assert_known(a);
+                    `assert_known(b);
+                    `assert_known(r_mod_sel);
+                    `assert_known(r_quot_sel);
+
                     next_pos = data_width_minus_1[pos_width - 1:0];
                     next_quotient = '0;
                     next_a_remaining = a;
@@ -125,15 +131,38 @@ module int_div_regfile(
                     next_internal_r_mod_sel = r_mod_sel;
                     next_internal_r_quot_sel = r_quot_sel;
                     next_internal_b = b;
+
+                    `assert_known(b);
+                    if(b == 0) begin
+                        next_quotient = '1;
+                        next_a_remaining = a;
+
+                        if(r_quot_sel != 0) begin
+                            next_rf_wr_req = 1;
+                            next_rf_wr_sel = r_quot_sel;
+                            next_rf_wr_data = next_quotient;
+                            next_state = WRITING_QUOTIENT;
+                            // $display("div. wrote quotient");
+                        end else if(r_mod_sel != 0) begin
+                            next_rf_wr_req = 1;
+                            next_rf_wr_sel = r_mod_sel;
+                            next_rf_wr_data = next_a_remaining;
+                            next_state = WRITING_MODULUS;
+                        end else begin
+                            next_state = IDLE;  // this should never normally happen :), but it's a possible input
+                        end
+                    end
                 end
             end
             CALC: begin
                 next_busy = 1;
                 `assert_known(next_a_remaining);
                 `assert_known(shiftedb);
-                if (shiftedb < {{data_width{1'b0}}, next_a_remaining}) begin
+                // $display("pos %0d quot %0d a_remaining %0d shiftedb %0d", pos, next_quotient, next_a_remaining, shiftedb);
+                if (shiftedb <= {{data_width{1'b0}}, next_a_remaining}) begin
                     next_a_remaining = next_a_remaining - shiftedb[data_width - 1 :0];
                     next_quotient = next_quotient | (1 << pos);
+                    // $display("   match next_quot %0d next_a %0d", next_quotient, next_a_remaining);
                 end
                 `assert_known(pos);
                 if(pos == 0) begin
@@ -144,7 +173,7 @@ module int_div_regfile(
                         next_rf_wr_sel = internal_r_quot_sel;
                         next_rf_wr_data = next_quotient;
                         next_state = WRITING_QUOTIENT;
-                        $display("div. wrote quotient");
+                        // $display("div. wrote quotient");
                     end else if(internal_r_mod_sel != 0) begin
                         next_rf_wr_req = 1;
                         next_rf_wr_sel = internal_r_mod_sel;
@@ -160,10 +189,10 @@ module int_div_regfile(
             WRITING_QUOTIENT: begin
                 `assert_known(rf_wr_ack);
                 if(rf_wr_ack) begin
-                    $display("div got ack, maybe write modulus");
+                    // $display("div got ack, maybe write modulus");
                     `assert_known(internal_r_mod_sel);
                     if(internal_r_mod_sel != 0) begin
-                        $display("div write modulus (for next cycle)");
+                        // $display("div write modulus (for next cycle)");
                         next_busy = 1;
                         next_rf_wr_req = 1;
                         next_rf_wr_sel = internal_r_mod_sel;
@@ -173,7 +202,7 @@ module int_div_regfile(
                         next_state = IDLE;
                     end
                 end else begin
-                    $display("div waiting ack");
+                    // $display("div waiting ack");
                     next_busy = 1;
                     next_rf_wr_req = 1;
                     next_rf_wr_sel = internal_r_quot_sel;
@@ -198,10 +227,10 @@ module int_div_regfile(
     end
 
     always @(posedge clk, posedge rst) begin
-        $strobe(
-            "t=%0d int.ff state=%0d req=%0b rst=%0b next_internal_b=%0d",
-            $time,
-            state, req, rst, next_internal_b);
+        // $strobe(
+        //     "t=%0d int.ff state=%0d req=%0b rf_wr_req=%0d pos=%0d rst=%0b next_internal_b=%0d",
+        //     $time,
+        //     state, req, rf_wr_req, pos, rst, next_internal_b);
         // assert(~$isunknown(rst));
         if (rst) begin
             state <= IDLE;
