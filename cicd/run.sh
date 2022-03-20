@@ -14,8 +14,8 @@ yosys -V
 pip install -e .
 pip install -r test/py/requirements.txt
 pytest -v .
-bash test/behav/reg_test.sh
 bash test/behav/run_sv_tests.sh
+bash test/behav/run_examples.sh
 
 python test/timing/get_prog_cycles.py | tee build/clock-cycles.txt
 bash test/gls/gls_tests.sh
