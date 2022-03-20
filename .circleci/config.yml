@@ -79,7 +79,7 @@ jobs:
       - store_artifacts:
           path: build/timing-proc.txt
       - store_artifacts:
-          path: build/timing-apu.txt
+          path: build/timing-comp.txt
       - store_artifacts:
           path: build/clock-cycles.txt
 

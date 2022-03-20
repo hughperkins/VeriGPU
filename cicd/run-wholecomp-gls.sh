@@ -11,4 +11,8 @@ pip freeze
 yosys -V
 pip install -e .
 
+if [[ ! -e build ]]; then {
+    mkdir build
+} fi
+
 bash test/gls/comp_gls.sh

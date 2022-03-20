@@ -12,5 +12,9 @@ python -V
 yosys -V
 pip install -e .
 
+if [[ ! -e build ]]; then {
+    mkdir build
+} fi
+
 bash test/behav/run_sv_tests.sh
 bash test/behav/run_examples.sh
