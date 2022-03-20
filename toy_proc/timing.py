@@ -143,13 +143,15 @@ def str_to_names(vector_bits_by_name: Dict[str, List[int]], names_str: str):
     into a list of names, using the vector definition
     """
     names = []
-    names_str = names_str.strip()
+    names_str = names_str.replace(' ', '').strip()
     if names_str.startswith('{'):
         # it's a concatenation
         split_names_str = names_str[1:-1].split(',')
         for child_name_str in split_names_str:
             names += str_to_names(vector_bits_by_name, child_name_str.strip())
     elif names_str in vector_bits_by_name:
+        # it's a vector, but doesn't say it is
+        # use vector_bits_by_name to turn it into a vector
         bits = vector_bits_by_name[names_str]
         names += [f'{names_str}[{i}]' for i in bits]
     elif '[' in names_str and ':' in names_str.split('[')[1]:
@@ -490,6 +492,7 @@ def run(args):
             for name in cell.cell_inputs:
                 if name not in cell.cell_input_delay_by_name:
                     print('    missing', name)
+
     if printed_prologue:
         sys.exit(1)
 
