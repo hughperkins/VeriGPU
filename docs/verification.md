@@ -9,11 +9,10 @@ We run the following verification:
 
 [![CircleCI](https://circleci.com/gh/hughperkins/toy_proc/tree/main.svg?style=svg)](https://circleci.com/gh/hughperkins/toy_proc/tree/main)
 
-The CI server runs the following scripts:
+The CI server runs the following verification scripts:
 - python: [/cicd/run-py.sh](/cicd/run-py.sh).
 - behavioral: [/cicd/run-behav.sh](/cicd/run-behav.sh).
 - gate-level simulation: [/cicd/run-gls.sh](/cicd/run-gls.sh).
-- timing: [/cicd/run-timing.sh](/cicd/run-timing.sh).
 
 ## Behavioral-level simulation and testing
 

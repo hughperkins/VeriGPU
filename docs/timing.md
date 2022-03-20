@@ -5,13 +5,20 @@ We measure the following aspects of timing:
     - this strongly influences the maximum clock speed possible
 - cycle count: how many clock ticks does it take for some sample programs
 
+## Continuous Integration (CI)
+
+[![CircleCI](https://circleci.com/gh/hughperkins/toy_proc/tree/main.svg?style=svg)](https://circleci.com/gh/hughperkins/toy_proc/tree/main)
+
+The CI server runs the following timing measurement scripts:
+- timing: [/cicd/run-timing.sh](/cicd/run-timing.sh).
+
 ## Combinatorial propagation delay
 
 We run timing metrics based on the gate-level netlist that we obtain by running synthesis down to cell level using [yosys](http://bygone.clairexen.net/yosys/). This netlist has converted the various behavioral notation, such as `always` and `if` into combinatorial gates and flip-flops. We then assign a weight to each cell, according to the delay it represents, and find the longest path between flip-flop outpus and inputs, and also between module inputs and flip-flops, flip-flops and module outputs, and module inputs and outputs. The combinatorial propagation delay is the sum of the cell delays along this longest path. We measure the propagation delay in `nand gate units`: the propagation delay for a single `nand` gate.
 
-### Latest resulst
+### Latest results
 
-You can see the current clock cycle propagation delay by opening the most recent build at [toy_proc circleci](https://app.circleci.com/pipelines/github/hughperkins/toy_proc?branch=main&filter=all), going to 'artifacts', and clicking on 'build/timing-proc.txt'. As of writing this, it was 110 nand gate units, i.e. equivalent to passing through about 110 nand units.
+You can see the current clock cycle propagation delay by opening the most recent build at [toy_proc circleci](https://app.circleci.com/pipelines/github/hughperkins/toy_proc?branch=main&filter=all), opening the `run-timing` job, going to 'artifacts', and clicking on 'build/timing-proc.txt'. As of writing this, it was 110 nand gate units, i.e. equivalent to passing through about 110 nand units.
 - at 90nm, one nand gate unit is about 50ps, giving a cycle time of about 5.5ns, and a frequency of about 200MHz
 - at 5nm, one nand gate unit is about 5ps, giving a cycle time of about 0.55ns, and a frequency of about 2GHz
 (Note: this analysis totally neglects layout, i.e. wire delay over distance, so it's just to give an idea).
@@ -76,7 +83,7 @@ We run example programs, using behavioral-level simulation, and measure how many
 
 ### Results
 
-- you can see the latest results by going to [CircleCI main branch builds](https://app.circleci.com/pipelines/github/hughperkins/toy_proc?branch=main&filter=all), opening the latest build, going to 'artifacts', and opening `build/clock-cycles.txt`. At the time of writing this looks like:
+- you can see the latest results by going to [CircleCI main branch builds](https://app.circleci.com/pipelines/github/hughperkins/toy_proc?branch=main&filter=all), opening the latest build, openng the `run-timing` job, going to 'artifacts', and opening `build/clock-cycles.txt`. At the time of writing this looks like:
 
 ```
 prog2 cycle_count 658
