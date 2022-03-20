@@ -236,8 +236,14 @@ module proc(
             end
             // this is actually unsigned. Need to fix...
             SLT: wr_reg_data = c1_rs1_data < c1_rs2_data ? 1 : 0;
-            SLTU: wr_reg_data = c1_rs1_data < c1_rs2_data ? 1 : 0;
-            AND: wr_reg_data = c1_rs1_data & c1_rs2_data;
+            SLTU: begin
+                $display("%0d SLTU x%0d <= %0d < %0d", pc, _rd_sel, c1_rs1_data, c1_rs2_data);
+                wr_reg_data = c1_rs1_data < c1_rs2_data ? 1 : 0;
+            end
+            AND: begin
+                $display("%0d AND x%0d <= %0d & %0d", pc, _rd_sel, c1_rs1_data, c1_rs2_data);
+                wr_reg_data = c1_rs1_data & c1_rs2_data;
+            end
             OR: wr_reg_data = c1_rs1_data | c1_rs2_data;
             XOR: wr_reg_data = c1_rs1_data ^ c1_rs2_data;
             SLL: wr_reg_data = c1_rs1_data << c1_rs2_data[4:0];
