@@ -10,7 +10,7 @@ inputs and outputs, drawn from:
     - flip-flop outputs (treated as inputs), and
     - flip-flop inputs (treated as outputs)
 
-max propagation delay: 140.2 nand units
+max propagation delay: 149.6 nand units
 */
 
 module float_add(
@@ -46,13 +46,9 @@ module float_add(
         // `assert_known(a);
         // `assert_known(b);
         a_mant[float_mant_width + 2:float_mant_width] = 3'b001;
-        // a_mant[float_mant_width + 1] = 0;
-        // a_mant[float_mant_width] = 1;
         {a_sign, a_exp, a_mant[float_mant_width - 1:0]} = a;
 
         b_mant[float_mant_width + 2:float_mant_width] = 3'b001;
-        // b_mant[float_mant_width + 1] = 0;
-        // b_mant[float_mant_width] = 1;
         {b_sign, b_exp, b_mant[float_mant_width - 1:0]} = b;
 
         if(a_sign != b_sign) begin
