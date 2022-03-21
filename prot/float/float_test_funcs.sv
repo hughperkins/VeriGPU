@@ -97,7 +97,6 @@ function [float_width - 1:0] make_float(input real val);
         mant = $rtoi(val);
         make_float = {sign, exp, mant};
     end
-    $display("float rep: %b", make_float);
 endfunction
 
 function real to_real(input [float_width - 1:0] fval);
@@ -134,5 +133,4 @@ function real to_real(input [float_width - 1:0] fval);
             to_real = - to_real;
         end
     end
-    $display("mant as real: %0f", to_real);
 endfunction
