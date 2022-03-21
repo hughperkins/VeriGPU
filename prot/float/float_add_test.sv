@@ -14,7 +14,7 @@ module float_add_test();
         b <= make_float(_b);
         #1
 
-        $display("a=%0f b=%0f out=%0f", to_real(_a), to_real(_b), to_real(out));
+        $display("test_add a=%0f b=%0f out=%0f", _a, _b, to_real(out));
         `assert(reals_near(to_real(out), expected_out));
         #1;
     endtask
@@ -22,5 +22,9 @@ module float_add_test();
     initial begin
         test_add(1.0, 1.0, 2.0);
         test_add(1.23, 2.56, 3.79);
+        test_add(1.23, 0.00456, 1.23456);
+        test_add(0.000123, 0.000000456, 0.000123456);
+        test_add(2.0, 3.0, 5.0);
+        test_add(2000.0, 300.0, 2300.0);
     end
 endmodule

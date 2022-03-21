@@ -6,10 +6,13 @@ function reals_near(real r1, real r2);
     int max_exp10;
     real prec;
     real mult;
+    real r1_cpy;
+    real r2_cpy;
     int r1_int;
     int r2_int;
     reg sign;
 
+    // $display("reals_near");
     if(r1 == 0.0 && r2 == 0.0) begin
         // do nothing
         reals_near = 1;
@@ -30,30 +33,36 @@ function reals_near(real r1, real r2);
         end
         r1_exp10 = 0;
         r2_exp10 = 0;
-        while(r1 >= 10) begin
-            r1 = r1 / 10;
-            r1_exp10 += 1;
+        r1_cpy = r1;
+        r2_cpy = r2;
+        while(r1_cpy >= 10) begin
+            r1_cpy = r1_cpy / 10;
+            r1_exp10 = r1_exp10 + 1;
         end
-        while(r2 >= 10) begin
-            r2 = r2 / 10;
-            r2_exp10 += 1;
+        while(r2_cpy >= 10) begin
+            r2_cpy = r2_cpy / 10;
+            r2_exp10 = r2_exp10 + 1;
         end
-        while(r1 < 1) begin
-            r1 = r1 * 10;
-            r1_exp10 -= 1;
+        while(r1_cpy < 1) begin
+            r1_cpy = r1_cpy * 10;
+            r1_exp10 = r1_exp10 - 1;
         end
-        while(r2 < 1) begin
-            r2 = r2 * 10;
-            r2_exp10 -= 1;
+        while(r2_cpy < 1) begin
+            r2_cpy = r2_cpy * 10;
+            r2_exp10 = r2_exp10 - 1;
         end
         max_exp10 = r1_exp10 > r2_exp10 ? r1_exp10 : r2_exp10;
+        // $display("r1_exp10 %0d r2_exp10 %0d max_exp10 %0d", r1_exp10, r2_exp10, max_exp10);
 
-        prec = 0.00001;
+        prec = 0.000001;
+        // mult = 1000000.0;
         while(max_exp10 > 0) begin
             prec = prec * 10;
+            // mult = mult / 10;
             max_exp10 = max_exp10 - 1;
         end
         while(max_exp10 < 0) begin
+            // mult = mult * 10;
             prec = prec / 10;
             max_exp10 = max_exp10 + 1;
         end
@@ -76,7 +85,7 @@ function [float_width - 1:0] make_float(input real val);
         make_float = '0;
     end else begin
         sign = 0;
-        $display("%0f", val);
+        // $display("%0f", val);
         exp = 127;
         if(val < 0) begin
             val = - val;
