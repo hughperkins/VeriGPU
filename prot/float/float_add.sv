@@ -21,14 +21,14 @@ module float_add(
     reg rst;
     reg a_sign;
     reg [float_exp_width - 1:0] a_exp;
-    reg [float_mant_width + 1:0] a_mant;
+    reg [float_mant_width + 2:0] a_mant; // [sign][overflow][extra one][stored mantissa]
 
     reg b_sign;
     reg [float_exp_width - 1:0] b_exp;
-    reg [float_mant_width + 1:0] b_mant;
+    reg [float_mant_width + 2:0] b_mant;
 
     reg [float_exp_width - 1:0] new_exp;
-    reg [float_mant_width + 1:0] new_mant;
+    reg [float_mant_width + 2:0] new_mant;
 
     reg [float_exp_width - 1:0] exp_diff;
 
@@ -37,26 +37,42 @@ module float_add(
     reg [float_mant_width + 1:0] new_mant_lookup[float_mant_width];
     reg [float_exp_width - 1:0] norm_shift;
 
+    reg new_sign;
+
     // try single cycle first... see how long that takes
     always @(*) begin
         rst = 0;
 
         // `assert_known(a);
         // `assert_known(b);
-        a_mant[float_mant_width + 1] = 0;
-        a_mant[float_mant_width] = 1;
+        a_mant[float_mant_width + 2:float_mant_width] = 3'b001;
+        // a_mant[float_mant_width + 1] = 0;
+        // a_mant[float_mant_width] = 1;
         {a_sign, a_exp, a_mant[float_mant_width - 1:0]} = a;
 
-        b_mant[float_mant_width + 1] = 0;
-        b_mant[float_mant_width] = 1;
+        b_mant[float_mant_width + 2:float_mant_width] = 3'b001;
+        // b_mant[float_mant_width + 1] = 0;
+        // b_mant[float_mant_width] = 1;
         {b_sign, b_exp, b_mant[float_mant_width - 1:0]} = b;
 
         if(a_sign != b_sign) begin
-            $display("inverting b_mant before=%0d %b", b_mant, b_mant);
-            b_mant = ~b_mant;
-            $display("inverting b_mant after=%0d %b", b_mant, b_mant);
-            b_mant = b_mant + 1;
-            $display("inverting b_mant after=%0d %b", b_mant, b_mant);
+            if(a_sign == 1) begin
+                $display("inverting a_mant before=%b", a_mant);
+                a_mant = ~a_mant;
+                $display("inverting a_mant after= %b", a_mant);
+                a_mant = a_mant + 1;
+                $display("inverting a_mant after= %b", a_mant);
+                new_sign = 0;
+            end else begin
+                $display("inverting b_mant before=%b", b_mant);
+                b_mant = ~b_mant;
+                $display("inverting b_mant after= %b", b_mant);
+                b_mant = b_mant + 1;
+                $display("inverting b_mant after= %b", b_mant);
+                new_sign = 0;
+            end
+        end else begin
+            new_sign = a_sign;
         end
 
         if(a_exp > b_exp) begin
@@ -73,8 +89,16 @@ module float_add(
         $display("a        %b", a_mant);
         $display("b        %b", b_mant);
         $display("new_mant %b", new_mant);
+        // flip sign if necessary
+        if(new_mant[float_mant_width + 2]) begin
+            // its negative
+            new_sign = ~new_sign;
+            new_mant = ~new_mant + 1;
+            $display("new mant neg, flip sign");
+            $display("new_mant %b", new_mant);
+        end
         if(new_mant[float_mant_width + 1] == 1) begin
-            new_mant = new_mant >> 1;
+            new_mant[float_mant_width + 1:0] = new_mant[float_mant_width + 1:0] >> 1;
             new_exp = new_exp + 1;
         end
         $display("new_mant %b", new_mant);
@@ -98,6 +122,6 @@ module float_add(
             new_exp = new_exp - norm_shift;
         end
         $display("new_mant %b new_exp %0d", new_mant, new_exp);
-        out = {a_sign, new_exp, new_mant[float_mant_width - 1:0]};
+        out = {new_sign, new_exp, new_mant[float_mant_width - 1:0]};
     end
 endmodule
