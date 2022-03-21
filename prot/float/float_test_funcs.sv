@@ -15,14 +15,19 @@ function reals_near(real r1, real r2);
     // $display("reals_near");
     if(r1 == 0.0 && r2 == 0.0) begin
         // do nothing
+        $display("both zero");
         reals_near = 1;
     end else if(r1 < 0 && r2 > 0) begin
+        $display("neg pos");
         reals_near = 0;
     end else if(r1 > 0 && r2 < 0) begin
+        $display("pos neg");
         reals_near = 0;
     end else if(r1 == 0 && r2 != 0) begin
+        $display("eqz nez");
         reals_near = 0;
     end else if(r1 != 0 && r2 == 0) begin
+        $display("nez eqz");
         reals_near = 0;
     end else begin
         sign = 0;
@@ -54,7 +59,7 @@ function reals_near(real r1, real r2);
         max_exp10 = r1_exp10 > r2_exp10 ? r1_exp10 : r2_exp10;
         // $display("r1_exp10 %0d r2_exp10 %0d max_exp10 %0d", r1_exp10, r2_exp10, max_exp10);
 
-        prec = 0.000001;
+        prec = 0.00001;
         // mult = 1000000.0;
         while(max_exp10 > 0) begin
             prec = prec * 10;

@@ -26,5 +26,14 @@ module float_add_test();
         test_add(0.000123, 0.000000456, 0.000123456);
         test_add(2.0, 3.0, 5.0);
         test_add(2000.0, 300.0, 2300.0);
+
+        // both neg
+        test_add(-5.1, -3.2, -8.3);
+
+        // one neg
+        test_add(1.5, -1.25, 0.25);
+
+        // neg to zero
+        // test_add(1.5, -1.5, 0.0);
     end
 endmodule
