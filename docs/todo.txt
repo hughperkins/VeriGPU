@@ -1,8 +1,7 @@
-- merge some of the examples, eg test_store, test_out, test_load, test_addi
-- parallel instruction execution
-- add area approximation to timing.py (eg count the number of cells :P)
 - float add
 - float mul
+- parallel instruction execution
+- add area approximation to timing.py (eg count the number of cells :P)
 - floats:  div, modulus, sub, beq, glt
 - matrix multiplication
 - add piccie for gate level simulation to readme/docs
@@ -30,6 +29,7 @@
 - (use actual memory module?)
 
 done:
+- merge some of the examples, eg test_store, test_out, test_load, test_addi
 - sieve aratosthenes
 - add slli, slri
 - prime numbers calculator
