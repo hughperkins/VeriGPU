@@ -51,6 +51,7 @@ module float_add(
         b_mant[float_mant_width + 2:float_mant_width] = 3'b001;
         {b_sign, b_exp, b_mant[float_mant_width - 1:0]} = b;
 
+        // this if-else block adds 5 nant units delay
         if(a_sign != b_sign) begin
             if(a_sign == 1) begin
                 $display("inverting a_mant before=%b", a_mant);
@@ -71,6 +72,7 @@ module float_add(
             new_sign = a_sign;
         end
 
+        // this if...else block add 40 nand unit delay
         if(a_exp > b_exp) begin
             new_exp = a_exp;
             exp_diff = a_exp - b_exp;
@@ -81,11 +83,14 @@ module float_add(
             a_mant = a_mant >> exp_diff;
         end
         $display("new_exp %0d a_mant %0d %b b_mant %0d %b", new_exp, a_mant, a_mant, b_mant, b_mant);
+
+        // the mantissa addition takes 50 nand units delay
         new_mant = a_mant + b_mant;
+
         $display("a        %b", a_mant);
         $display("b        %b", b_mant);
         $display("new_mant %b", new_mant);
-        // flip sign if necessary
+        // flip sign if necessary; adds 10 nand units delay
         if(new_mant[float_mant_width + 2]) begin
             // its negative
             new_sign = ~new_sign;
@@ -93,12 +98,14 @@ module float_add(
             $display("new mant neg, flip sign");
             $display("new_mant %b", new_mant);
         end
+        // this if adds 8 nand units delay
         if(new_mant[float_mant_width + 1] == 1) begin
             new_mant[float_mant_width + 1:0] = new_mant[float_mant_width + 1:0] >> 1;
             new_exp = new_exp + 1;
         end
         $display("new_mant %b", new_mant);
         norm_shift = 0;
+        // this if-else adds 35 nand units delay
         if(|new_mant == 0) begin
             // if eveyrthing is zero ,then just return zero
             new_exp = '0;
