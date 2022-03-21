@@ -79,18 +79,24 @@ module float_add(
         end
         $display("new_mant %b", new_mant);
         norm_shift = 0;
-        for(int shift = float_mant_width - 1; shift >= 0; shift--) begin
-            $display("shift %0d new_mant[shift]=%0d", shift, new_mant[float_mant_width - shift]);
-            if(new_mant[float_mant_width - shift] == 1) begin
-                norm_shift = shift;
-                new_mant_lookup[shift] = new_mant << shift;
-                $display("    new_mant_lookup[shift]=%b norm_shift=%0d", new_mant_lookup[shift], norm_shift);
-            end else begin
-                new_mant_lookup[shift] = 0;
+        if(|new_mant == 0) begin
+            // if eveyrthing is zero ,then just return zero
+            new_exp = '0;
+            a_sign = 0;
+        end else begin
+            for(int shift = float_mant_width - 1; shift >= 0; shift--) begin
+                $display("shift %0d new_mant[shift]=%0d", shift, new_mant[float_mant_width - shift]);
+                if(new_mant[float_mant_width - shift] == 1) begin
+                    norm_shift = shift;
+                    new_mant_lookup[shift] = new_mant << shift;
+                    $display("    new_mant_lookup[shift]=%b norm_shift=%0d", new_mant_lookup[shift], norm_shift);
+                end else begin
+                    new_mant_lookup[shift] = 0;
+                end
             end
+            new_mant = new_mant_lookup[norm_shift];
+            new_exp = new_exp - norm_shift;
         end
-        new_mant = new_mant_lookup[norm_shift];
-        new_exp = new_exp - norm_shift;
         $display("new_mant %b new_exp %0d", new_mant, new_exp);
         out = {a_sign, new_exp, new_mant[float_mant_width - 1:0]};
     end

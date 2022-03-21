@@ -34,6 +34,6 @@ module float_add_test();
         test_add(1.5, -1.25, 0.25);
 
         // neg to zero
-        // test_add(1.5, -1.5, 0.0);
+        test_add(1.5, -1.5, 0.0);
     end
 endmodule
