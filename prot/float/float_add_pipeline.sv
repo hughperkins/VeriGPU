@@ -28,42 +28,43 @@ module float_add_pipeline(
     input [float_width - 1:0]     a,
     input [float_width - 1:0]     b,
     output reg [float_width -1:0] out,
-    output reg                    ack
+    output reg                      ack
 );
-    reg                          a_sign;
-    reg [float_exp_width - 1:0]  a_exp;
-    reg [float_mant_width + 2:0] a_mant; // [sign][overflow][extra one][stored mantissa]
+    reg                             a_sign;
+    reg [float_exp_width - 1:0]     a_exp;
+    reg [float_mant_width + 2:0]    a_mant; // [sign][overflow][extra one][stored mantissa]
 
-    reg                          b_sign;
-    reg [float_exp_width - 1:0]  b_exp;
-    reg [float_mant_width + 2:0] b_mant;
+    reg                             b_sign;
+    reg [float_exp_width - 1:0]     b_exp;
+    reg [float_mant_width + 2:0]    b_mant;
 
-    reg [float_exp_width - 1:0]  new_exp;
-    reg [float_mant_width + 2:0] new_mant;
+    reg [float_exp_width - 1:0]     new_exp;
+    reg [float_mant_width + 2:0]    new_mant;
 
-    reg [float_exp_width - 1:0]  exp_diff;
+    reg [float_exp_width - 1:0]     exp_diff;
 
-    reg [float_mant_width + 1:0] new_mant_lookup[float_mant_width];
-    reg [float_exp_width - 1:0]  norm_shift;
+    reg [float_mant_width + 2:0]    new_mant_lookup[float_mant_width];
+    reg [$clog2(float_mant_width) - 1:0]
+                                    norm_shift;
 
-    reg                          new_sign;
+    reg                             new_sign;
 
 
-    reg [float_width -1:0]       n_out;
-    reg                          n_ack;
+    reg [float_width -1:0]          n_out;
+    reg                             n_ack;
 
-    reg                          n_a_sign;
-    reg [float_exp_width - 1:0]  n_a_exp;
-    reg [float_mant_width + 2:0] n_a_mant; // [sign][overflow][extra one][stored mantissa]
+    reg                             n_a_sign;
+    reg [float_exp_width - 1:0]     n_a_exp;
+    reg [float_mant_width + 2:0]    n_a_mant; // [sign][overflow][extra one][stored mantissa]
 
-    reg                          n_b_sign;
-    reg [float_exp_width - 1:0]  n_b_exp;
-    reg [float_mant_width + 2:0] n_b_mant;
+    reg                             n_b_sign;
+    reg [float_exp_width - 1:0]     n_b_exp;
+    reg [float_mant_width + 2:0]    n_b_mant;
 
-    reg [float_exp_width - 1:0]  n_new_exp;
-    reg [float_mant_width + 2:0] n_new_mant;
+    reg [float_exp_width - 1:0]     n_new_exp;
+    reg [float_mant_width + 2:0]    n_new_mant;
 
-    reg                          n_new_sign;
+    reg                             n_new_sign;
 
     typedef enum bit[1:0] {
         IDLE,
@@ -172,8 +173,13 @@ module float_add_pipeline(
                     n_new_exp = '0;
                     n_new_sign = 0;
                 end else begin
-                    for(int shift = float_mant_width - 1; shift >= 0; shift--) begin
-                        // $display("shift %0d new_mant[shift]=%0d", shift, n_new_mant[float_mant_width - shift]);
+                    // shift_int needs to be signed, oterhwise the condition shift_int >= 0 doesnt work
+                    // but shift needs to have only $clog2(float_mant_width) bits, because that
+                    // is the size of the index of new_mant_lookup
+                    for(int shift_int = float_mant_width - 1; shift_int >= 0; shift_int--) begin
+                        reg [$clog2(float_mant_width) - 1:0] shift;
+                        shift = shift_int[$clog2(float_mant_width) - 1:0];
+                        $display("shift %0d new_mant[shift]=%0d", shift, n_new_mant[float_mant_width - shift]);
                         `assert_known(n_new_mant);
                         if(n_new_mant[float_mant_width - shift] == 1) begin
                             norm_shift = shift;
@@ -184,12 +190,19 @@ module float_add_pipeline(
                         end
                     end
                     n_new_mant = new_mant_lookup[norm_shift];
-                    n_new_exp = n_new_exp - norm_shift;
+                    // norm_shift has fewer bits than n_new_exp
+                    // - norm_shift is unsigned, so we can fill up the extra bits with zeros
+                    // - n_new_exp is of width float_exp_width
+                    // - norm_shift is of width $clog2(float_mant_width)
+                    n_new_exp = n_new_exp - { {float_exp_width - $clog2(float_mant_width) {1'b0}}, norm_shift };
                 end
                 // $display("new_mant %b new_exp %0d", n_new_mant, n_new_exp);
                 n_out = {n_new_sign, n_new_exp, n_new_mant[float_mant_width - 1:0]};
                 n_ack = 1;
                 n_state = IDLE;
+            end
+            default: begin
+                `assert(0);  // should never get here
             end
         endcase
 

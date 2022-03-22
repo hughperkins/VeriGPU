@@ -271,6 +271,10 @@ module proc(
                 n_fadd_b = _rs2_data;
                 next_state = C2;
             end
+            default: begin
+                $display("op_fp case funct5 default shoult not be hit");
+                halt = 1;
+            end
         endcase
     endtask
 
@@ -293,6 +297,10 @@ module proc(
                     wr_reg_req = 1;
                     read_next_instr(pc + 4);
                 end
+            end
+            default: begin
+                $display("op_fp_c2 case funct5 default shoult not be hit");
+                halt = 1;
             end
         endcase
     endtask
