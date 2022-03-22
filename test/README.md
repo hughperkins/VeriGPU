@@ -6,3 +6,4 @@ Structure of test folder:
 - [gls](gls): gate-level simulation tests
 - [timing](timing): timing analysis, such as propagation delay, and cycle counts
 - [py](py): tests for the python code
+- [lib](lib): code used to help run the tests themselvs

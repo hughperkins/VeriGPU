@@ -23,7 +23,7 @@ if [[ -f build/netlist/6.v ]]; then {
 } fi
 
 python toy_proc/run_yosys.py --in-verilog src/assert_ignore.sv src/op_const.sv src/const.sv \
-    prot/float/float_params.sv prot/float/float_add_pipeline.sv \
+    src/float_params.sv src/float_add_pipeline.sv \
     src/int_div_regfile.sv src/proc.sv \
     --top-module proc >/dev/null
 
@@ -32,7 +32,7 @@ for prog in ${progs}; do {
     cat src/comp_driver.sv | sed -e "s/{PROG}/prog/g" > build/comp_driver.sv
 
     iverilog -g2012 tech/osu018/osu018_stdcells.v build/netlist/6.v src/assert_ignore.sv src/const.sv \
-        prot/float/float_params.sv prot/float/float_add_pipeline.sv \
+        src/float_params.sv src/float_add_pipeline.sv \
         src/mem_delayed_large.sv src/mem_delayed.sv src/comp.sv build/comp_driver.sv
     ./a.out | tee build/out.txt
     if  ! cat build/out.txt | grep '^out[ \.]' > build/out_only.txt; then {

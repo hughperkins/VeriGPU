@@ -17,7 +17,7 @@ python toy_proc/run_yosys.py --in-verilog src/const.sv src/mem_delayed_large.sv 
 # now try running with proc, comp etc
 iverilog -g2012 tech/osu018/osu018_stdcells.v build/netlist/6.v src/const.sv \
     src/assert_ignore.sv src/mem_delayed_large.sv \
-    prot/float/float_params.sv prot/float/float_add_pipeline.sv \
+    src/float_params.sv src/float_add_pipeline.sv \
     src/op_const.sv src/proc.sv src/mem_delayed.sv src/comp.sv src/comp_driver.sv
 
 ./a.out
