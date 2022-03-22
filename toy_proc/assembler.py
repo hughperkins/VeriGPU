@@ -72,6 +72,33 @@ funct_bits_opimm = {
 }
 
 
+flt_fmt_bits = {
+    'S': '00',
+    'D': '01',
+    'H': '10',
+    'Q': '11'
+}
+
+
+flt_rm_bits = {
+    'RNE': '000',
+    'RTZ': '001',
+    'RDN': '010',
+    'RUP': '011',
+    'RMM': '100',
+    'DYN': '111'
+}
+
+
+funct5_bits_float = {
+    'FADD':  '00000',
+    'FSUB':  '00001',
+    'FMUL':  '00010',
+    'FDIV':  '00011',
+    'FSQRT': '01011'
+}
+
+
 def int_to_binary(int_value, num_bits):
     if int_value < 0:
         offset = int(math.pow(2, num_bits))
@@ -430,6 +457,24 @@ def run(args):
                 # funct_bits = '000'
                 instr_bits = f'{imm_bits}{rs1_bits}{funct_bits}{rd_bits}{op_bits}'
                 hex_lines.append(bits_to_hex(instr_bits))
+            elif cmd.startswith('f'):
+                cmd, _, fmt = cmd.partition('.')
+                op_bits = op_bits_by_op['OPFP']
+                fmt_bits = flt_fmt_bits[fmt.upper()]
+                funct5_bits = funct5_bits_float[cmd.upper()]
+                rm_bits = flt_rm_bits['RNE']
+
+                rd_bits = reg_str_to_bits(p1)
+                rs1_bits = reg_str_to_bits(p2)
+                rs2_bits = reg_str_to_bits(p3)
+
+                if cmd in ['fadd', 'fsub', 'fmul', 'fdiv', 'fsqrt']:
+                    instr_bits = f'{funct5_bits}{fmt_bits}{rs2_bits}{rs1_bits}{rm_bits}{rd_bits}{op_bits}'
+                    hex_lines.append(bits_to_hex(instr_bits))
+                else:
+                    print(line)
+                    raise Exception('unhandled cmd', cmd)
+
             elif cmd in ['lui', 'auipc']:
                 # eg lui x1, 0xdeadb
                 #        rd  imm
