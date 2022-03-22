@@ -14,6 +14,8 @@ inputs and outputs, drawn from:
 
 max propagation delay: 38.6 nand units
 
+(we could probably do 2 bits at a time, to reduce total cycles)
+
 required parameters:
 - data_width: how many bits in the input and output ints
 

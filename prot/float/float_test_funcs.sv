@@ -15,19 +15,19 @@ function reals_near(real r1, real r2);
     // $display("reals_near");
     if(r1 == 0.0 && r2 == 0.0) begin
         // do nothing
-        $display("both zero");
+        // $display("both zero");
         reals_near = 1;
     end else if(r1 < 0 && r2 > 0) begin
-        $display("neg pos");
+        // $display("neg pos");
         reals_near = 0;
     end else if(r1 > 0 && r2 < 0) begin
-        $display("pos neg");
+        // $display("pos neg");
         reals_near = 0;
     end else if(r1 == 0 && r2 != 0) begin
-        $display("eqz nez");
+        // $display("eqz nez");
         reals_near = 0;
     end else if(r1 != 0 && r2 == 0) begin
-        $display("nez eqz");
+        // $display("nez eqz");
         reals_near = 0;
     end else begin
         sign = 0;
@@ -74,7 +74,7 @@ function reals_near(real r1, real r2);
         mult = 1 / prec;
         r1_int = int'(r1 * mult);
         r2_int = int'(r2 * mult);
-        $display("r1 %0f r2 %0f prec %0f mult %0f r1_int %0d r2_int %0d", r1, r2, prec, mult, r1_int, r2_int);
+        // $display("r1 %0f r2 %0f prec %0f mult %0f r1_int %0d r2_int %0d", r1, r2, prec, mult, r1_int, r2_int);
         reals_near = r1_int == r2_int;
     end
 endfunction
