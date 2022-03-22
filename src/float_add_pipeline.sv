@@ -18,7 +18,7 @@ inputs and outputs, drawn from:
     - flip-flop outputs (treated as inputs), and
     - flip-flop inputs (treated as outputs)
 
-max propagation delay: 50.2 nand units
+max propagation delay: 51.2 nand units
 */
 
 module float_add_pipeline(
@@ -90,6 +90,10 @@ module float_add_pipeline(
 
         n_out = '0;
         n_ack = 0;
+
+        for(int shift = 0; shift < float_mant_width; shift++) begin
+            new_mant_lookup[shift] = 0;
+        end
 
         $display("t=%0d float_add always(*) state=%0d", $time, state);
         `assert_known(state);
@@ -185,8 +189,6 @@ module float_add_pipeline(
                             norm_shift = shift;
                             new_mant_lookup[shift] = n_new_mant << shift;
                             // $display("    new_mant_lookup[shift]=%b norm_shift=%0d", new_mant_lookup[shift], norm_shift);
-                        end else begin
-                            new_mant_lookup[shift] = 0;
                         end
                     end
                     n_new_mant = new_mant_lookup[norm_shift];
