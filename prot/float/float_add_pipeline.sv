@@ -8,6 +8,17 @@ a, b, req, should be flip-flop inputs, change on clock tick
 ack and out will be flip-flop outputs, change on clock tick
 ack is set at same time as out, once result available
 both will be available for a single clock tick, then we go back to idle
+
+timing:
+
+Propagation delay is between any pair of combinatorially connected
+inputs and outputs, drawn from:
+    - module inputs
+    - module outputs,
+    - flip-flop outputs (treated as inputs), and
+    - flip-flop inputs (treated as outputs)
+
+max propagation delay: 50.2 nand units
 */
 
 module float_add_pipeline(
