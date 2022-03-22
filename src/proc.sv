@@ -93,6 +93,26 @@ module proc(
         .rf_wr_ack(div_wr_reg_ack)
     );
 
+    reg fadd_req;
+    reg fadd_ack;
+    reg [float_width - 1:0] fadd_a;
+    reg [float_width - 1:0] fadd_b;
+    reg [float_width - 1:0] fadd_out;
+
+    reg n_fadd_req;
+    reg [float_width - 1:0] n_fadd_a;
+    reg [float_width - 1:0] n_fadd_b;
+
+    float_add_pipeline float_add_pipeline_(
+        .clk(clk),
+        .rst(rst),
+        .req(fadd_req),
+        .ack(fadd_ack),
+        .a(fadd_a),
+        .b(fadd_b),
+        .out(fadd_out)
+    );
+
     task read_mem(input [addr_width - 1:0] addr);
         // combinatorial task
         // sends off read mem request
@@ -232,6 +252,49 @@ module proc(
         end else begin
             read_next_instr(pc + 4);
         end
+    endtask
+
+    task op_fp(
+        input [instr_width - 1:0] _instr,
+        input [4:0] _rd_sel,
+        input [data_width - 1:0] _rs1_data,
+        input [data_width - 1:0] _rs2_data
+    );
+        reg [4:0] funct5;
+        funct5 = _instr[31:27];
+        `assert_known(funct5);
+        case (funct5)
+            FADD: begin
+                $display("FADD.C1 x%0d <=", _rd_sel);
+                n_fadd_req = 1;
+                n_fadd_a = _rs1_data;
+                n_fadd_b = _rs2_data;
+                next_state = C2;
+            end
+        endcase
+    endtask
+
+    task op_fp_c2(
+        input [instr_width - 1:0] _instr,
+        input [4:0] _rd_sel
+    );
+        reg [4:0] funct5;
+        funct5 = _instr[31:27];
+        `assert_known(funct5);
+        $display("op_fp_c2");
+        case (funct5)
+            FADD: begin
+                $display("FADD.C2");
+                `assert_known(fadd_ack);
+                if(fadd_ack) begin
+                    $display("FADD.C2 x%0d <=", _rd_sel);
+                    wr_reg_data = fadd_out;
+                    wr_reg_sel = _rd_sel;
+                    wr_reg_req = 1;
+                    read_next_instr(pc + 4);
+                end
+            end
+        endcase
     endtask
 
     task op_op(input [9:0] _funct, input [4:0] _rd_sel, input [4:0] _rs1_sel, input [4:0] _rs2_sel);
@@ -389,6 +452,9 @@ module proc(
                 // e.g. beq rs1, rs2, offset
                 op_branch(c1_funct3, c1_rs1_sel, c1_rs2_sel, c1_branch_offset);
             end
+            OPFP: begin
+                op_fp(c1_instr, c1_rd_sel, c1_rs1_data, c1_rs2_data);
+            end
             OP: begin
                 // $display("c1.OP");
                 op_op(c1_op_funct, c1_rd_sel, c1_rs1_sel, c1_rs2_sel);
@@ -429,6 +495,9 @@ module proc(
                     read_next_instr(pc + 4);
                 end
             end
+            OPFP: begin
+                op_fp_c2(c2_instr, c2_rd_sel);
+            end
             OP: begin
                 // $display("OP.C2 op_funct=%0d", c2_op_funct);
                 `assert_known(c2_op_funct);
@@ -467,7 +536,7 @@ module proc(
         endcase
     endtask
 
-    always @(mem_rd_data, div_wr_reg_req, c2_instr, state, pc, mem_ack) begin
+    always @(mem_rd_data, div_wr_reg_req, c2_instr, state, pc, mem_ack, fadd_ack) begin
     // always @(*) begin
         // $display("t=%0d proc.comb mem_rd_data=%0d div_wr_reg_req=%0d c2_instr=%0h state=%0d pc=%0d mem_ack=%0d",
         //     $time, mem_rd_data, div_wr_reg_req, c2_instr, state, pc, mem_ack
@@ -524,6 +593,10 @@ module proc(
         c2_op_funct = {c2_instr[31:25], c2_instr[14:12]};
         c2_rd_sel = c2_instr[11:7];
 
+        n_fadd_req = 0;
+        n_fadd_a = '0;
+        n_fadd_b = '0;
+
         // if(~rst) begin
         //     $display(
         //         "t=%0d proc.comb state=%0d pc=%0d c1_op=%0d mem_rd_data=%0d mem_wr_req=%0b mem_rd_req=%0b mem_ack=%0b regs[1]=%0d",
@@ -574,6 +647,10 @@ module proc(
             div_r_mod_sel <= '0;
             div_rs1_data <= '0;
             div_rs2_data <= '0;
+
+            fadd_req <= 0;
+            fadd_a <= '0;
+            fadd_b <= '0;
         end else begin
             // $display(
             //     "t=%0d proc.ff mem_addr %0d mem_wr_data %0d mem_rd_data %0d mem_wr_req %b mem_rd_req  %b mem_ack %b mem_busy %b",
@@ -594,6 +671,10 @@ module proc(
             div_r_mod_sel <=  n_div_r_mod_sel;
             div_rs1_data <=   n_div_rs1_data;
             div_rs2_data <=   n_div_rs2_data;
+
+            fadd_req <= n_fadd_req;
+            fadd_a <= n_fadd_a;
+            fadd_b <= n_fadd_b;
         end
     end
 endmodule

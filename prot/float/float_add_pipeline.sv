@@ -90,7 +90,7 @@ module float_add_pipeline(
         n_out = '0;
         n_ack = 0;
 
-        // $display("t=%0d float_add always(*) state=%0d", $time, state);
+        $display("t=%0d float_add always(*) state=%0d", $time, state);
         `assert_known(state);
         case(state)
             IDLE: begin
