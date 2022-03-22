@@ -86,3 +86,11 @@ The assembler is written in python, as are some of the test scripts, such as for
 ```
 pytest -v
 ```
+
+## Verification guidelines
+
+See [docs/verification_guidelines.md](/docs/verification_guidelines.md).
+
+## Coding guidelines
+
+In order to ensure succesful gate-level simulation and tape-out, we have created coding guidelines at [docs/coding_guidelines.md](/docs/coding_guidelines.md)
