@@ -1,4 +1,3 @@
-- float add
 - float mul
 - parallel instruction execution
 - add area approximation to timing.py (eg count the number of cells :P)
@@ -29,6 +28,7 @@
 - (use actual memory module?)
 
 done:
+- float add
 - merge some of the examples, eg test_store, test_out, test_load, test_addi
 - sieve aratosthenes
 - add slli, slri
