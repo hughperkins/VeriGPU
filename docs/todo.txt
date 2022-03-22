@@ -1,3 +1,4 @@
+- move float add out of prot
 - float mul
 - parallel instruction execution
 - add area approximation to timing.py (eg count the number of cells :P)
@@ -28,6 +29,7 @@
 - (use actual memory module?)
 
 done:
+- coding guidelines, plus what can go wrong with GLS etc
 - float add
 - merge some of the examples, eg test_store, test_out, test_load, test_addi
 - sieve aratosthenes
