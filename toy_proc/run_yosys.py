@@ -4,6 +4,7 @@
 # so much more convenenient in python
 import argparse
 import os
+from collections import deque
 
 
 def run(args):
@@ -60,4 +61,10 @@ if __name__ == '__main__':
         '--cell-lib', type=str, default='tech/osu018/osu018_stdcells.lib',
         help='e.g. path to osu018_stdcells.lib')
     args = parser.parse_args()
+    args.in_verilog = deque(args.in_verilog)
+    for additional in ['src/assert_ignore.sv', 'src/op_const.sv', 'src/const.sv']:
+        if additional not in args.in_verilog:
+            args.in_verilog.appendleft(additional)
+    print(args.in_verilog)
+
     run(args)

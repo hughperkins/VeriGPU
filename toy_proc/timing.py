@@ -493,6 +493,13 @@ if __name__ == '__main__':
         '--cell-lib', type=str, default='tech/osu018/osu018_stdcells.lib',
         help='e.g. path to osu018_stdcells.lib')
     args = parser.parse_args()
+    if args.in_verilog is not None:
+        args.in_verilog = deque(args.in_verilog)
+        for additional in ['src/assert_ignore.sv', 'src/op_const.sv', 'src/const.sv']:
+            if additional not in args.in_verilog:
+                args.in_verilog.appendleft(additional)
+        args.in_verilog = list(args.in_verilog)
+        print(args.in_verilog)
     # we should have one argument only
     assert args.in_netlist is not None or args.in_verilog is not None
     assert args.in_netlist is None or args.in_verilog is None
