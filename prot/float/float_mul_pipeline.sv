@@ -115,7 +115,10 @@ module float_mul_pipeline(
                         $display("b        %b e %0d", n_b_mant, n_a_exp);
 
                         // n_new_mant = {n_a_mant[3:0], n_a_mant, n_b_mant };
-                        // the multiply takes likes 120 nand units :P
+                        // the multiply seems to take like 120 nand units :P
+                        // perhaps because it is 46-bit, and not 32-bit?
+                        // (when we multiply ints, we truncate out everything beyond
+                        // 32-bit)
                         n_new_mant = n_a_mant * n_b_mant;
                         n_new_exp = n_a_exp + n_b_exp - 127 - float_mant_width;
                         n_new_sign = a_sign ^ b_sign;
