@@ -24,7 +24,7 @@ module float_mul(
     reg [float_mant_width:0] b_mant;
 
     reg [float_exp_width - 1:0] new_exp;
-    reg [float_mant_width * 2 + 3:0] new_mant;
+    reg [float_mant_width * 2 + 1:0] new_mant;
     reg new_sign;
 
     reg [float_mant_width - 1:0] new_mant_lookup[float_mant_width + 2];

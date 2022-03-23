@@ -202,7 +202,7 @@ module float_add_pipeline(
                 n_state = IDLE;
             end
             default: begin
-                `assert(0);  // should never get here
+                // `assert(0);  // should never get here
             end
         endcase
 
