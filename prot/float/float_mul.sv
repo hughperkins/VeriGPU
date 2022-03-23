@@ -1,3 +1,13 @@
+/*
+Propagation delay is between any pair of combinatorially connected
+inputs and outputs, drawn from:
+    - module inputs
+    - module outputs,
+    - flip-flop outputs (treated as inputs), and
+    - flip-flop inputs (treated as outputs)
+
+max propagation delay: 128.8 nand units
+*/
 module float_mul(
     input [float_width - 1:0]       a,
     input [float_width - 1:0]       b,
@@ -7,7 +17,7 @@ module float_mul(
 
     reg a_sign;
     reg [float_exp_width - 1:0] a_exp;
-    reg [float_mant_width:0] a_mant; // [sign][overflow][extra one][stored mantissa]
+    reg [float_mant_width:0] a_mant; // [extra one][stored mantissa]
 
     reg b_sign;
     reg [float_exp_width - 1:0] b_exp;
@@ -43,11 +53,14 @@ module float_mul(
             $display("a        %b e %0d", a_mant, a_exp);
             $display("b        %b e %0d", b_mant, a_exp);            // $display("new_mant %b", new_mant);
 
+            // new_mant = {a_mant[3:0], a_mant, b_mant };
+            // the multiply takes likes 120 nand units :P
             new_mant = a_mant * b_mant;
             new_exp = a_exp + b_exp - 127 - float_mant_width;
 
             $display("new_mant %b new_exp %0d", new_mant, new_exp);
 
+            // this block takes 60-70 nand units
             for(int shift = 1; shift <= float_mant_width + 1; shift++) begin
                 $display("shift %0d new_mant[shift]=%0d", shift, new_mant[float_mant_width - shift]);
                 if(new_mant[float_mant_width + shift] == 1) begin
