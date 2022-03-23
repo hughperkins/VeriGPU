@@ -66,11 +66,25 @@ module float_mul_test();
         req <= 0;
         `assert(~ack);
 
-        tick();
-        $display("out %0d", out);
-        `assert(~ack);
+        do begin
+            tick();
+            $display("out %0d", out);
+        end while(~ack);
+        // `assert(~ack);
 
-        tick();
+        // tick();
+        // $display("out %0d", out);
+        // `assert(~ack);
+
+        // tick();
+        // $display("out %0d", out);
+        // `assert(~ack);
+
+        // tick();
+        // $display("out %0d", out);
+        // `assert(~ack);
+
+        // tick();
         `assert(ack);
         $display("test_mul a=%0f b=%0f out=%0f", _a, _b, to_real(out));
         `assert(reals_near(to_real(out), expected_out));

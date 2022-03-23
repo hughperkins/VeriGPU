@@ -83,6 +83,46 @@ module float_mul_pipeline(
     parameter mul3_start = 16;
     parameter mul4_start = 24;
 
+    reg idle_req;
+    reg [2:0] idle_state;
+    reg [float_width - 1:0] idle_a;
+    reg [float_width - 1:0] idle_b;
+
+    reg [2:0] idle_n_state;
+    // reg idle_n_a_sign;
+    // reg idle_n_b_sign;
+    reg [float_exp_width - 1:0] idle_n_a_exp;
+    reg [float_exp_width - 1:0] idle_n_b_exp;
+    reg [float_mant_width:0] idle_n_a_mant;
+    reg [float_mant_width:0] idle_n_b_mant;
+    reg [float_mant_width * 2 + 1:0] idle_n_new_mant;
+
+    reg idle_n_new_sign;
+    reg [float_exp_width - 1:0] idle_n_new_exp;
+
+    reg [float_width - 1:0] idle_n_out;
+    reg idle_n_ack;
+
+    mul_idle mul_idle_(
+        .req(idle_req),
+        .state(idle_state),
+        .a(idle_a),
+        .b(idle_b),
+        .n_state(idle_n_state),
+        // .n_a_sign(idle_n_a_sign),
+        // .n_b_sign(idle_n_b_sign),
+        .n_a_exp(idle_n_a_exp),
+        .n_b_exp(idle_n_b_exp),
+        .n_a_mant(idle_n_a_mant),
+        .n_b_mant(idle_n_b_mant),
+        .n_new_mant(idle_n_new_mant),
+
+        .n_new_sign(idle_n_new_sign),
+        .n_new_exp(idle_n_new_exp),
+        .n_out(idle_n_out),
+        .n_ack(idle_n_ack)
+    );
+
     always @(state, req) begin
         // `assert_known(a);
         // `assert_known(b);
@@ -109,58 +149,23 @@ module float_mul_pipeline(
         `assert_known(state);
         case(state)
             IDLE: begin
-                `assert_known(req);
-                if(req) begin
-                    $display("floatmul.req");
-                    `assert_known(a);
-                    `assert_known(b);
+                idle_a = a;
+                idle_b = b;
+                idle_state = state;
+                idle_req = req;
 
-                    n_a_mant = '0;
-                    n_b_mant = '0;
-
-                    {a_sign, n_a_exp, n_a_mant[float_mant_width - 1:0]} = a;
-                    {b_sign, n_b_exp, n_b_mant[float_mant_width - 1:0]} = b;
-
-                    `assert_known(n_a_exp);
-                    `assert_known(n_b_exp);
-                    if(|n_a_exp == 0 || |n_b_exp == 0) begin
-                        n_new_exp = '0;
-                        n_new_sign = 0;
-                        n_new_mant = '0;
-                        // $display("triggering out and ack for zero |a_exp=%0d b_exp=%0d", |n_a_exp, |n_b_exp);
-                        n_out = {n_new_sign, n_new_exp, n_new_mant[float_mant_width - 1:0]};
-                        n_ack = 1;
-                        n_state = IDLE;
-                    end else begin
-                        n_a_mant[float_mant_width] = 1;
-                        n_b_mant[float_mant_width] = 1;
-
-                        $display("a        %b e %0d", n_a_mant, n_a_exp);
-                        $display("b        %b e %0d", n_b_mant, n_a_exp);
-
-                        n_new_exp = n_a_exp + n_b_exp - 127 - float_mant_width;
-                        n_new_sign = a_sign ^ b_sign;
-
-                        // n_new_mant = {n_a_mant[3:0], n_a_mant, n_b_mant };
-                        // the multiply seems to take like 120 nand units :P
-                        // perhaps because it is 46-bit, and not 32-bit?
-                        // (when we multiply ints, we truncate out everything beyond
-                        // 32-bit)
-                        // anyway, lets split this into 2, or 3, or 23, parts
-                        n_new_mant = '0;
-                        // for(int i = mul1_start; i < mul2_start; i++) begin
-                        //     partial = '0;
-                        //     partial[float_mant_width + i -: float_mant_width + 1] = n_a_mant & {float_mant_width + 1{n_b_mant[i]}};
-                        //     n_new_mant = n_new_mant + partial;
-                        //     // $display("i=%2d n_new_mant=%b partial=%b", i, n_new_mant, partial);
-                        // end
-                        // n_new_mant = n_a_mant * n_b_mant;
-
-                        // $display("new_mant %b new_exp %0d", n_new_mant, n_new_exp);
-
-                        n_state = MUL1;
-                    end
-                end
+                n_state = idle_n_state;
+                // n_a_sign = idle_n_a_sign;
+                // n_b_sign = idle_n_b_sign;
+                n_a_exp = idle_n_a_exp;
+                n_b_exp = idle_n_b_exp;
+                n_a_mant = idle_n_a_mant;
+                n_b_mant = idle_n_b_mant;
+                n_new_mant = idle_n_new_mant;
+                n_new_sign = idle_n_new_sign;
+                n_new_exp = idle_n_new_exp;
+                n_out = idle_n_out;
+                n_ack = idle_n_ack;
             end
             MUL1: begin
                 for(int i = mul1_start; i < mul2_start; i++) begin

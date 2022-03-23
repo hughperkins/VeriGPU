@@ -103,22 +103,37 @@ class Cell:
         else:
             self.cell_delay = g_cell_times[cell_type]
             self.output_delay = None
+        # if self.cell_name == '_4914_':
+        #     print(
+        #         '_4914_ __init___', cell_type, 'inputs', self.cell_inputs,
+        #         'outputs', self.cell_outputs, 'is source sink', self.is_source_sink,
+        #         'delay', self.cell_delay, 'output delay', self.output_delay)
 
     def connect_input(self, input_name: str, delay: float):
         assert input_name not in self.cell_input_delay_by_name
         self.cell_input_delay_by_name[input_name] = delay
+        # if self.cell_name == '_4914_':
+        #     print(
+        #         '_4914_ connect_input', input_name, delay,
+        #         'len(self.cell_input_delay_by_name)', len(self.cell_input_delay_by_name),
+        #         'len(cell_inputs)', len(self.cell_inputs))
         if len(self.cell_input_delay_by_name) == len(self.cell_inputs) and not self.is_source_sink:
             self._calc_output_delay()
 
     def max_input_delay(self):
+        # if self.cell_name == '_4914_':
+        #     print('_4914_', 'cell_input_delay_by_name', self.cell_input_delay_by_name)
         if len(self.cell_input_delay_by_name) == 0:
             max_delay = 0
         else:
+            # print('self.cell_input_delay_by_name', self.cell_input_delay_by_name)
             max_delay = max(self.cell_input_delay_by_name.values())
         return max_delay
 
     def _calc_output_delay(self):
         self.output_delay = max(self.cell_input_delay_by_name.values()) + self.cell_delay
+        # if self.cell_name == '_4914_':
+        #     print('_4914_._calc_output_delay cell_input_delay_by_name', self.cell_input_delay_by_name)
 
     def __repr__(self):
         return (
@@ -449,9 +464,39 @@ def run(args):
                             to_process.append(wire)
                             seen.add(wire)
 
+    for cell in cells:
+        if cell.cell_name == '_4914_':
+            print(cell)
+
     max_delay = 0
+    slowest_node = None
     for node in source_sink_nodes:
-        max_delay = max(max_delay, node.max_input_delay())
+        if node.max_input_delay() > max_delay:
+            slowest_node = node
+            max_delay = node.max_input_delay()
+    print('slowest_node', slowest_node)
+
+    def walk_node(node, first_node: bool = True):
+        slowest_input = None
+        # first_node = False
+        print(node.cell_type, node.cell_name, '%.1f' % node.cell_delay)
+        if not first_node and node.cell_type in ["DFFSR", "START"]:
+            print('reached termination')
+            return
+        longest_delay = -1
+        # print('    inputs', node.cell_input_delay_by_name)
+        for cell_input, delay in node.cell_input_delay_by_name.items():
+            if delay > longest_delay:
+                slowest_input = cell_input
+                longest_delay = delay
+        print('    ', slowest_input, '%.1f' % longest_delay)
+        slowest_incomings = cellidxs_by_output[slowest_input]
+        # print('slowest_incomings', slowest_incomings)
+        assert len(slowest_incomings) == 1
+        slowest_incoming = cells[slowest_incomings[0]]
+        walk_node(slowest_incoming, first_node=False)
+
+    walk_node(slowest_node)
 
     # check for unprocessed nodes
     printed_prologue = False
