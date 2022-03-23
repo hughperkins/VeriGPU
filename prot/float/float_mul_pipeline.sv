@@ -38,7 +38,6 @@ module float_mul_pipeline(
     reg [float_mant_width * 2 + 3:0]    new_mant;
     reg                                 new_sign;
 
-    // reg [float_mant_width - 1:0]        new_mant_lookup[float_mant_width + 2];
     reg [float_exp_width - 1:0]         norm_shift;
 
 
@@ -115,7 +114,7 @@ module float_mul_pipeline(
                         $display("a        %b e %0d", n_a_mant, n_a_exp);
                         $display("b        %b e %0d", n_b_mant, n_a_exp);
 
-                        // new_mant = {a_mant[3:0], a_mant, b_mant };
+                        // n_new_mant = {n_a_mant[3:0], n_a_mant, n_b_mant };
                         // the multiply takes likes 120 nand units :P
                         n_new_mant = n_a_mant * n_b_mant;
                         n_new_exp = n_a_exp + n_b_exp - 127 - float_mant_width;
@@ -129,11 +128,12 @@ module float_mul_pipeline(
             end
             S1: begin
                 $display("floatmul.S2");
-                for(int shift = 1; shift <= float_mant_width + 1; shift++) begin
-                    if(n_new_mant[float_mant_width + shift] == 1) begin
+                for(int shift = float_mant_width + 1; shift <= 2 * float_mant_width + 1; shift++) begin
+                    if(n_new_mant[shift] == 1) begin
                         norm_shift = shift;
                     end
                 end
+                norm_shift = norm_shift - float_mant_width;
                 $display("norm_shift=%0d", norm_shift);
                 n_new_mant = n_new_mant >> norm_shift;
                 n_new_exp = n_new_exp + norm_shift;
