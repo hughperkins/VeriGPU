@@ -7,7 +7,8 @@ ack and out will be flip-flop outputs, change on clock tick
 ack is set at same time as out, once result available
 both will be available for a single clock tick, then we go back to idle
 
-
+Max propagation delay: 78.4 nand units
+Area:                  9392.0 nand units
 */
 module float_mul_pipeline(
     input                               clk,
@@ -75,8 +76,8 @@ module float_mul_pipeline(
     parameter mul3_start = 16;
     parameter mul4_start = 24;
 
-    // reg cin, cout;
-    reg [8:0] carry;
+    reg [5:0] carry;
+    reg [5:0] n_carry;
 
     always @(state, req) begin
         // `assert_known(a);
@@ -100,9 +101,7 @@ module float_mul_pipeline(
         n_out = '0;
         n_ack = 0;
 
-        // cin = 0;
-        // cout = 0;
-        carry = '0;
+        n_carry = carry;
 
         $display("%0d float_mul.always state=%0d", $time, state);
         `assert_known(state);
@@ -148,91 +147,45 @@ module float_mul_pipeline(
                         // anyway, lets split this into 2, or 3, or 23, parts
 
                         n_new_mant = '0;
-
-                        carry = '0;
+                        n_carry = '0;
                         for(int i = 0; i < float_mant_width + 1; i++) begin
                             partial = '0;
                             partial[float_mant_width + i -: float_mant_width + 1] = n_a_mant & {float_mant_width + 1{n_b_mant[i]}};
-                            {carry, n_new_mant[15:0]} = {carry, n_new_mant[15:0]} + partial[15:0];
+                            {n_carry, n_new_mant[19:0]} = {n_carry, n_new_mant[19:0]} + partial[19:0];
                         end
-                        $display("n_new_mant=%b partial=%b carry=%b", n_new_mant, partial, carry);
-
-                        /*
-                        n_new_mant = n_new_mant + {carry, {16{1'b0}} };
-                        carry = '0;
-                        for(int i = 0; i < float_mant_width + 1; i++) begin
-                            partial = '0;
-                            partial[float_mant_width + i -: float_mant_width + 1] = n_a_mant & {float_mant_width + 1{n_b_mant[i]}};
-                            {carry, n_new_mant[31:16]} = {carry,n_new_mant[31:16]} + partial[31:16];
-                            // $display("i=%2d n_new_mant=%b partial=%b", i, n_new_mant, partial);
-                        end
-                        $display("n_new_mant=%b partial=%b carry=%b", n_new_mant, partial, carry);
-
-                        n_new_mant = n_new_mant + {carry, {32{1'b0}} };
-                        carry = '0;
-                        for(int i = 0; i < float_mant_width + 1; i++) begin
-                            partial = '0;
-                            partial[float_mant_width + i -: float_mant_width + 1] = n_a_mant & {float_mant_width + 1{n_b_mant[i]}};
-                            n_new_mant[47:32] = n_new_mant[47:32] + partial[47:32];
-                            // $display("i=%2d n_new_mant=%b partial=%b", i, n_new_mant, partial);
-                        end
-                        $display("n_new_mant=%b partial=%b carry=%b", n_new_mant, partial, carry);
-                        */
-                        
-                        /*
-                        carry = '0;
-                        for(int i = 0; i < float_mant_width + 1; i++) begin
-                            partial = '0;
-                            partial[float_mant_width + i -: float_mant_width + 1] = n_a_mant & {float_mant_width + 1{n_b_mant[i]}};
-                            {carry, n_new_mant[23:0]} = {carry,n_new_mant[23:0]} + partial[23:0];
-                            // $display("i=%2d n_new_mant=%b partial=%b", i, n_new_mant, partial);
-                        end
-                        $display("n_new_mant=%b partial=%b carry=%b", n_new_mant, partial, carry);
-
-                        n_new_mant = n_new_mant + {carry, {24{1'b0}} };
-                        for(int i = 0; i < float_mant_width + 1; i++) begin
-                            partial = '0;
-                            partial[float_mant_width + i -: float_mant_width + 1] = n_a_mant & {float_mant_width + 1{n_b_mant[i]}};
-                            n_new_mant[47:24] = n_new_mant[47:24] + partial[47:24];
-                            // $display("i=%2d n_new_mant=%b partial=%b", i, n_new_mant, partial);
-                        end
-                        $display("n_new_mant=%b partial=%b carry=%b", n_new_mant, partial, carry);
-                        */
-/*
-                        for(int i = 0; i < float_mant_width + 1; i++) begin
-                            partial = '0;
-                            partial[float_mant_width + i -: float_mant_width + 1] = n_a_mant & {float_mant_width + 1{n_b_mant[i]}};
-                            n_new_mant = n_new_mant + partial;
-                            // $display("i=%2d n_new_mant=%b partial=%b", i, n_new_mant, partial);
-                        end
-                        $display("n_new_mant=%b partial=%b carry=%b", n_new_mant, partial, carry);
-                        */
-
-                        n_state = S2;
+                        $display("n_new_mant=%b partial=%b carry=%b", n_new_mant, partial, n_carry);
+                        n_state = MUL2;
                     end
                 end
             end
-            // MUL1: begin
-            //     n_state = MUL2;
-            // end
-            // MUL2: begin
-            //     for(int i = mul2_start; i < mul3_start; i++) begin
-            //         partial = '0;
-            //         partial[float_mant_width + i -: float_mant_width + 1] = n_a_mant & {float_mant_width + 1{n_b_mant[i]}};
-            //         n_new_mant = n_new_mant + partial;
-            //         // $display("i=%2d n_new_mant=%b partial=%b", i, n_new_mant, partial);
-            //     end
-            //     n_state = MUL3;
-            // end
-            // MUL3: begin
-            //     for(int i = mul3_start; i < mul4_start; i++) begin
-            //         partial = '0;
-            //         partial[float_mant_width + i -: float_mant_width + 1] = n_a_mant & {float_mant_width + 1{n_b_mant[i]}};
-            //         n_new_mant = n_new_mant + partial;
-            //         // $display("i=%2d n_new_mant=%b partial=%b", i, n_new_mant, partial);
-            //     end
-            //     n_state = S2;
-            // end
+            MUL2: begin
+                
+                n_new_mant = n_new_mant + {n_carry, {20{1'b0}} };
+                n_carry = '0;
+                for(int i = 0; i < float_mant_width + 1; i++) begin
+                    partial = '0;
+                    partial[float_mant_width + i -: float_mant_width + 1] = n_a_mant & {float_mant_width + 1{n_b_mant[i]}};
+                    {n_carry, n_new_mant[27:20]} = {n_carry,n_new_mant[27:20]} + partial[27:20];
+                    // $display("i=%2d n_new_mant=%b partial=%b", i, n_new_mant, partial);
+                end
+                $display("n_new_mant=%b partial=%b carry=%b", n_new_mant, partial, n_carry);
+                
+                n_state = MUL3;
+            end
+            MUL3: begin
+                
+                n_new_mant = n_new_mant + {n_carry, {28{1'b0}} };
+                n_carry = '0;
+                for(int i = 0; i < float_mant_width + 1; i++) begin
+                    partial = '0;
+                    partial[float_mant_width + i -: float_mant_width + 1] = n_a_mant & {float_mant_width + 1{n_b_mant[i]}};
+                    n_new_mant[47:28] = n_new_mant[47:28] + partial[47:28];
+                    // $display("i=%2d n_new_mant=%b partial=%b", i, n_new_mant, partial);
+                end
+                $display("n_new_mant=%b partial=%b carry=%b", n_new_mant, partial, n_carry);
+                
+                n_state = S2;
+            end
             S2: begin
                 $display("floatmul.S2");
                 for(int shift = float_mant_width + 1; shift <= 2 * float_mant_width + 1; shift++) begin
@@ -283,6 +236,8 @@ module float_mul_pipeline(
             new_sign <= '0;
 
             norm_shift <= '0;
+
+            carry <= '0;
         end else begin
             // $display("float_add_pipeline not rst state=%0d", n_state);
             out <= n_out;
@@ -301,6 +256,8 @@ module float_mul_pipeline(
             new_sign <= n_new_sign;
 
             norm_shift <= n_norm_shift;
+
+            carry <= n_carry;
         end
     end
 endmodule
