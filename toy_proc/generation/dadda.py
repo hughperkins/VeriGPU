@@ -49,7 +49,6 @@ def run(args):
             break
         d_j = max([i for i in d_l if i < max_height])
         print('d_j', d_j)
-        # for i in range(args.width * 2 - 1, -1, -1):
         for i in range(len(dots)):
             while len(dots[i]) > d_j:
                 if len(dots[i]) == d_j + 1:
@@ -72,8 +71,6 @@ def run(args):
                     assigns.append(line)
                     dots[i + 1].append(carry_name)
                     dots[i] = dots[i][:-3] + [sum_name]
-                    # print('dots[' + str(i) + '] after', dots[i])
-                    # print('dots[' + str(i + 1) + '] after', dots[i + 1])
         if max_height == 5:
             break
     for wire in wires:
