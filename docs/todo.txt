@@ -1,4 +1,5 @@
 - float mul
+- change reset to active low
 - add area approximation to timing.py (eg count the number of cells :P)
 - parallel instruction execution
 - floats:  div, modulus, sub, beq, glt
