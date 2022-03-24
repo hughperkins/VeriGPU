@@ -56,6 +56,8 @@ module float_mul_test();
     endtask
 
     task test_mul(input real _a, input real _b, input real expected_out);
+        int cnt;
+
         `assert(~ack);
         $display("submitting req %f * %f", _a, _b);
         a <= make_float(_a);
@@ -66,10 +68,12 @@ module float_mul_test();
         req <= 0;
         `assert(~ack);
 
+        cnt = 0;
         do begin
             tick();
             $display("out %0d", out);
-        end while(~ack);
+            cnt = cnt + 1;
+        end while(~ack && cnt < 40);
         // `assert(~ack);
 
         // tick();
