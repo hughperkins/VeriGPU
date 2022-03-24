@@ -52,7 +52,7 @@ whitespace:
 """
 import argparse
 from typing import Dict, Optional, List
-from collections import deque, defaultdict
+from collections import deque, defaultdict, Counter
 import subprocess
 import sys
 
@@ -83,6 +83,52 @@ g_cell_times = {
     'ASSIGN': 0,
 }
 
+g_cell_areas = {
+    'invx1': 1,
+    'invx8': 14.7,
+    'and2x1': 1.5,
+    'and2x2': 1.5,
+    'nand2x1': 1,
+    'nand2x2': 2,
+    'nand3x1': 2.0,
+    'or2x1': 1.5,
+    'or2x2': 2.0,
+    'nor2x1': 1.0,
+    'nor2x2': 2.0,
+    'nor3x1': 2.0,
+    'xor2x1': 3.0,
+    'xor2x2': 3.0,
+    'xor3x1': 4.0,
+    'xor3x2': 4.0,
+    'xnor2x1': 3.0,
+
+    'aoi21x1': 2.0,
+    'aio21x2': 2.0,
+    'aoi22x1': 2.0,
+    'oai21x1': 2.0,
+    'oai22x1': 2.0,
+
+    'mux2x1': 2.0,
+    'mux21x1': 2.0,
+    'mux21x2': 2.0,
+    'mux41x1': 4.0,
+    'mux41x2': 4.0,
+
+    'dec24x1': 5.0,
+
+    'dffx1': 4.0,
+    'dffx2': 5.0,
+    'dffsr': 6.0,
+
+    'dffnasr1x1': 6.0,
+    'dffnasr1x1': 6.0,
+
+    'start': 0,
+    'end': 0,
+    'assign': 0,
+    'unused_bits': 0
+}
+
 
 INPUT_PORT_NAMES = ['a', 'b', 'c', 'd', 'r', 's']
 OUTPUT_PORT_NAMES = ['q', 'y']
@@ -103,37 +149,22 @@ class Cell:
         else:
             self.cell_delay = g_cell_times[cell_type]
             self.output_delay = None
-        # if self.cell_name == '_4914_':
-        #     print(
-        #         '_4914_ __init___', cell_type, 'inputs', self.cell_inputs,
-        #         'outputs', self.cell_outputs, 'is source sink', self.is_source_sink,
-        #         'delay', self.cell_delay, 'output delay', self.output_delay)
 
     def connect_input(self, input_name: str, delay: float):
         assert input_name not in self.cell_input_delay_by_name
         self.cell_input_delay_by_name[input_name] = delay
-        # if self.cell_name == '_4914_':
-        #     print(
-        #         '_4914_ connect_input', input_name, delay,
-        #         'len(self.cell_input_delay_by_name)', len(self.cell_input_delay_by_name),
-        #         'len(cell_inputs)', len(self.cell_inputs))
         if len(self.cell_input_delay_by_name) == len(self.cell_inputs) and not self.is_source_sink:
             self._calc_output_delay()
 
     def max_input_delay(self):
-        # if self.cell_name == '_4914_':
-        #     print('_4914_', 'cell_input_delay_by_name', self.cell_input_delay_by_name)
         if len(self.cell_input_delay_by_name) == 0:
             max_delay = 0
         else:
-            # print('self.cell_input_delay_by_name', self.cell_input_delay_by_name)
             max_delay = max(self.cell_input_delay_by_name.values())
         return max_delay
 
     def _calc_output_delay(self):
         self.output_delay = max(self.cell_input_delay_by_name.values()) + self.cell_delay
-        # if self.cell_name == '_4914_':
-        #     print('_4914_._calc_output_delay cell_input_delay_by_name', self.cell_input_delay_by_name)
 
     def __repr__(self):
         return (
@@ -464,17 +495,12 @@ def run(args):
                             to_process.append(wire)
                             seen.add(wire)
 
-    for cell in cells:
-        if cell.cell_name == '_4914_':
-            print(cell)
-
     max_delay = 0
     slowest_node = None
     for node in source_sink_nodes:
         if node.max_input_delay() > max_delay:
             slowest_node = node
             max_delay = node.max_input_delay()
-    print('slowest_node', slowest_node)
 
     def walk_node(node, first_node: bool = True):
         slowest_input = None
@@ -496,7 +522,9 @@ def run(args):
         slowest_incoming = cells[slowest_incomings[0]]
         walk_node(slowest_incoming, first_node=False)
 
-    walk_node(slowest_node)
+    if args.show_path:
+        print('slowest_node', slowest_node)
+        walk_node(slowest_node)
 
     # check for unprocessed nodes
     printed_prologue = False
@@ -513,6 +541,26 @@ def run(args):
     if printed_prologue:
         sys.exit(1)
 
+    area = 0
+    cell_count_by_type = Counter()
+    for cell in cells:
+        cell_area = g_cell_areas[cell.cell_type.lower()]
+        area += cell_area
+        cell_count_by_type[cell.cell_type] += 1
+
+    print('')
+    if args.show_cell_counts:
+        print('Cell counts:')
+        cell_infos = []
+        for cell_type, count in cell_count_by_type.items():
+            cell_area = g_cell_areas[cell_type.lower()]
+            cell_infos.append({'cell_type': cell_type, 'count': count, 'area': cell_area * count})
+        cell_infos.sort(key=lambda x: x['area'], reverse=True)
+        for cell_info in cell_infos:
+            if cell_info['area'] == 0:
+                continue
+            print('    ', cell_info['cell_type'], 'count:', cell_info['count'], ' total area:', cell_info['area'])
+
     print('')
     print('Propagation delay is between any pair of combinatorially connected')
     print('inputs and outputs, drawn from:')
@@ -521,7 +569,8 @@ def run(args):
     print('    - flip-flop outputs (treated as inputs), and')
     print('    - flip-flop inputs (treated as outputs)')
     print('')
-    print('max propagation delay: %.1f nand units' % max_delay)
+    print('Max propagation delay: %.1f nand units' % max_delay)
+    print('Area:                  %.1f nand units' % area)
     print('')
 
 
@@ -537,6 +586,8 @@ if __name__ == '__main__':
     parser.add_argument(
         '--cell-lib', type=str, default='tech/osu018/osu018_stdcells.lib',
         help='e.g. path to osu018_stdcells.lib')
+    parser.add_argument('--show-path', action='store_true', help='print longest path')
+    parser.add_argument('--show-cell-counts', action='store_true', help='print count of each cell type')
     args = parser.parse_args()
     if args.in_verilog is not None:
         args.in_verilog = deque(args.in_verilog)

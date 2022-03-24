@@ -1,0 +1,43 @@
+Based on https://web.engr.oregonstate.edu/~traylor/ece474/reading/SAED_Cell_Lib_Rev1_4_20_1.pdf
+
+'90nm area' is from the official Synopsis doc. Then 'nand units' is an approximate relative amount, taking a `nand` gate area as '1'.
+
+| cell |90nm area | as 'nand units' |
+invx1   6.5   1
+invx8   14.7
+and2x1  7.4   1.5
+and2x2  8.3   1.5
+nand2x1 5.5   1
+nand2x2 9.2   2
+nand3x1 11.99 2
+or2x1   7.4   1.5
+or2x2   9.2   2.0
+nor2x1  6.5   1.0
+nor2x2  9.2   2.0
+nor3x1 11.99  2.0
+xor2x1  13.8  3.0
+xor2x2  15.7  3.0
+xor3x1  22.1  4.0
+xor3x2  24.0  4.0
+xnor2x1  13.8 3.0
+
+aoi21x1 11.99 2.0
+aoi22x1 12.9  2.0
+aio21x2 12.9  2.0
+oai21x1 11.0  2.0
+oai22x1 12.9  2.0
+
+mux2x1
+mux21x1 11.1  2.0
+mux21x2 12.9  2.0
+mux41x1 23.0  4.0
+mux41x2 24.9  4.0
+
+dec24x1 29.5  5.0
+
+dffx1   24.9  4.0
+dffx2   31.3  5.0
+
+dffnasr1x1 35.0 6.0
+dffnasr1x1 36.9 6.0
+dffasrx1   35.0 6.0 (use this to approximate yosys DFFSR)
