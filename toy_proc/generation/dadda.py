@@ -1,6 +1,16 @@
 # generates dadda adder for specified data width
 # note that this doesn't yet add the standard adder at the end
 
+"""
+For 24-bits currently this gives:
+
+Max propagation delay: 709.2 nand units
+Area:                  6203.0 nand units
+
+... which delay is suspiciously high. Either there is a bug, or this code
+is somehow unfriendly to yosys optimization.
+"""
+
 import argparse
 import math
 from collections import defaultdict, deque

@@ -1,12 +1,6 @@
 /*
-Propagation delay is between any pair of combinatorially connected
-inputs and outputs, drawn from:
-    - module inputs
-    - module outputs,
-    - flip-flop outputs (treated as inputs), and
-    - flip-flop inputs (treated as outputs)
-
-max propagation delay: 128.8 nand units
+Max propagation delay: 128.2 nand units
+Area:                  6336.0 nand units
 */
 module float_mul(
     input [float_width - 1:0]       a,
