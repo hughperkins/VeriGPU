@@ -26,12 +26,12 @@ def run(args):
     lines.append('')
     lines.append(
         f'// Multiply two {args.width}-bit integers \'{args.a_name}\' and \'{args.b_name}\','
-        f' and put result in {2 * args.width}-bit integer \'{args.out_name}\'.')
+        f' and put result in {2 * args.width - 1}-bit integer \'{args.out_name}\'.')
     lines.append('')
     lines.append(f'module {args.module_name}(')
     lines.append(f'    input [{args.width - 1}:0] {args.a_name},')
     lines.append(f'    input [{args.width - 1}:0] {args.b_name},')
-    lines.append(f'    output [{args.width * 2 - 1}:0] {args.out_name}')
+    lines.append(f'    output [{args.width * 2 - 2}:0] {args.out_name}')
     lines.append(');')
     for line in lines:
         print(line)
@@ -49,7 +49,8 @@ def run(args):
             break
         d_j = max([i for i in d_l if i < max_height])
         print('d_j', d_j)
-        for i in range(args.width * 2 - 1, -1, -1):
+        # for i in range(args.width * 2 - 1, -1, -1):
+        for i in range(len(dots)):
             while len(dots[i]) > d_j:
                 if len(dots[i]) == d_j + 1:
                     carry_name = f'wire_{wire_index}'
@@ -59,7 +60,7 @@ def run(args):
                     wires.append(f'    wire {sum_name};')
                     line = f'    assign {{ {carry_name}, {sum_name} }} = {dots[i][-1]} + {dots[i][-2]};'
                     assigns.append(line)
-                    dots[i - 1].append(carry_name)
+                    dots[i + 1].append(carry_name)
                     dots[i] = dots[i][:-2] + [sum_name]
                 else:
                     carry_name = f'wire_{wire_index}'
@@ -69,16 +70,26 @@ def run(args):
                     wires.append(f'    wire {sum_name};')
                     line = f'    assign {{ {carry_name}, {sum_name} }} = {dots[i][-1]} + {dots[i][-2]} + {dots[i][-3]};'
                     assigns.append(line)
-                    dots[i - 1].append(carry_name)
+                    dots[i + 1].append(carry_name)
                     dots[i] = dots[i][:-3] + [sum_name]
-                    print('dots[' + str(i) + '] after', dots[i])
-                    print('dots[' + str(i - 1) + '] after', dots[i - 1])
+                    # print('dots[' + str(i) + '] after', dots[i])
+                    # print('dots[' + str(i + 1) + '] after', dots[i + 1])
         if max_height == 5:
             break
     for wire in wires:
         lines.append(wire)
     for assign in assigns:
         lines.append(assign)
+
+    for i, col in dots.items():
+        print(i, col)
+
+    # add the carry-adder at the end
+    term_one = '{' + ', '.join([
+        dots[i][0] for i in range(len(dots) - 1, -1, -1)]) + '}'
+    term_two = '{' + ', '.join([
+        dots[i][1] for i in range(len(dots) - 1, 0, -1)]) + ', 1\'b0}'
+    lines.append(f'    assign out = {term_one} + {term_two};')
 
     lines.append('endmodule')
     for line in lines:
