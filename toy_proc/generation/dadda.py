@@ -1,7 +1,9 @@
-# generates dadda adder for specified dat awidth
+# generates dadda adder for specified data width
+# note that this doesn't yet add the standard adder at the end
+
 import argparse
 import math
-from collections import defaultdict, Counter, deque
+from collections import defaultdict, deque
 
 
 def create_d_sequence(max_v: int):
@@ -18,8 +20,6 @@ def run(args):
     d_l = create_d_sequence(args.width)
     print('d_l', d_l)
     dots = defaultdict(list)
-    # dots = Counter()
-    # dots = 
     lines = deque()
     lines.append('// This is a GENERATED file. Do not modify by hand.')
     lines.append('// Created by toy_proc/generation/dadda.py')
@@ -33,22 +33,15 @@ def run(args):
     lines.append(f'    input [{args.width - 1}:0] {args.b_name},')
     lines.append(f'    output [{args.width * 2 - 1}:0] {args.out_name}')
     lines.append(');')
-    # lines.append('    always @(*) begin')
-    # lines.append('    end')
     for line in lines:
         print(line)
-    # lines.append('wire ab')
     for i in range(args.width):
         for j in range(args.width):
-            # dots[i + j] += 1
             dots[i + j].append(f'({args.a_name}[{i}] & {args.b_name}[{j}])')
-    # print(dots)
     wire_index = 0
     wires = []
     assigns = []
     while(True):
-        # for i, j in dots.items():
-        #     print(i, j)
         max_height = max([len(col) for col in dots.values()])
         print('max_height', max_height)
         if max_height == 2:
@@ -56,7 +49,6 @@ def run(args):
             break
         d_j = max([i for i in d_l if i < max_height])
         print('d_j', d_j)
-        # for i in range(args.width * 2):
         for i in range(args.width * 2 - 1, -1, -1):
             while len(dots[i]) > d_j:
                 if len(dots[i]) == d_j + 1:
@@ -70,7 +62,6 @@ def run(args):
                     dots[i - 1].append(carry_name)
                     dots[i] = dots[i][:-2] + [sum_name]
                 else:
-                    # print('dots[' + str(i) + '] before', dots[i])
                     carry_name = f'wire_{wire_index}'
                     sum_name = f'wire_{wire_index + 1}'
                     wire_index += 2
@@ -89,7 +80,7 @@ def run(args):
     for assign in assigns:
         lines.append(assign)
 
-    lines.append(f'endmodule')
+    lines.append('endmodule')
     for line in lines:
         print(line)
     with open(args.out_path, 'w') as f:
