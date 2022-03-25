@@ -3,10 +3,10 @@
 
 // Multiply two 24-bit integers 'a' and 'b', and put result in 47-bit integer 'out'.
 
-module dadda_24bit(
+module dadda_24bit48(
     input [23:0] a,
     input [23:0] b,
-    output [46:0] out
+    output [47:0] out
 );
     wire wire_0;
     wire wire_1;
@@ -1020,12 +1020,12 @@ module dadda_24bit(
     wire wire_1009;
     wire wire_1010;
     wire wire_1011;
-    wire [23:0] t1;
-    wire [23:0] t2;
-    wire [11:0] out1;
-    wire [11:0] out2a;
-    wire [11:0] out2b;
-    wire [11:0] out2;
+    wire [47:0] t1;
+    wire [47:0] t2;
+    wire [23:0] out1;
+    wire [23:0] out2a;
+    wire [23:0] out2b;
+    wire [23:0] out2;
     wire carry;
     assign { wire_0, wire_1 } = (a[19] & b[0]) + (a[18] & b[1]);
     assign { wire_2, wire_3 } = (a[20] & b[0]) + (a[19] & b[1]) + (a[18] & b[2]);
@@ -1535,9 +1535,9 @@ module dadda_24bit(
     assign { wire_1010, wire_1011 } = (a[23] & b[22]) + (a[22] & b[23]) + wire_922;
     assign t1 = {wire_1010, wire_1011, wire_1009, wire_1007, wire_1005, wire_1003, wire_1001, wire_999, wire_997, wire_995, wire_993, wire_991, wire_989, wire_987, wire_985, wire_983, wire_981, wire_979, wire_977, wire_975, wire_973, wire_971, wire_969, wire_967, wire_965, wire_963, wire_961, wire_959, wire_957, wire_955, wire_953, wire_951, wire_949, wire_947, wire_945, wire_943, wire_941, wire_939, wire_937, wire_935, wire_933, wire_931, wire_929, wire_927, wire_925, (a[0] & b[1]), (a[0] & b[0])};
     assign t2 = {(a[23] & b[23]), wire_1008, wire_1006, wire_1004, wire_1002, wire_1000, wire_998, wire_996, wire_994, wire_992, wire_990, wire_988, wire_986, wire_984, wire_982, wire_980, wire_978, wire_976, wire_974, wire_972, wire_970, wire_968, wire_966, wire_964, wire_962, wire_960, wire_958, wire_956, wire_954, wire_952, wire_950, wire_948, wire_946, wire_944, wire_942, wire_940, wire_938, wire_936, wire_934, wire_932, wire_930, wire_928, wire_926, wire_924, (a[0] & b[2]), (a[1] & b[0]), 1'b0};
-    assign { carry, out1 } = {1'b0, t1[11:0]} + {1'b0, t2[11:0] };
-    assign out2a = t1[23:12] + t2[23:12];
-    assign out2b = t1[23:12] + t2[23:12] + 1;
+    assign { carry, out1 } = { 1'b0, t1[23:0] } + { 1'b0, t2[23:0] };
+    assign out2a = t1[47:24] + t2[47:24];
+    assign out2b = t1[47:24] + t2[47:24] + 1;
     assign out2 = carry ? out2b : out2a;
     assign out = {out2, out1};
 endmodule

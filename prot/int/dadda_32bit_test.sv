@@ -5,7 +5,7 @@ module dadda_32bit_test();
     reg [width - 1:0] b;
     reg [width - 1:0] out;
 
-    dadda_32bit dadda_(
+    dadda_32bit32 dadda_(
         .a(a),
         .b(b),
         .out(out)
