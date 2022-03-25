@@ -2,12 +2,15 @@
 # note that this doesn't yet add the standard adder at the end
 
 """
+for 8-bits currently gives:
+Max propagation delay: 55.0 nand units
+Area:                  551.5 nand units
+
 For 24-bits currently this gives:
+Max propagation delay: 203.4 nand units
+Area:                  5238.5 nand units
 
-Max propagation delay: 709.2 nand units
-Area:                  6203.0 nand units
-
-... which delay is suspiciously high. Either there is a bug, or this code
+... which delays are suspiciously high. Either there is a bug, or this code
 is somehow unfriendly to yosys optimization.
 """
 
@@ -70,7 +73,7 @@ def run(args):
                     line = f'    assign {{ {carry_name}, {sum_name} }} = {dots[i][-1]} + {dots[i][-2]};'
                     assigns.append(line)
                     dots[i + 1].append(carry_name)
-                    dots[i] = dots[i][:-2] + [sum_name]
+                    dots[i] = [sum_name] + dots[i][:-2]
                 else:
                     carry_name = f'wire_{wire_index}'
                     sum_name = f'wire_{wire_index + 1}'
@@ -80,7 +83,7 @@ def run(args):
                     line = f'    assign {{ {carry_name}, {sum_name} }} = {dots[i][-1]} + {dots[i][-2]} + {dots[i][-3]};'
                     assigns.append(line)
                     dots[i + 1].append(carry_name)
-                    dots[i] = dots[i][:-3] + [sum_name]
+                    dots[i] = [sum_name] + dots[i][:-3]
         if max_height == 5:
             break
     for wire in wires:
@@ -99,8 +102,7 @@ def run(args):
     lines.append(f'    assign out = {term_one} + {term_two};')
 
     lines.append('endmodule')
-    for line in lines:
-        print(line)
+
     with open(args.out_path, 'w') as f:
         for line in lines:
             f.write(line + '\n')
