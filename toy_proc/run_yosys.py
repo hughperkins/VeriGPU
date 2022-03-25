@@ -15,7 +15,10 @@ the beginning of the line.
 
 there should be a space before each port name in the task declaration.
 
-PRs to improve this welcome :)
+There should probably not be any parameters inside the task. At least none which are needed for the port declarations.
+Since the module will not have access to such parameters.
+
+PRs to reduce these constraints welcome :)
 
 No comments allowed in the task declaration itself.
 """

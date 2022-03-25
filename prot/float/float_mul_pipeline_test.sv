@@ -73,7 +73,7 @@ module float_mul_test();
             tick();
             $display("out %0d", out);
             cnt = cnt + 1;
-        end while(~ack && cnt < 40);
+        end while(~ack && cnt < 80);
         // `assert(~ack);
 
         // tick();
@@ -116,31 +116,31 @@ module float_mul_test();
 
         tick();
 
-        test_mul_zero(0.0, 1.0, 0.0);
-        test_mul_zero(1.0, 0.0, 0.0);
-        test_mul_zero(0.0, 0.0, 0.0);
+        // test_mul_zero(0.0, 1.0, 0.0);
+        // test_mul_zero(1.0, 0.0, 0.0);
+        // test_mul_zero(0.0, 0.0, 0.0);
 
-        test_mul(1.0, 1.0, 1.0);
-        test_mul(1.1, 1.1, 1.21);
-        test_mul(11.0, 11.0, 121.0);
+        // test_mul(1.0, 1.0, 1.0);
+        // test_mul(1.1, 1.1, 1.21);
+        // test_mul(11.0, 11.0, 121.0);
         test_mul(1.9, 1.9, 3.61);
 
-        test_mul(1.0, 2.0, 2.0);
-        test_mul(2.0, 1.0, 2.0);
-        test_mul(2.0, 2.0, 4.0);
-        test_mul(2.0, 2.3, 4.6);
-        test_mul(8.0, 4.0, 32.0);
-        test_mul(10.0, 4.0, 40.0);
-        test_mul(10.1, 4.0, 40.4);
-        test_mul(101.0, 4.0, 404.0);
-        test_mul(100.0, 4.5, 450.0);
-        test_mul(20.0, 2.3, 46.0);
-        test_mul(200.0, 2.3, 460.0);
-        test_mul(200.0, 100.0, 20000.0);
-        test_mul(2000.0, 2.3, 4600.0);
+    //     test_mul(1.0, 2.0, 2.0);
+    //     test_mul(2.0, 1.0, 2.0);
+    //     test_mul(2.0, 2.0, 4.0);
+    //     test_mul(2.0, 2.3, 4.6);
+    //     test_mul(8.0, 4.0, 32.0);
+    //     test_mul(10.0, 4.0, 40.0);
+    //     test_mul(10.1, 4.0, 40.4);
+    //     test_mul(101.0, 4.0, 404.0);
+    //     test_mul(100.0, 4.5, 450.0);
+    //     test_mul(20.0, 2.3, 46.0);
+    //     test_mul(200.0, 2.3, 460.0);
+    //     test_mul(200.0, 100.0, 20000.0);
+    //     test_mul(2000.0, 2.3, 4600.0);
 
-        test_mul(-2000.0, 2.3, -4600.0);
-        test_mul(2000.0, -2.3, -4600.0);
-        test_mul(-2000.0, -2.3, 4600.0);
+    //     test_mul(-2000.0, 2.3, -4600.0);
+    //     test_mul(2000.0, -2.3, -4600.0);
+    //     test_mul(-2000.0, -2.3, 4600.0);
     end
 endmodule
