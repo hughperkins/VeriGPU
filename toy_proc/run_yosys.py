@@ -22,7 +22,6 @@ No comments allowed in the task declaration itself.
 import argparse
 import os
 from collections import deque
-from re import I
 
 
 """
