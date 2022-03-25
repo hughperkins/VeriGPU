@@ -1,13 +1,13 @@
 # generates dadda adder for specified data width
 # note that the adder at the end can probalby be chunked, to break the 46-bit carry chain...
 """
-for 8-bits currently gives:
-Max propagation delay: 29.4 nand units
-Area:                  234.0 nand units
+--width 24:
+Max propagation delay: 75.8 nand units
+Area:                  5787.0 nand units
 
-For 24-bits currently this gives:
-Max propagation delay: 59.0 nand units
-Area:                  2699.0 nand units
+--width 32 --out-width 32:
+Max propagation delay: 67.4 nand units
+Area:                  4959.5 nand units
 """
 
 import argparse
