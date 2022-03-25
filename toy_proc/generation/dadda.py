@@ -1,14 +1,13 @@
 # generates dadda adder for specified data width
-# note that this doesn't yet add the standard adder at the end
-
+# note that the adder at the end can probalby be chunked, to break the 46-bit carry chain...
 """
 for 8-bits currently gives:
 Max propagation delay: 42.6 nand units
 Area:                  559.0 nand units
 
 For 24-bits currently this gives:
-Max propagation delay: 109.6 nand units
-Area:                  5718.5 nand units
+Max propagation delay: 59.0 nand units
+Area:                  2699.0 nand units
 """
 
 import argparse
@@ -28,7 +27,7 @@ def create_d_sequence(max_v: int):
 
 def run(args):
     d_l = create_d_sequence(args.width)
-    print('d_l', d_l)
+    # print('d_l', d_l)
     dots = defaultdict(deque)
     lines = deque()
     lines.append('// This is a GENERATED file. Do not modify by hand.')
@@ -53,12 +52,12 @@ def run(args):
     assigns = []
     while(True):
         max_height = max([len(col) for col in dots.values()])
-        print('max_height', max_height)
+        # print('max_height', max_height)
         if max_height == 2:
             # we are done. hand-off to carry adder...
             break
         d_j = max([i for i in d_l if i < max_height])
-        print('d_j', d_j)
+        # print('d_j', d_j)
         for i in range(len(dots)):
             while len(dots[i]) > d_j:
                 if len(dots[i]) == d_j + 1:
@@ -88,20 +87,38 @@ def run(args):
                     dots[i].appendleft(sum_name)
         if max_height == 5:
             break
+    wires.append(f'    wire [{args.width - 1}:0] t1;')
+    wires.append(f'    wire [{args.width - 1}:0] t2;')
+    wires.append(f'    wire [{args.width // 2 - 1}:0] out1;')
+    wires.append(f'    wire [{args.width // 2 - 1}:0] out2a;')
+    wires.append(f'    wire [{args.width // 2 - 1}:0] out2b;')
+    wires.append(f'    wire [{args.width // 2 - 1}:0] out2;')
+    wires.append('    wire carry;')
     for wire in wires:
         lines.append(wire)
     for assign in assigns:
         lines.append(assign)
 
-    for i, col in dots.items():
-        print(i, col)
+    # for i, col in dots.items():
+    #     print(i, col)
 
     # add the carry-adder at the end
     term_one = '{' + ', '.join([
         dots[i][0] for i in range(len(dots) - 1, -1, -1)]) + '}'
     term_two = '{' + ', '.join([
         dots[i][1] for i in range(len(dots) - 1, 0, -1)]) + ', 1\'b0}'
-    lines.append(f'    assign out = {term_one} + {term_two};')
+    lines.append(f"    assign t1 = {term_one};")
+    lines.append(f"    assign t2 = {term_two};")
+    lines.append(
+        f'    assign {{ carry, out1 }} = t1[{args.width // 2 - 1}:0] + t2[{args.width // 2 - 1}:0];')
+    lines.append(
+        f'    assign out2a = t1[{args.width - 1}:{args.width // 2}]'
+        f' + t2[{args.width - 1}:{args.width // 2}];')
+    lines.append(
+        f'    assign out2b = t1[{args.width - 1}:{args.width // 2}]'
+        f' + t2[{args.width - 1}:{args.width // 2}] + 1;')
+    lines.append('    assign out2 = carry ? out2b : out21;')
+    lines.append('    assign out = {out2, out1};')
 
     lines.append('endmodule')
 
