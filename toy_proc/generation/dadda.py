@@ -3,15 +3,12 @@
 
 """
 for 8-bits currently gives:
-Max propagation delay: 55.0 nand units
-Area:                  551.5 nand units
+Max propagation delay: 42.6 nand units
+Area:                  559.0 nand units
 
 For 24-bits currently this gives:
-Max propagation delay: 203.4 nand units
-Area:                  5238.5 nand units
-
-... which delays are suspiciously high. Either there is a bug, or this code
-is somehow unfriendly to yosys optimization.
+Max propagation delay: 109.6 nand units
+Area:                  5718.5 nand units
 """
 
 import argparse
@@ -32,7 +29,7 @@ def create_d_sequence(max_v: int):
 def run(args):
     d_l = create_d_sequence(args.width)
     print('d_l', d_l)
-    dots = defaultdict(list)
+    dots = defaultdict(deque)
     lines = deque()
     lines.append('// This is a GENERATED file. Do not modify by hand.')
     lines.append('// Created by toy_proc/generation/dadda.py')
@@ -72,8 +69,10 @@ def run(args):
                     wires.append(f'    wire {sum_name};')
                     line = f'    assign {{ {carry_name}, {sum_name} }} = {dots[i][-1]} + {dots[i][-2]};'
                     assigns.append(line)
-                    dots[i + 1].append(carry_name)
-                    dots[i] = [sum_name] + dots[i][:-2]
+                    dots[i + 1].appendleft(carry_name)
+                    dots[i].pop()
+                    dots[i].pop()
+                    dots[i].appendleft(sum_name)
                 else:
                     carry_name = f'wire_{wire_index}'
                     sum_name = f'wire_{wire_index + 1}'
@@ -82,8 +81,11 @@ def run(args):
                     wires.append(f'    wire {sum_name};')
                     line = f'    assign {{ {carry_name}, {sum_name} }} = {dots[i][-1]} + {dots[i][-2]} + {dots[i][-3]};'
                     assigns.append(line)
-                    dots[i + 1].append(carry_name)
-                    dots[i] = [sum_name] + dots[i][:-3]
+                    dots[i + 1].appendleft(carry_name)
+                    dots[i].pop()
+                    dots[i].pop()
+                    dots[i].pop()
+                    dots[i].appendleft(sum_name)
         if max_height == 5:
             break
     for wire in wires:
