@@ -15,6 +15,9 @@ Will use 'unit times' for timings, which will look something like:
 - shl: 0 (it's just rewiring)
 - shr: 0 (it's just rewiring)
 
+You should provide --top-module, unless you are provide a top level task.
+This can be used on a task, by passing in --top-task, instead of --top-module. There are some constraints
+around the formatting of such a task. See header of run_yosys.py for more details on these constraints.
 
 
 Some details:
@@ -222,6 +225,8 @@ def run(args):
         ]
         if args.top_module:
             child_args += ['--top-module', args.top_module]
+        if args.top_task:
+            child_args += ['--top-task', args.top_task]
         subprocess.check_output(child_args)
         args.in_netlist = 'build/netlist.v'
 
@@ -580,6 +585,7 @@ if __name__ == '__main__':
         '--in-netlist', type=str,
         help='path to gate netlist verilog file, choose one of --in-netlist or --in-verilog')
     parser.add_argument('--top-module', type=str, help='top module name, only needed if more than one module.')
+    parser.add_argument('--top-task', type=str, help='top task name, if it\'s a task, not a module')
     parser.add_argument(
         '--in-verilog', type=str, nargs='+',
         help='path to original verilog file, choose one of --in-verilog or --in-netlist')
