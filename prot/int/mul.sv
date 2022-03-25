@@ -1,12 +1,7 @@
 /*
-Propagation delay is between any pair of combinatorially connected
-inputs and outputs, drawn from:
-    - module inputs
-    - module outputs,
-    - flip-flop outputs (treated as inputs), and
-    - flip-flop inputs (treated as outputs)
-
-max propagation delay: 82.8 nand units
+For 32-bit data width:
+Max propagation delay: 82.8 nand units
+Area:                  5371.5 nand units
 
 (interestingly, this propagation delay is identical to yosys implementation of 32-bit `*`)
 */
