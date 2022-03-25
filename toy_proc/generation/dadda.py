@@ -2,8 +2,8 @@
 # note that the adder at the end can probalby be chunked, to break the 46-bit carry chain...
 """
 for 8-bits currently gives:
-Max propagation delay: 42.6 nand units
-Area:                  559.0 nand units
+Max propagation delay: 29.4 nand units
+Area:                  234.0 nand units
 
 For 24-bits currently this gives:
 Max propagation delay: 59.0 nand units
@@ -110,14 +110,14 @@ def run(args):
     lines.append(f"    assign t1 = {term_one};")
     lines.append(f"    assign t2 = {term_two};")
     lines.append(
-        f'    assign {{ carry, out1 }} = t1[{args.width // 2 - 1}:0] + t2[{args.width // 2 - 1}:0];')
+        f'    assign {{ carry, out1 }} = {{1\'b0, t1[{args.width // 2 - 1}:0]}} + {{1\'b0, t2[{args.width // 2 - 1}:0] }};')
     lines.append(
         f'    assign out2a = t1[{args.width - 1}:{args.width // 2}]'
         f' + t2[{args.width - 1}:{args.width // 2}];')
     lines.append(
         f'    assign out2b = t1[{args.width - 1}:{args.width // 2}]'
         f' + t2[{args.width - 1}:{args.width // 2}] + 1;')
-    lines.append('    assign out2 = carry ? out2b : out21;')
+    lines.append('    assign out2 = carry ? out2b : out2a;')
     lines.append('    assign out = {out2, out1};')
 
     lines.append('endmodule')
@@ -131,11 +131,12 @@ def run(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--width', type=int, default=24)
-    parser.add_argument('--module-name', type=str, default='dadda')
+    parser.add_argument('--module-name', type=str, default='dadda_{width}bit')
     parser.add_argument('--a-name', type=str, default='a')
     parser.add_argument('--b-name', type=str, default='b')
     parser.add_argument('--out-name', type=str, default='out')
-    parser.add_argument('--out-path', type=str, default='build/dadda_{width}bit.sv')
+    parser.add_argument('--out-path', type=str, default='src/generated/dadda_{width}bit.sv')
     args = parser.parse_args()
     args.out_path = args.out_path.format(**args.__dict__)
+    args.module_name = args.module_name.format(**args.__dict__)
     run(args)
