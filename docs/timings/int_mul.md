@@ -28,3 +28,5 @@ Area and propagation delay are both in 'nand units'. See [/docs/timing.md](/docs
 | Sum 2 output bit per clock cycle, using Dadda/Booth-style adders | [/toy_proc/generation/mul_pipeline_cycle.py](/toy_proc/generation/mul_pipeline_cycle.py) | 63.2 | 1244 | 16 |
 | Sum 4 output bit per clock cycle, using Dadda/Booth-style adders | [/toy_proc/generation/mul_pipeline_cycle.py](/toy_proc/generation/mul_pipeline_cycle.py) | 74.8 | 2018 | 8 |
 | Sum 8 output bit per clock cycle, using Dadda/Booth-style adders | [/toy_proc/generation/mul_pipeline_cycle.py](/toy_proc/generation/mul_pipeline_cycle.py) | 93.2 | 3429 | 4|
+
+Overall, maybe "Sum 2 output bit per clock cycle, using Dadda/Booth-style adders" gives good propagation delay, and low area?
