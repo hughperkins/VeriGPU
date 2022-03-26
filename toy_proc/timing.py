@@ -121,6 +121,7 @@ g_cell_areas = {
 
     'dffx1': 4.0,
     'dffx2': 5.0,
+    'dffposx1': 4.0,
     'dffsr': 6.0,
 
     'dffnasr1x1': 6.0,
