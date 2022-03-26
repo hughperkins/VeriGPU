@@ -221,9 +221,11 @@ def run(args):
         # first need to synthesize
         # use check output, so we can suppress output (less spammy...)
         child_args = [
-            sys.executable, 'toy_proc/run_yosys.py', '--in-verilog'] + args.in_verilog + [
+            sys.executable, 'toy_proc/run_yosys.py',
             '--cell-lib', args.cell_lib
         ]
+        if args.in_verilog is not None and len(args.in_verilog) > 0:
+            child_args += ['--in-verilog'] + args.in_verilog
         if args.top_module:
             child_args += ['--top-module', args.top_module]
         if args.task_file:
@@ -604,6 +606,8 @@ if __name__ == '__main__':
         args.in_verilog = list(args.in_verilog)
         print(args.in_verilog)
     # we should have one argument only
-    assert args.in_netlist is not None or args.in_verilog is not None
-    assert args.in_netlist is None or args.in_verilog is None
+    if args.task_file is not None and args.in_verilog is None:
+        args.in_verilog = []
+    assert args.in_netlist is not None or args.in_verilog is not None or args.task_file is not None
+    assert args.in_netlist is None or (args.in_verilog is None and args.task_file is None)
     run(args)

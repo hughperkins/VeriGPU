@@ -153,7 +153,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--task-file', type=str,
         help='give this instead of top module if top is a task; should be a filepath, not given to --in-verilog')
-    parser.add_argument('--in-verilog', type=str, nargs='+', required=True, help='path to verilog file')
+    parser.add_argument('--in-verilog', type=str, nargs='+', help='path to verilog file')
     parser.add_argument(
         '--top-module', type=str,
         help='top module name, only needed if more than one module, and not using --task-file.')
@@ -163,6 +163,8 @@ if __name__ == '__main__':
         '--cell-lib', type=str, default='tech/osu018/osu018_stdcells.lib',
         help='e.g. path to osu018_stdcells.lib')
     args = parser.parse_args()
+    if args.task_file is not None and args.in_verilog is None:
+        args.in_verilog = []
     args.in_verilog = deque(args.in_verilog)
     for additional in ['src/assert_ignore.sv', 'src/op_const.sv', 'src/const.sv']:
         if additional not in args.in_verilog:

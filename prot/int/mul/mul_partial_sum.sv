@@ -3,12 +3,17 @@ For 32-bit data width:
 Max propagation delay: 82.8 nand units
 Area:                  5371.5 nand units
 
+32-bit in, 32-bit out:
+Max propagation delay: 82.8 nand units
+Area:                  5371.5 nand units
+
 (interestingly, this propagation delay is identical to yosys implementation of 32-bit `*`)
 */
 module mul(
     input [data_width - 1:0] a,
     input [data_width - 1:0] b,
-    output reg [data_width * 2 - 1:0] out
+    // output reg [data_width * 2 - 1:0] out
+    output reg [data_width - 1:0] out
 );
     reg [data_width * 2 - 1:0] out_wide;
     reg [data_width * 2 - 1:0] partial;

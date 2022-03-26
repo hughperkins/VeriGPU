@@ -6,17 +6,32 @@ We can flatten the carry completely at the end, or avoid doing the final carry
 layer. The latter is probably faster, but harder, so I will flatten completely to start with.
 
 For 24 bit, 1 bit per cycle
+Max propagation delay: 56.4 nand units
+Area:                  610.5 nand units
+
+For 24 bit, 2 bit per cycle
 Max propagation delay: 59.4 nand units
 Area:                  941.5 nand units
 
+For 24 bit, 4 bit per cycle
+Max propagation delay: 68.2 nand units
+Area:                  1501.5 nand units
+
 for 32-bit, 1 bit per cycle:
+Max propagation delay: 58.2 nand units
+Area:                  862.5 nand units
+
+for 32-bit, 2 bit per cycle:
 Max propagation delay: 63.2 nand units
 Area:                  1244.0 nand units
 
-for 32-bit, 2 bit per cycle:
-
 for 32-bit, 4 bit per cycle:
+Max propagation delay: 74.8 nand units
+Area:                  2018.0 nand units
 
+32-bit, 8 bits per cycle:
+Max propagation delay: 93.2 nand units
+Area:                  3428.5 nand units
 """
 import math
 import argparse
@@ -36,15 +51,7 @@ task mul_partial_add_task(
     reg [width * 2 - 1:0] a_shifted;
 
     assign rst = 0;
-    // cout = '0;
-    // {cout, sum} = cin;
-    // `assert_known(b);
-    // `assert_known(pos);
-    // a_shifted = '0;
     assign a_shifted = a << (width - pos);
-    // for(int i = 0; i < width; i++) begin  // iterate through b
-    //     {cout, sum} = {cout, sum} + (a_shifted[width + bits_per_cycle - 1 - i -: bits_per_cycle] & {bits_per_cycle{b[i]}} );
-    // end
 endtask
 """
 
@@ -77,11 +84,6 @@ module {args.module_name}(
     wire [{args.width * 2 - 1}:0] a_;
 
     assign rst = 0;
-    //cout = '0;
-    // {{ cout, sum }} = cin;
-    // `assert_known(b);
-    // `assert_known(pos);
-    // a_ = '0;
     assign a_ = a << ({args.width} - pos);
 """.split('\n'))
 
@@ -91,19 +93,14 @@ module {args.module_name}(
     wires = []
     assigns = []
 
-    # add { cout, sum } to dots
-    # add cin to dots
-    # for i in range(args.bits_per_cycle):
-    #     dots[i].append(f'sum[{i}]')
-    # for i in range(args.bits_per_cycle, carry_width):
-    #     dots[i].append(f'cout[{i - args.bits_per_cycle}]')
     for i in range(carry_width):
         dots[i].append(f'cin[{i}]')
 
     # partial products to dots
     # code we are replacing ours with:
     # for(int i = 0; i < width; i++) begin  // iterate through b
-    #     {cout, sum} = {cout, sum} + (a_shifted[width + bits_per_cycle - 1 - i -: bits_per_cycle] & {bits_per_cycle{b[i]}} );
+    #     {cout, sum} = {cout, sum} + (
+    #         a_shifted[width + bits_per_cycle - 1 - i -: bits_per_cycle] & {bits_per_cycle{b[i]}} );
     # end
     for i in range(args.width):
         for j in range(args.bits_per_cycle):
@@ -114,13 +111,6 @@ module {args.module_name}(
         for entry in col:
             print('    ', entry)
 
-    # for i in range(args.width):
-    #     for j in range(args.width):
-    #         p = i + j
-    #         # lines.append('')
-    #         # if p >= args.pos and p < args.pos + args.bits_per_cycle:
-    #         if p >= 0 and p < args.bits_per_cycle:
-    #             dots[p].append(f'({args.a_name}[{i}] & {args.b_name}[{j}])')
     print('dots.keys()', list(dots.keys()))
     for i in range(carry_width):
         dots[i].append(f'cin[{i}]')
@@ -221,12 +211,15 @@ module {args.module_name}(
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--width', type=int, default=32)
-    parser.add_argument('--bits-per-cycle', type=int, default=2, help='should be a power of 2')
-    parser.add_argument('--module-name', type=str, default='dadda')
+    parser.add_argument('--bits-per-cycle', type=int, default=1, help='should be a power of 2')
+    parser.add_argument('--module-name', type=str, default='mul_pipeline_cycle_{width}bit_{bits_per_cycle}bpc')
     parser.add_argument('--a-name', type=str, default='a')
     parser.add_argument('--b-name', type=str, default='b')
     parser.add_argument('--out-name', type=str, default='out')
-    parser.add_argument('--out-path', type=str, default='build/mul_pipeline_cycle_{width}bit.sv')
+    parser.add_argument(
+        '--out-path', type=str,
+        default='src/generated/{module_name}.sv')
     args = parser.parse_args()
+    args.module_name = args.module_name.format(**args.__dict__)
     args.out_path = args.out_path.format(**args.__dict__)
     run(args)

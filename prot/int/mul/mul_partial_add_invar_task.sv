@@ -38,12 +38,19 @@ task mul_partial_add_task(
     `assert_known(pos);
     a_shifted = '0;
     a_shifted = a << (width - pos);
+    if(pos == 0) begin
+        $display("a_shifted %b", a_shifted);
+    end
     for(int i = 0; i < width; i++) begin  // iterate through b
         {cout, sum} = {cout, sum} + (a_shifted[width + bits_per_cycle - 1 - i -: bits_per_cycle] & {bits_per_cycle{b[i]}} );
-        // if(b[i]) begin
-        //     $display(
-        //         "pos %0d i%0d {bits_per_cycle{b[i]}} %b a_shifted[width - i -: bits_per_cycle] %b, cout %b sum %b",
-        //         pos, i, {bits_per_cycle{b[i]}}, a_shifted[width - i -: bits_per_cycle], cout, sum);
-        // end
+        if(pos == 0) begin
+            $display(
+                "width %0d bits_per_cycle %0d (width + bits_per_cycle - 1 - i) %0d",
+                width, bits_per_cycle, width + bits_per_cycle - 1 - i
+            );
+            $display(
+                "i %0d a_shifted[width + bits_per_cycle - 1 - i -: bits_per_cycle] %b",
+                i, a_shifted[width + bits_per_cycle - 1 - i -: bits_per_cycle]);
+        end
     end
 endtask
