@@ -31,7 +31,7 @@ module mul_clocked(
 
     typedef enum bit [1:0] {
         IDLE,
-        MUL
+        MUL1
         // OUT
     } e_state;
 
@@ -55,11 +55,11 @@ module mul_clocked(
                     n_internal_a = a;
                     n_internal_b = b;
                     n_pos = 0;
-                    n_state = MUL;
+                    n_state = MUL1;
                     n_cin = '0;
                 end
             end
-            MUL: begin
+            MUL1: begin
                 `assert_known(pos);
                 `assert_known(internal_a);
                 `assert_known(internal_b);

@@ -4,8 +4,8 @@
 //
 // in this version, we try to keep the loop invariant of pos, by shifting
 // operands beforehand, and padding them.
-parameter width = 24;
-parameter bits_per_cycle = 1;
+// This is mostly in preparation for trying to use full adders to maximum
+// efficiency, similar to Dadda
 
 task mul_partial_add_task(
     input [$clog2(width + 1):0] pos,
@@ -16,28 +16,18 @@ task mul_partial_add_task(
     output reg [$clog2(width):0] cout
 );
     reg rst;
-    rst = 0;
-    /*
-    a3 a2 a1 a0
-    b3 b2 b1 b0
+    reg [width * 2 - 1:0] a_shifted;
 
-                          pos=2
-                     a3b0 a2b0 a1b0 a0b0
-                a3b1 a2b1 a1b1 a0b1
-           a3b2 a2b2 a1b2 a0b2
-      a3b3 a2b3 a1b3 a0b3
-    */
+    rst = 0;
     cout = '0;
     {cout, sum} = cin;
-    // {cout, sum} = '0;
     `assert_known(b);
     `assert_known(pos);
-    // $display("pos=%0d", pos);
-    for(int i = 0; i < width; i++) begin
+    a_shifted = '0;
+    a_shifted = a << (width - pos);
+    for(int i = 0; i < width; i++) begin  // iterate through b
         if(b[i]) begin
-            if(pos >= i && pos - i < width) begin
-                {cout, sum} = {cout, sum} + a[pos - i];
-            end
+            {cout, sum} = {cout, sum} + a_shifted[width - i];
         end
     end
 endtask

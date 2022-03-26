@@ -57,7 +57,7 @@ module mul_clocked_test();
         end while(~ack && cnt < 80);
 
         `assert(ack);
-        $display("test_mul a=%0d b=%0d out=%0d", _a, _b, out);
+        $display("test_mul a=%0d b=%0d out=%0d cnt=%0d", _a, _b, out, cnt);
         `assert(out == expected_out);
 
         tick();

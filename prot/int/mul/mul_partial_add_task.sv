@@ -1,9 +1,18 @@
-// handles adding a single bit of partial products, and returning the sum
-// takes as input the carry from previous additional
-// thus we do one bit per cycle, and this task represents a single cycle
-// parameter width = 24;
-// parameter bits_per_cycle = 1;
+/*
+handles adding a single bit of partial products, and returning the sum
+takes as input the carry from previous additional
+thus we do one bit per cycle, and this task represents a single cycle
+parameter width = 24;
+parameter bits_per_cycle = 1;
 
+using clocked driver, with width 32, 1 bit per cycle:
+Max propagation delay: 107.2 nand units
+Area:                  2664.0 nand units
+
+Standalone, widht32, 1 bit per cycle:
+Max propagation delay: 106.6 nand units
+Area:                  1544.5 nand units
+*/
 task mul_partial_add_task(
     input [$clog2(width + 1):0] pos,
     input [width - 1:0] a,
