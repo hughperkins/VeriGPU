@@ -10,8 +10,7 @@ ports should be provided one per line, without nothing else on the line except t
 
 run_yosys.py will wrap the task in a module, then synthesize that.
 
-Any comments prior to the declaration should only use // for now (not /* */). And these comments should be at
-the beginning of the line.
+Any comments sections using // /* or */ should always have the comment symbol (//, /* or */) at the start of a line
 
 there should be a space before each port name in the task declaration.
 
@@ -61,10 +60,20 @@ def run(args):
         port_declarations = []  # full declaration, e.g. "input [1:0] a"
         port_names = []  # just the name, e.g. "a"
         in_declaration = False
+        in_block_comment = False
         for line in task_contents.split('\n'):
             line = line.strip()
             if line.startswith('//'):
                 continue
+            if in_block_comment:
+                if line.startswith('*/'):
+                    in_block_comment = False
+                continue
+            if line.startswith('/*'):
+                if line.endswith('*/'):
+                    continue
+                else:
+                    in_block_comment = True
             if line.startswith('task'):
                 in_declaration = True
                 continue
