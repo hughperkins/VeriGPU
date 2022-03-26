@@ -4,9 +4,9 @@ helper tool to run yosys, generating appropriate yosys script
 python, rather than bash, since commandline arguments etc
 so much more convenenient in python
 
-In addiition, we can give a task, by providing --top-task [task name].
-The task should be the only declaration, in a file with the exact same name.
-ports should be provided one per line, without nothing else on the line except the trailing commma (',').
+In addiition, we can give a task, by providing --task-file [task filepath].
+The task should be the only declaration in the file.
+ports should be provided one per line, with nothing else on the line except the trailing commma (',').
 
 run_yosys.py will wrap the task in a module, then synthesize that.
 
@@ -50,12 +50,13 @@ endmodule
 
 
 def run(args):
-    if args.top_task is not None:
-        task_verilog_files = [n for n in args.in_verilog if n.endswith(f'/{args.top_task}.sv')]
-        assert len(task_verilog_files) == 1
-        task_verilog_file = task_verilog_files[0]
-        print('task verilog file', task_verilog_file)
-        with open(task_verilog_file) as f:
+    if args.task_file is not None:
+        assert args.top_module is None
+        # task_verilog_files = [n for n in args.in_verilog if n.endswith(f'/{args.top_task}.sv')]
+        # assert len(task_verilog_files) == 1
+        # task_verilog_file = task_verilog_files[0]
+        print('task verilog file', args.task_file)
+        with open(args.task_file) as f:
             task_contents = f.read()
         port_declarations = []  # full declaration, e.g. "input [1:0] a"
         port_names = []  # just the name, e.g. "a"
@@ -76,6 +77,8 @@ def run(args):
                     in_block_comment = True
             if line.startswith('task'):
                 in_declaration = True
+                task_name = line.replace('task ', '').split('(')[0].strip()
+                print('task_name', task_name)
                 continue
             if in_declaration:
                 if line == ');':
@@ -89,16 +92,17 @@ def run(args):
         print('declarations', port_declarations)
         print('names', port_names)
         wrapper_filepath = 'build/task_wrapper.sv'
+        args.in_verilog.append(args.task_file)
         args.in_verilog.append(wrapper_filepath)
-        args.top_module = f'{args.top_task}_module'
+        args.top_module = f'{task_name}_module'
         with open(wrapper_filepath, 'w') as f:
             port_declarations_str = ',\n    '.join(port_declarations)
             port_names_str = ', '.join(port_names)
-            f.write(f"""module {args.top_task}_module(
+            f.write(f"""module {task_name}_module(
     {port_declarations_str}
 );
     always @(*) begin
-        {args.top_task}({port_names_str});
+        {task_name}({port_names_str});
     end
 endmodule
 """)
@@ -147,11 +151,12 @@ stat
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--top-task', type=str,
-        help='give this instead of top module if it\'s a task. Should match filename')
+        '--task-file', type=str,
+        help='give this instead of top module if top is a task; should be a filepath, not given to --in-verilog')
     parser.add_argument('--in-verilog', type=str, nargs='+', required=True, help='path to verilog file')
     parser.add_argument(
-        '--top-module', type=str, help='top module name, only needed if more than one module.')
+        '--top-module', type=str,
+        help='top module name, only needed if more than one module, and not using --task-file.')
     parser.add_argument('--show', action='store_true', help='show xdot on the result')
     parser.add_argument('--no-cells', action='store_true', help='stop after dfflibmap')
     parser.add_argument(
