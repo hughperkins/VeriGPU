@@ -19,8 +19,8 @@ if [[ -f build/netlist/6.v ]]; then {
     rm build/netlist/6.v
 } fi
 
-python toy_proc/run_yosys.py --in-verilog src/assert_ignore.sv src/op_const.sv src/const.sv src/int_div_regfile.sv src/proc.sv \
-    src/float_params.sv src/float_add_pipeline.sv \
+python toy_proc/run_yosys.py --in-verilog src/assert_ignore.sv src/op_const.sv src/const.sv src/int/int_div_regfile.sv src/proc.sv \
+    src/float/float_params.sv src/float/float_add_pipeline.sv \
     src/mem_delayed_large.sv src/mem_delayed.sv src/comp.sv \
     --top-module comp >/dev/null
 

@@ -13,8 +13,8 @@ run_verilog() {
     set -x
 }
 
-run_verilog test/int_div_regfile_test.sh
-run_verilog test/int_div_regfile_comp_test.sh
-run_verilog test/mem_delayed_test.sh
+run_verilog test/behav/int_div_regfile_test.sh
+run_verilog test/behav/int_div_regfile_comp_test.sh
+run_verilog test/behav/mem_delayed_test.sh
 
 echo "PASS"
