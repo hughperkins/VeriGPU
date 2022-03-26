@@ -1,6 +1,21 @@
-// parameter width = 32;
-// parameter bits_per_cycle = 1;
+/*
+parameter width = 32;
+parameter bits_per_cycle = 1;
 
+using mul_partial_add_invar_task.sv :
+
+width=32 bits_per_cycle=1
+Max propagation delay: 67.2 nand units
+Area:                  2048.5 nand units
+
+width=32 bits_per_cycle=2
+Max propagation delay: 73.6 nand units
+Area:                  2256.5 nand units
+
+width=32 bits_per_cycle=4
+Max propagation delay: 77.4 nand units
+Area:                  2906.0 nand units
+*/
 module mul_clocked(
     input clk,
     input rst,
@@ -35,7 +50,11 @@ module mul_clocked(
         // OUT
     } e_state;
 
+    // parameter clog2_bits_per_cycle = $clog2(bits_per_cycle);
+
     always @(*) begin
+        // `assert(bits_per_cycle == (1 << clog2_bits_per_cycle));
+
         n_out = out;
         n_ack = 0;
 
@@ -69,11 +88,11 @@ module mul_clocked(
                     internal_a,
                     internal_b,
                     cin,
-                    n_out[pos],
+                    n_out[pos + bits_per_cycle - 1 -: bits_per_cycle],
                     cout
                 );
                 n_cin = cout;
-                n_pos = pos + 1;
+                n_pos = pos + bits_per_cycle;
                 `assert_known(pos);
                 // $display("driver clocked pos=%0d n_out=%b %0d n_cin=%b", pos, n_out, n_out, n_cin);
                 if (n_pos >= width) begin
