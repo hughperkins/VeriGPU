@@ -24,7 +24,6 @@ Area and propagation delay are both in 'nand units'. See [/docs/timing.md](/docs
 | Sum 1 output bit per clock cycle, using position-invariant adders | [prot/int/mul/mul_partial_add_invar_task.sv](prot/int/mul/mul_partial_add_invar_task.sv) | 69.8 | 908 | 32|
 | Sum 2 output bits per clock cycle, using position-invariant adders | [prot/int/mul/mul_partial_add_invar_task.sv](prot/int/mul/mul_partial_add_invar_task.sv) |  75.6|1414|16|
 | Sum 4 output bits per clock cycle, using position-invariant adders | [prot/int/mul/mul_partial_add_invar_task.sv](prot/int/mul/mul_partial_add_invar_task.sv) |  86.6|1970 | 8|
-| Sum 8 output bits per clock cycle, using position-invariant adders | [prot/int/mul/mul_partial_add_invar_task.sv](prot/int/mul/mul_partial_add_invar_task.sv) | 
 | Sum 1 output bit per clock cycle, using Dadda/Booth-style adders | [toy_proc/generation/mul_pipeline_cycle.py](toy_proc/generation/mul_pipeline_cycle.py) | 58.2 | 863 | 32 |
 | Sum 2 output bit per clock cycle, using Dadda/Booth-style adders | [toy_proc/generation/mul_pipeline_cycle.py](toy_proc/generation/mul_pipeline_cycle.py) | 63.2 | 1244 | 16 |
 | Sum 4 output bit per clock cycle, using Dadda/Booth-style adders | [toy_proc/generation/mul_pipeline_cycle.py](toy_proc/generation/mul_pipeline_cycle.py) | 74.8 | 2018 | 8 |
