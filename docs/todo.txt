@@ -1,6 +1,4 @@
 - float mul
-- check if yosys can handle tasks
-- check if yosys can handle functions
 - change reset to active low
 - parallel instruction execution
 - floats:  div, modulus, sub, beq, glt
@@ -30,6 +28,9 @@
 - (use actual memory module?)
 
 done:
+- update timing/run_yosys to be ble to hndle tasks (by wrapping in a module automatically)
+- check if yosys can handle tasks
+- check if yosys can handle functions
 - add area approximation to timing.py (eg count the number of cells :P)
 - move float add out of prot
 - coding guidelines, plus what can go wrong with GLS etc
