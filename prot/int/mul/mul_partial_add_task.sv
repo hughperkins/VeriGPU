@@ -1,8 +1,8 @@
 // handles adding a single bit of partial products, and returning the sum
 // takes as input the carry from previous additional
 // thus we do one bit per cycle, and this task represents a single cycle
-parameter width = 24;
-parameter bits_per_cycle = 1;
+// parameter width = 24;
+// parameter bits_per_cycle = 1;
 
 task mul_partial_add_task(
     input [$clog2(width + 1):0] pos,
@@ -29,7 +29,7 @@ task mul_partial_add_task(
     // {cout, sum} = '0;
     `assert_known(b);
     `assert_known(pos);
-    $display("pos=%0d", pos);
+    // $display("pos=%0d", pos);
     for(int i = 0; i < width; i++) begin
         if(b[i]) begin
             if(pos >= i && pos - i < width) begin
