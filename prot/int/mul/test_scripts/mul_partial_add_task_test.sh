@@ -9,5 +9,5 @@ iverilog -g2012 \
     src/assert.sv \
     prot/int/mul/mul_partial_add_task.sv \
     prot/int/mul/mul_partial_driver.sv \
-    prot/int/mul_test.sv
+    prot/int/mul/test/mul_test.sv
 ./a.out

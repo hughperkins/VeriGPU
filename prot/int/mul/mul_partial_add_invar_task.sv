@@ -11,8 +11,16 @@ efficiency, similar to Dadda
 Using width 32, bits per cycle 1:
 Max propagation delay: 69.8 nand units
 Area:                  907.5 nand units
+
+Using width 32, bits per cycle 2:
+Max propagation delay: 75.6 nand units
+Area:                  1413.5 nand units
+
+Using width 32, bits per cycle 4:
+Max propagation delay: 86.6 nand units
+Area:                  1969.5 nand units
 */
-task mul_partial_add_invar_task(
+task mul_partial_add_task(
     input [$clog2(width + 1):0] pos,
     input [width - 1:0] a,
     input [width - 1:0] b,
@@ -31,6 +39,11 @@ task mul_partial_add_invar_task(
     a_shifted = '0;
     a_shifted = a << (width - pos);
     for(int i = 0; i < width; i++) begin  // iterate through b
-        {cout, sum} = {cout, sum} + (a_shifted[width - i] & b[i]);
+        {cout, sum} = {cout, sum} + (a_shifted[width + bits_per_cycle - 1 - i -: bits_per_cycle] & {bits_per_cycle{b[i]}} );
+        // if(b[i]) begin
+        //     $display(
+        //         "pos %0d i%0d {bits_per_cycle{b[i]}} %b a_shifted[width - i -: bits_per_cycle] %b, cout %b sum %b",
+        //         pos, i, {bits_per_cycle{b[i]}}, a_shifted[width - i -: bits_per_cycle], cout, sum);
+        // end
     end
 endtask

@@ -15,7 +15,7 @@ module mul_test();
         a = a_;
         b = b_;
         #1;
-        $display("a %0d b %0d out %0d", a, b, out);
+        $display("a %0d b %0d out %0d %b", a, b, out, out);
         `assert(out == expected_out);
         #1;
     endtask

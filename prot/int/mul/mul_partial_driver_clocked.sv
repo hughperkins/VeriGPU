@@ -1,5 +1,5 @@
 // parameter width = 32;
-parameter bits_per_cycle = 1;
+// parameter bits_per_cycle = 1;
 
 module mul_clocked(
     input clk,
