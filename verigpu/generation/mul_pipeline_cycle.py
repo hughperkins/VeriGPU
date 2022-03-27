@@ -6,32 +6,27 @@ We can flatten the carry completely at the end, or avoid doing the final carry
 layer. The latter is probably faster, but harder, so I will flatten completely to start with.
 
 For 24 bit, 1 bit per cycle
-Max propagation delay: 56.4 nand units
-Area:                  610.5 nand units
 
 For 24 bit, 2 bit per cycle
-Max propagation delay: 59.4 nand units
-Area:                  941.5 nand units
 
 For 24 bit, 4 bit per cycle
-Max propagation delay: 68.2 nand units
-Area:                  1501.5 nand units
 
 for 32-bit, 1 bit per cycle:
-Max propagation delay: 58.2 nand units
-Area:                  862.5 nand units
+Max propagation delay: 60.8 nand units
+Area:                  845.0 nand units
 
 for 32-bit, 2 bit per cycle:
-Max propagation delay: 63.2 nand units
-Area:                  1244.0 nand units
+Max propagation delay: 60.4 nand units
+Area:                  1242.0 nand units
 
 for 32-bit, 4 bit per cycle:
-Max propagation delay: 74.8 nand units
-Area:                  2018.0 nand units
+Max propagation delay: 68.6 nand units
+Area:                  1982.0 nand units
 
 32-bit, 8 bits per cycle:
-Max propagation delay: 93.2 nand units
-Area:                  3428.5 nand units
+Max propagation delay: 91.0 nand units
+Area:                  3403.0 nand units
+
 """
 import math
 import argparse
