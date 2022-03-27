@@ -32,11 +32,11 @@ If we want to tape-out, we need solid verification. Read more at:
 
 - [docs/verification.md](docs/verification.md)
 
-# Timings
+# Metrics
 
-we want the GPU to run quickly. Read how we measure timings at:
+we want the GPU to run quickly, and to use minimal die area. Read how we measure timings and area at:
 
-- [docs/timing.md](docs/timing.md)
+- [docs/metrics.md](docs/metrics.md)
 
 # Related projects
 

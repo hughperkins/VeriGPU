@@ -1,15 +1,16 @@
-# Timing
+# Metrics
 
-We measure the following aspects of timing:
+We measure the following:
 - combinatorial propagation delay: how long does it take for combinatorial logic to settle between clock ticks
     - this strongly influences the maximum clock speed possible
 - cycle count: how many clock ticks does it take for some sample programs
+- area: how much die area will be used, which relates to tape-out cost, and yield
 
 ## Continuous Integration (CI)
 
 [![CircleCI](https://circleci.com/gh/hughperkins/VeriGPU/tree/main.svg?style=svg)](https://circleci.com/gh/hughperkins/VeriGPU/tree/main)
 
-The CI server runs the following timing measurement scripts:
+The CI server runs the following metrics scripts:
 - timing: [/cicd/run-timing.sh](/cicd/run-timing.sh).
 
 ## Combinatorial propagation delay
@@ -125,3 +126,9 @@ avg 837.3
 ```
 python test/timing/get_prog_cycles.py
 ```
+
+## Area
+
+We measure area by synthesizing to a gate-level netlist, using yosys, counting the number of each cell type, and converting the cell types into an approximate number of nand gate area units. For example 4 nand gate cells would be 4 nand gate units. 3 flip flops is around 18 nand gate units. The approximate nand gate area equivalent of each cell is in the variable `g_cell_areas` at the top of [verigpu/timing.py](verigpu/timing.py).
+
+We use the same script as for delay propagation measurements. In order to obtain delay propagation measurements, we already need to synthesize down to a gate-level netlist, so we add some additional scripting to the end to output the nand gate area units. The script is [[verigpu/timing.py](verigpu/timing.py). See the section on propagation delay above for prerequisites and procedure.
