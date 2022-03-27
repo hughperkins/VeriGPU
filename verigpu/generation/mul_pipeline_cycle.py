@@ -138,11 +138,11 @@ task {args.task_name}(
     for i in range(args.width):
         for j in range(args.bits_per_cycle):
             dots[j].append(f'(b[{i}] & a_[{args.width - i + j}])')
-    for i, col in sorted(dots.items()):
-        print('i', i)
-        for term in col:
-            print('    ', term)
-    print('')
+    # for i, col in sorted(dots.items()):
+    #     print('i', i)
+    #     for term in col:
+    #         print('    ', term)
+    # print('')
 
     print('')
     for i, col in sorted(dots.items()):
@@ -184,7 +184,9 @@ task {args.task_name}(
                     i1 = dots[i].pop()
                     i2 = dots[i].pop()
                     i3 = dots[i].pop()
-                    line = f'    {{ {carry_name}, {sum_name} }} = {i1} + {i2} + {i3};'
+                    line = (
+                        f'    {{ {carry_name}, {sum_name} }} = {{ 1\'b0, {i1} }} + '
+                        f'{{ 1\'b0, {i2} }} + {{ 1\'b0, {i3} }};')
                     assigns.append(line)
                     dots_new[i + 1].appendleft(carry_name)
                     dots_new[i].appendleft(sum_name)
@@ -221,7 +223,9 @@ task {args.task_name}(
                 p1 = dots[i].pop()
                 p2 = dots[i].pop()
                 p3 = dots[i].pop()
-                line = f'    {{ {carry_name}, {sum_name} }} = {p1} + {p2} + {p3};'
+                line = (
+                    f'    {{ {carry_name}, {sum_name} }} = {{ 1\'b0, {p1} }} + '
+                    f'{{ 1\'b0, {p2} }} + {{ 1\'b0, {p3} }};')
                 assigns.append(line)
                 dots[i + 1].appendleft(carry_name)
                 dots[i].appendleft(sum_name)
@@ -229,7 +233,7 @@ task {args.task_name}(
     print('len(dots)', len(dots))
 
     out_term = '{' + ', '.join([
-        dots[i][0] for i in range(len(dots) - 1, -1, -1)]) + '}'
+        dots[i][0] for i in range(args.bits_per_cycle + carry_width - 1, -1, -1)]) + '}'
     assigns.append(f"    {{ cout, sum }} = {out_term};")
 
     lines.extend(wires)
@@ -241,7 +245,7 @@ task {args.task_name}(
     #     a_ = a >> (pos - {args.width});
     # end""".split('\n'))
     lines.extend(f"""
-        a_ = a << {args.width};
+        a_ = {{ a, {{ {args.width} {{1'b0}} }} }};
         a_ = a_ >> pos;
     """.split('\n'))
 
