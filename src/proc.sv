@@ -133,6 +133,26 @@ module proc(
         .out(fadd_out)
     );
 
+    reg fmul_req;
+    reg fmul_ack;
+    reg [float_width - 1:0] fmul_a;
+    reg [float_width - 1:0] fmul_b;
+    reg [float_width - 1:0] fmul_out;
+
+    reg n_fmul_req;
+    reg [float_width - 1:0] n_fmul_a;
+    reg [float_width - 1:0] n_fmul_b;
+
+    float_mul_pipeline float_mul_pipeline_(
+        .clk(clk),
+        .rst(rst),
+        .req(fmul_req),
+        .ack(fmul_ack),
+        .a(fmul_a),
+        .b(fmul_b),
+        .out(fmul_out)
+    );
+
     task read_mem(input [addr_width - 1:0] addr);
         // combinatorial task
         // sends off read mem request
@@ -291,6 +311,13 @@ module proc(
                 n_fadd_b = _rs2_data;
                 next_state = C2;
             end
+            FMUL: begin
+                $display("FMUL.C1 x%0d <=", _rd_sel);
+                n_fmul_req = 1;
+                n_fmul_a = _rs1_data;
+                n_fmul_b = _rs2_data;
+                next_state = C2;
+            end
             default: begin
                 $display("op_fp case funct5 default shoult not be hit");
                 halt = 1;
@@ -313,6 +340,17 @@ module proc(
                 if(fadd_ack) begin
                     $display("FADD.C2 x%0d <=", _rd_sel);
                     wr_reg_data = fadd_out;
+                    wr_reg_sel = _rd_sel;
+                    wr_reg_req = 1;
+                    read_next_instr(pc + 4);
+                end
+            end
+            FMUL: begin
+                $display("FMUL.C2");
+                `assert_known(fmul_ack);
+                if(fmul_ack) begin
+                    $display("FMUL.C2 x%0d <=", _rd_sel);
+                    wr_reg_data = fmul_out;
                     wr_reg_sel = _rd_sel;
                     wr_reg_req = 1;
                     read_next_instr(pc + 4);
@@ -587,7 +625,7 @@ module proc(
         endcase
     endtask
 
-    always @(mem_rd_data, div_wr_reg_req, c2_instr, state, pc, mem_ack, fadd_ack, mul_ack) begin
+    always @(mem_rd_data, div_wr_reg_req, c2_instr, state, pc, mem_ack, fadd_ack, mul_ack, fmul_ack) begin
     // always @(*) begin
         // $display("t=%0d proc.comb mem_rd_data=%0d div_wr_reg_req=%0d c2_instr=%0h state=%0d pc=%0d mem_ack=%0d",
         //     $time, mem_rd_data, div_wr_reg_req, c2_instr, state, pc, mem_ack
@@ -648,6 +686,10 @@ module proc(
         n_fadd_a = '0;
         n_fadd_b = '0;
 
+        n_fmul_req = 0;
+        n_fmul_a = '0;
+        n_fmul_b = '0;
+
         n_mul_req = 0;
         n_mul_a = '0;
         n_mul_b = '0;
@@ -707,6 +749,10 @@ module proc(
             fadd_a <= '0;
             fadd_b <= '0;
 
+            fmul_req <= 0;
+            fmul_a <= '0;
+            fmul_b <= '0;
+
             mul_req <= '0;
             mul_a <= '0;
             mul_b <= '0;
@@ -734,6 +780,10 @@ module proc(
             fadd_req <= n_fadd_req;
             fadd_a <= n_fadd_a;
             fadd_b <= n_fadd_b;
+
+            fmul_req <= n_fmul_req;
+            fmul_a <= n_fmul_a;
+            fmul_b <= n_fmul_b;
 
             mul_req <= n_mul_req;
             mul_a <= n_mul_a;
