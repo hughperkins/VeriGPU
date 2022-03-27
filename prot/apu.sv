@@ -1,6 +1,6 @@
 /*
 
-python toy_proc/timing.py --in-verilog src/const.sv src/int_div_regfile.sv src/apu.sv --top-module apu
+python verigpu/timing.py --in-verilog src/const.sv src/int_div_regfile.sv src/apu.sv --top-module apu
 
 Propagation delay is between any pair of combinatorially connected
 inputs and outputs, drawn from:
