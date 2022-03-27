@@ -1,5 +1,4 @@
 - update timings for generated 32bit mul, in int mul .md
-- float mul
 - matrix multiplication
 - change reset to active low
 - parallel instruction execution
@@ -29,6 +28,7 @@
 - (use actual memory module?)
 
 done:
+- float mul
 - int mul as pipeline
 - check what yosys synthesizes for `. + . + .`
 - document generators

@@ -35,6 +35,8 @@ LI    rd   immediate
 AUIPC rd   immediate
 DIVU  rd,  rs1, rs2
 MODU  rd,  rs1, rs2
+FADD.S rd, rs1, rs2
+FMUL.S rd, rs1, rs2
 location:  # to label a location that we can branch conditionally to
 ```
 
