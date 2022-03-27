@@ -5,6 +5,6 @@
 set -ex
 set -o pipefail
 
-# python toy_proc/run_yosys.py --in-verilog src/const.sv src/int_div_regfile.sv --top-module int_div_regfile >/dev/null
+# python verigpu/run_yosys.py --in-verilog src/const.sv src/int_div_regfile.sv --top-module int_div_regfile >/dev/null
 iverilog -g2012 src/int_div_regfile.sv src/const.sv test/int_div_regfile_test2.sv
 ./a.out

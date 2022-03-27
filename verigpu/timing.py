@@ -221,7 +221,7 @@ def run(args):
         # first need to synthesize
         # use check output, so we can suppress output (less spammy...)
         child_args = [
-            sys.executable, 'toy_proc/run_yosys.py',
+            sys.executable, 'verigpu/run_yosys.py',
             '--cell-lib', args.cell_lib
         ]
         if args.in_verilog is not None and len(args.in_verilog) > 0:

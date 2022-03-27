@@ -1,10 +1,10 @@
 # Implementation details
 
-![toy proc workflow](https://raw.githubusercontent.com/hughperkins/toy_proc/main/docs/img/toy_proc_workflow.png)
+![verigpu workflow](https://raw.githubusercontent.com/hughperkins/verigpu/main/docs/img/toy_proc_workflow.png)
 
 ## Processor instruction set
 
-We are currently loosely basing the processor instruction set on the [RISC-V ISA](https://github.com/riscv/riscv-isa-manual/releases/download/Ratified-IMAFDQC/riscv-spec-20191213.pdf). The following sections list the available instructions in the [assembler](/toy_proc/assembler.py).
+We are currently loosely basing the processor instruction set on the [RISC-V ISA](https://github.com/riscv/riscv-isa-manual/releases/download/Ratified-IMAFDQC/riscv-spec-20191213.pdf). The following sections list the available instructions in the [assembler](/verigpu/assembler.py).
 
 ### RISC-V instructions
 
@@ -64,7 +64,7 @@ BGTU rs1, rs2, offset
 
 In order to run the processor, we need to provide a program for the processor to run. The verilog code in this repo describes the hardware, but we also need to provide software to run on this hardware.
 
-We use a python script [toy_proc/assembler.py](/toy_proc/assembler.py) to convert assembly code into binary code that we can load into the processor simulations.
+We use a python script [verigpu/assembler.py](/verigpu/assembler.py) to convert assembly code into binary code that we can load into the processor simulations.
 
 ### Example assembly programs
 

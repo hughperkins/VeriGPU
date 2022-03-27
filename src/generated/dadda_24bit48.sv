@@ -1,5 +1,5 @@
 // This is a GENERATED file. Do not modify by hand.
-// Created by toy_proc/generation/dadda.py
+// Created by verigpu/generation/dadda.py
 
 // Multiply two 24-bit integers 'a' and 'b', and put result in 47-bit integer 'out'.
 

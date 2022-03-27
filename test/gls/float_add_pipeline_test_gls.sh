@@ -3,7 +3,7 @@
 set -ex
 set -o pipefail
 
-python toy_proc/run_yosys.py --in-verilog src/assert_ignore.sv src/const.sv src/float/float_params.sv \
+python verigpu/run_yosys.py --in-verilog src/assert_ignore.sv src/const.sv src/float/float_params.sv \
     src/float/float_add_pipeline.sv --top-module float_add_pipeline > /dev/null
 
 iverilog -g2012 src/assert_ignore.sv src/float/float_params.sv \

@@ -70,7 +70,7 @@ def run(args):
     dots = defaultdict(deque)
     lines = deque()
     lines.extend(f"""// This is a GENERATED file. Do not modify by hand.
-// Created by toy_proc/generation/mul_pipeline_cycle.py
+// Created by verigpu/generation/mul_pipeline_cycle.py
 
 module {args.module_name}(
     input [{log2_ceil(args.width * 2) - 1}:0] pos,

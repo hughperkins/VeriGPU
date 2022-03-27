@@ -2,5 +2,5 @@
 
 BASE=prot/float
 
-python toy_proc/timing.py --in-verilog src/assert_ignore.sv src/const.sv ${BASE}/float_params.sv \
+python verigpu/timing.py --in-verilog src/assert_ignore.sv src/const.sv ${BASE}/float_params.sv \
     ${BASE}/float_mul.sv --top-module float_mul

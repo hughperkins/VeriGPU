@@ -5,7 +5,7 @@ BASE=prot/float
 set -ex
 set -o pipefail
 
-python toy_proc/run_yosys.py --in-verilog src/assert_ignore.sv src/const.sv ${BASE}/float_params.sv \
+python verigpu/run_yosys.py --in-verilog src/assert_ignore.sv src/const.sv ${BASE}/float_params.sv \
     ${BASE}/float_add_pipeline.sv --top-module float_add_pipeline > /dev/null
 
 iverilog -g2012 src/assert_ignore.sv ${BASE}/float_params.sv \

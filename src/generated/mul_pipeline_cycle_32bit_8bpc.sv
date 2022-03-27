@@ -1,5 +1,5 @@
 // This is a GENERATED file. Do not modify by hand.
-// Created by toy_proc/generation/mul_pipeline_cycle.py
+// Created by verigpu/generation/mul_pipeline_cycle.py
 
 module mul_pipeline_cycle_32bit_8bpc(
     input [5:0] pos,

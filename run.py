@@ -6,7 +6,7 @@ import sys
 def run(args):
     args.name = args.name.replace('.asm', '').replace('examples/', '')
     assert os.system(
-        f'{sys.executable} toy_proc/assembler.py --in-asm examples/{args.name}.asm'
+        f'{sys.executable} verigpu/assembler.py --in-asm examples/{args.name}.asm'
         f' --out-hex build/prog.hex') == 0
     with open('src/comp_driver.sv') as f:
         comp_driver = f.read()

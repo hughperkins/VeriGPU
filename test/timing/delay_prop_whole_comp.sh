@@ -7,7 +7,7 @@
 set -ex
 set -o pipefail
 
-python toy_proc/timing.py --in-verilog src/const.sv src/op_const.sv \
+python verigpu/timing.py --in-verilog src/const.sv src/op_const.sv \
     src/assert_ignore.sv \
     src/float/float_params.sv src/float/float_add_pipeline.sv \
     src/int/int_div_regfile.sv \

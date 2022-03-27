@@ -2,7 +2,7 @@
 
 In order to run the processor, we need to provide a program for the processor to run. The verilog code in this repo describes the hardware, but we also need to provide software to run on this hardware.
 
-We use a python script [toy_proc/assembler.py](/toy_proc/assembler.py) to convert assembly code into binary code that we can load into the processor simulations.
+We use a python script [verigpu/assembler.py](/verigpu/assembler.py) to convert assembly code into binary code that we can load into the processor simulations.
 
 ## Allowed isntructions
 

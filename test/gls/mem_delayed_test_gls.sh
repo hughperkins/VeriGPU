@@ -12,7 +12,7 @@ if [[ -f build/netlist/6.v ]]; then {
     rm build/netlist/6.v
 } fi
 
-python toy_proc/run_yosys.py --in-verilog src/mem_delayed_small.sv \
+python verigpu/run_yosys.py --in-verilog src/mem_delayed_small.sv \
     src/assert_ignore.sv src/const.sv src/mem_delayed.sv \
     --top-module mem_delayed >/dev/null
 

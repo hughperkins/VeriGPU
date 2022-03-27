@@ -31,7 +31,7 @@ def run(args):
     dots = defaultdict(deque)
     lines = deque()
     lines.append('// This is a GENERATED file. Do not modify by hand.')
-    lines.append('// Created by toy_proc/generation/dadda.py')
+    lines.append('// Created by verigpu/generation/dadda.py')
     lines.append('')
     lines.append(
         f'// Multiply two {args.width}-bit integers \'{args.a_name}\' and \'{args.b_name}\','

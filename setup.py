@@ -4,8 +4,8 @@ with open('requirements.txt', 'r') as infile:
     requirements = [line.strip() for line in infile.readlines()]
 
 setup(
-    name='toy_proc',
-    description='toy_proc',
+    name='verigpu',
+    description='verigpu',
     author='hughperkins@gmail.com',
     packages=PEP420PackageFinder.find(exclude=('test*',)),
     install_requires=requirements,

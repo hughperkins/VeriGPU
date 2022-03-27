@@ -7,7 +7,7 @@ We run the following verification:
 
 ## Continuous Integration (CI)
 
-[![CircleCI](https://circleci.com/gh/hughperkins/toy_proc/tree/main.svg?style=svg)](https://circleci.com/gh/hughperkins/toy_proc/tree/main)
+[![CircleCI](https://circleci.com/gh/hughperkins/verigpu/tree/main.svg?style=svg)](https://circleci.com/gh/hughperkins/verigpu/tree/main)
 
 The CI server runs the following verification scripts:
 - python: [/cicd/run-py.sh](/cicd/run-py.sh).
