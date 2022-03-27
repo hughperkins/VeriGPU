@@ -1,3 +1,27 @@
+; mul
+
+li x1, 15
+li x2, 31
+mul x3, x1, x2
+outr x3  ; 465
+
+li x1, 0
+li x2, 31
+mul x3, x1, x2
+outr x3  ; 0
+
+li x1, 15
+li x2, 0
+mul x3, x1, x2
+outr x3  ; 0
+
+li x1, 347911
+li x2, 12345
+mul x3, x1, x2
+outr x3  ; 4294961295
+
+; divu, remu
+
 li x1, 4
 li x2, 4
 divu x3, x1, x2

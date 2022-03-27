@@ -59,6 +59,26 @@ module proc(
     reg [data_width - 1:0]    wr_reg_data;
     reg wr_reg_req;
 
+    reg mul_req;
+    reg mul_ack;
+    reg [data_width - 1:0] mul_a;  // TODO: maybe merge all a and b, across all operations?
+    reg [data_width - 1:0] mul_b;
+    reg [data_width - 1:0] mul_out;
+
+    reg n_mul_req;
+    reg [float_width - 1:0] n_mul_a;
+    reg [float_width - 1:0] n_mul_b;
+
+    mul_pipeline_32bit mul_pipeline_32bit_(
+        .clk(clk),
+        .rst(rst),
+        .req(mul_req),
+        .a(mul_a),
+        .b(mul_b),
+        .out(mul_out),
+        .ack(mul_ack)
+    );
+
     reg                       n_div_req;
     reg [reg_sel_width - 1:0] n_div_r_quot_sel;
     reg [reg_sel_width - 1:0] n_div_r_mod_sel;
@@ -317,6 +337,10 @@ module proc(
             ADD: begin
                 $display("%0d ADD x%0d <= %0d + %0d", pc, _rd_sel, c1_rs1_data, c1_rs2_data);
                 wr_reg_data = c1_rs1_data + c1_rs2_data;
+                n_mul_req = 1;
+                n_mul_a = c1_rs1_data;
+                n_mul_b = c1_rs2_data;
+                next_state = C2;
             end
             // this is actually unsigned. Need to fix...
             SLT: wr_reg_data = c1_rs1_data < c1_rs2_data ? 1 : 0;
@@ -337,7 +361,15 @@ module proc(
             // need to fix...
             SRA: wr_reg_data = c1_rs1_data >> c1_rs2_data[4:0];
             // RV32M
-            MUL: wr_reg_data = c1_rs1_data * c1_rs2_data;
+            MUL: begin
+                // wr_reg_data = c1_rs1_data * c1_rs2_data;
+                $display("%0d MUL.c1 %0d * %0d => x%0d", pc, c1_rs1_data, c1_rs2_data, _rd_sel);
+                n_mul_req = 1;
+                n_mul_a = c1_rs1_data;
+                n_mul_b = c1_rs2_data;
+                next_state = C2;
+                skip_advance_pc = 1;
+            end
             DIVU: begin
                 $display("%0d DIVU.c1 %0d / %0d => x%0d", pc, c1_rs1_data, c1_rs2_data, _rd_sel);
                 `assert_known(div_busy);
@@ -510,6 +542,17 @@ module proc(
                 // $display("OP.C2 op_funct=%0d", c2_op_funct);
                 `assert_known(c2_op_funct);
                 case(c2_op_funct)
+                    MUL: begin
+                        $display("MUL.C2");
+                        `assert_known(mul_ack);
+                        if(mul_ack) begin
+                            $display("MUL.C2 x%0d <=", c2_rd_sel);
+                            wr_reg_data = mul_out;
+                            wr_reg_sel = c2_rd_sel;
+                            wr_reg_req = 1;
+                            read_next_instr(pc + 4);
+                        end 
+                    end
                     DIVU: begin
                         // $display("DIVU.C2 div busy=%0b div_wr_reg_req=%0b", div_busy, div_wr_reg_req);
                         `assert_known(div_wr_reg_req);
@@ -544,7 +587,7 @@ module proc(
         endcase
     endtask
 
-    always @(mem_rd_data, div_wr_reg_req, c2_instr, state, pc, mem_ack, fadd_ack) begin
+    always @(mem_rd_data, div_wr_reg_req, c2_instr, state, pc, mem_ack, fadd_ack, mul_ack) begin
     // always @(*) begin
         // $display("t=%0d proc.comb mem_rd_data=%0d div_wr_reg_req=%0d c2_instr=%0h state=%0d pc=%0d mem_ack=%0d",
         //     $time, mem_rd_data, div_wr_reg_req, c2_instr, state, pc, mem_ack
@@ -605,6 +648,10 @@ module proc(
         n_fadd_a = '0;
         n_fadd_b = '0;
 
+        n_mul_req = 0;
+        n_mul_a = '0;
+        n_mul_b = '0;
+
         // if(~rst) begin
         //     $display(
         //         "t=%0d proc.comb state=%0d pc=%0d c1_op=%0d mem_rd_data=%0d mem_wr_req=%0b mem_rd_req=%0b mem_ack=%0b regs[1]=%0d",
@@ -659,6 +706,10 @@ module proc(
             fadd_req <= 0;
             fadd_a <= '0;
             fadd_b <= '0;
+
+            mul_req <= '0;
+            mul_a <= '0;
+            mul_b <= '0;
         end else begin
             // $display(
             //     "t=%0d proc.ff mem_addr %0d mem_wr_data %0d mem_rd_data %0d mem_wr_req %b mem_rd_req  %b mem_ack %b mem_busy %b",
@@ -683,6 +734,10 @@ module proc(
             fadd_req <= n_fadd_req;
             fadd_a <= n_fadd_a;
             fadd_b <= n_fadd_b;
+
+            mul_req <= n_mul_req;
+            mul_a <= n_mul_a;
+            mul_b <= n_mul_b;
         end
     end
 endmodule

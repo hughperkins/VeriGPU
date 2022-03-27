@@ -18,6 +18,7 @@ def run(args):
         'iverilog -Wall -g2012 -pfileline=1 src/assert.sv src/op_const.sv'
         ' src/const.sv src/int/int_div_regfile.sv'
         ' src/float/float_params.sv src/float/float_add_pipeline.sv'
+        ' src/generated/mul_pipeline_cycle_32bit_2bpc.sv src/int/mul_pipeline_32bit.sv'
         ' src/proc.sv src/comp.sv'
         ' src/mem_delayed_large.sv src/mem_delayed.sv build/comp_driver.sv') == 0
     os.system('./a.out | tee /tmp/out.txt')
