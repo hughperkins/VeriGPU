@@ -1,5 +1,4 @@
 - float mul
-- write blog posts and or youtube videos on creating this?
 - matrix multiplication
 - change reset to active low
 - parallel instruction execution
