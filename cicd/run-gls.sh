@@ -2,6 +2,9 @@
 
 # Just gate-level simulation tests
 
+set -ex
+set -o pipefail
+
 python -V
 pip freeze
 yosys -V

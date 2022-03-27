@@ -2,6 +2,9 @@
 
 # run python tests
 
+set -ex
+set -o pipefail
+
 python -V
 pip freeze
 yosys -V

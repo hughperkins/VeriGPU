@@ -6,6 +6,9 @@
 # we need to somehow make this only run from time to time
 # not sure how to do that. let's just not run it automatically for now?
 
+set -ex
+set -o pipefail
+
 python -V
 pip freeze
 yosys -V
