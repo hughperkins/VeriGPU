@@ -7,4 +7,4 @@ set -o pipefail
 python verigpu/timing.py --in-verilog src/assert_ignore.sv src/const.sv src/op_const.sv \
     src/float/float_params.sv src/float/float_add_pipeline.sv \
     src/assert_ignore.sv src/int/int_div_regfile.sv \
-    src/reg_file.sv src/proc.sv --top-module proc
+    src/proc.sv --top-module proc
