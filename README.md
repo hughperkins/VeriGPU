@@ -10,9 +10,9 @@ Loosely compliant with RISC-V ISA. Where RISC-V conflicts with designing for a G
 
 # Simulation
 
-![toy proc workflow](https://raw.githubusercontent.com/hughperkins/verigpu/main/docs/img/toy_proc_workflow.png)
+![toy proc workflow](/docs/img/toy_proc_workflow.png)
 
-![Example output](https://raw.githubusercontent.com/hughperkins/verigpu/main/docs/img/example_output.png)
+![Example output](/docs/img/example_output.png)
 
 # Planning
 

@@ -1,6 +1,6 @@
 # Implementation details
 
-![verigpu workflow](https://raw.githubusercontent.com/hughperkins/verigpu/main/docs/img/toy_proc_workflow.png)
+![verigpu workflow](/docs/img/toy_proc_workflow.png)
 
 ## Processor instruction set
 
