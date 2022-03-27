@@ -19,7 +19,7 @@ protocol:
          - once rf_wr_ack is high, sets rf_wr_req back to 0
          - if required, continues with modulus, or moves back to IDLE state
 
-$ python toy_proc/timing.py --in-verilog src/int_div_regfile.sv 
+$ python verigpu/timing.py --in-verilog src/int_div_regfile.sv 
 
 Propagation delay is between any pair of combinatorially connected
 inputs and outputs, drawn from:

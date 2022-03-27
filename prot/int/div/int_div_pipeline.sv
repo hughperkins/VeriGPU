@@ -3,7 +3,7 @@ attempt to use pipeline for int_div
 
 timing, for bitwidth = 32, poswidth = 5:
 
-$ python toy_proc/timing.py --in-verilog prot/int_div_pipeline.sv 
+$ python verigpu/timing.py --in-verilog prot/int_div_pipeline.sv 
 
 Propagation delay is between any pair of combinatorially connected
 inputs and outputs, drawn from:

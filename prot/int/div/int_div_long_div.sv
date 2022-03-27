@@ -5,7 +5,7 @@ parameter bitwidth = 20;
 /*
 timiing actually better than yosys built-in synthesis for /
 
-$ python toy_proc/timing.py --in-verilog prot/int_div.sv 
+$ python verigpu/timing.py --in-verilog prot/int_div.sv 
 
 Propagation delay is between any pair of combinatorially connected
 inputs and outputs, drawn from:
