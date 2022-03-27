@@ -1,5 +1,4 @@
 - float mul
-- document generators
 - write blog posts and or youtube videos on creating this?
 - matrix multiplication
 - change reset to active low
@@ -30,6 +29,7 @@
 - (use actual memory module?)
 
 done:
+- document generators
 - document how the integer multiplication works
 - move apu, mem.sv, proc_reg_wr_mux.sv, reg_file* test_mem.sv into prot folder
 - rename toy_proc folder to verigpu
