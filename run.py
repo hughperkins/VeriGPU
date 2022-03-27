@@ -16,8 +16,8 @@ def run(args):
     os.system(f'cat examples/{args.name}.asm')
     assert os.system(
         'iverilog -Wall -g2012 -pfileline=1 src/assert.sv src/op_const.sv'
-        ' src/const.sv src/int_div_regfile.sv'
-        ' src/float_params.sv src/float_add_pipeline.sv'
+        ' src/const.sv src/int/int_div_regfile.sv'
+        ' src/float/float_params.sv src/float/float_add_pipeline.sv'
         ' src/proc.sv src/comp.sv'
         ' src/mem_delayed_large.sv src/mem_delayed.sv build/comp_driver.sv') == 0
     os.system('./a.out | tee /tmp/out.txt')
