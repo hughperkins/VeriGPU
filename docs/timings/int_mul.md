@@ -4,7 +4,7 @@ Timings for float multiplication ultimately boil down to the time for an integer
 
 We compare the area, the propagation delay, and the clock cycles, of various methods.
 
-Area and propagation delay are both in 'nand units'. See [/docs/timing.md](/docs/timing.md) for more details.
+Area and propagation delay are both in 'nand units'. See [/docs/metrics.md](/docs/metrics.md) for more details.
 
 ## Concepts
 
