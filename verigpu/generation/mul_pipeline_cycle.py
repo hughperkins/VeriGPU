@@ -8,24 +8,20 @@ layer. The latter is probably faster, but harder, so I will flatten completely t
 For 24 bit, 1 bit per cycle
 
 For 24 bit, 2 bit per cycle
+Max propagation delay: 51.0 nand units
+Area:                  869.5 nand units
 
 For 24 bit, 4 bit per cycle
 
 for 32-bit, 1 bit per cycle:
-Max propagation delay: 60.8 nand units
-Area:                  845.0 nand units
 
 for 32-bit, 2 bit per cycle:
-Max propagation delay: 60.4 nand units
-Area:                  1242.0 nand units
+Max propagation delay: 58.2 nand units
+Area:                  1187.5 nand units
 
 for 32-bit, 4 bit per cycle:
-Max propagation delay: 68.6 nand units
-Area:                  1982.0 nand units
 
 32-bit, 8 bits per cycle:
-Max propagation delay: 91.0 nand units
-Area:                  3403.0 nand units
 
 """
 import math
@@ -79,7 +75,6 @@ def run(args):
     log2_bits_per_cycle = log2_ceil(args.bits_per_cycle)
     assert int(math.pow(2, log2_bits_per_cycle)) == args.bits_per_cycle
     dots = defaultdict(deque)
-    dots_path = defaultdict(deque)  # store where each value in dots came from, the path
     lines = deque()
     lines.extend(f"""// This is a GENERATED file. Do not modify by hand.
 // Created by verigpu/generation/mul_pipeline_cycle.py
@@ -104,7 +99,6 @@ task {args.task_name}(
 
     for i in range(carry_width):
         dots[i].append(f'cin[{i}]')
-        dots_path[i].append(dots[i][-1])
 
     print('')
     for i, col in sorted(dots.items()):
@@ -144,30 +138,16 @@ task {args.task_name}(
     for i in range(args.width):
         for j in range(args.bits_per_cycle):
             dots[j].append(f'(b[{i}] & a_[{args.width - i + j}])')
-            dots_path[j].append(dots[j][-1])
     for i, col in sorted(dots.items()):
         print('i', i)
         for term in col:
             print('    ', term)
     print('')
-    print('dots path')
-    for i, col in sorted(dots_path.items()):
-        print('i', i)
-        for term in col:
-            print('    ', term)
 
     print('')
     for i, col in sorted(dots.items()):
         print('col', i, 'len', len(col))
 
-    # for i, col in sorted(dots.items()):
-    #     print(i)
-    #     for entry in col:
-    #         print('    ', entry)
-
-    # print('dots.keys()', list(dots.keys()))
-    # for i in range(carry_width):
-    #     dots[i].append(f'cin[{i}]')
     wire_index = 0
     while(True):
         this_chain = ''
@@ -194,10 +174,6 @@ task {args.task_name}(
                     assigns.append(line)
                     dots_new[i + 1].appendleft(carry_name)
                     dots_new[i].appendleft(sum_name)
-                    p1 = dots_path[i].pop()
-                    p2 = dots_path[i].pop()
-                    dots_path[i].appendleft(f'({p1} + {p2})')
-                    dots_path[i + 1].appendleft(f'(({p1} + {p2}) // 2)')
                 else:
                     this_chain += '+'
                     carry_name = f'carry_{wire_index}'
@@ -212,30 +188,11 @@ task {args.task_name}(
                     assigns.append(line)
                     dots_new[i + 1].appendleft(carry_name)
                     dots_new[i].appendleft(sum_name)
-                    p1 = dots_path[i].pop()
-                    p2 = dots_path[i].pop()
-                    p3 = dots_path[i].pop()
-                    dots_path[i].appendleft(f'({p1} + {p2} + {p3})')
-                    dots_path[i + 1].appendleft(f'({p1} + {p2} + {p3}) // 2)')
             dots_new[i].extend(dots[i])
         dots = dots_new
         print('len(dots)', len(dots))
         print(this_chain)
         print('')
-        print('dots:')
-        for i, col in sorted(dots.items()):
-            print('i', i)
-            for term in col:
-                print('    ', term)
-
-        print('')
-        print('dots_path:')
-        for i, col in sorted(dots_path.items()):
-            print('i', i)
-            if i != 1:
-                continue
-            for term in col:
-                print('    ', term)
 
     # final carried add...
     this_chain = ''
@@ -277,7 +234,17 @@ task {args.task_name}(
 
     lines.extend(wires)
     lines.append("    rst = 0;")
-    lines.append(f"    a_ = a << ({args.width} - pos);")
+    # lines.append(f"    a_ = a << ({args.width} - pos);")
+    # lines.extend(f"""    if( pos <= {args.width}) begin
+    #     a_ = a << ({args.width} - pos);
+    # end else begin
+    #     a_ = a >> (pos - {args.width});
+    # end""".split('\n'))
+    lines.extend(f"""
+        a_ = a << {args.width};
+        a_ = a_ >> pos;
+    """.split('\n'))
+
     lines.extend(assigns)
 
     lines.append('endtask')

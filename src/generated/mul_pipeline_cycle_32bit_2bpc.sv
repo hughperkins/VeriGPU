@@ -165,7 +165,10 @@ task mul_pipeline_cycle_32bit_2bpc(
     reg carry_150;
     reg sum_151;
     rst = 0;
-    a_ = a << (32 - pos);
+
+        a_ = a << 32;
+        a_ = a_ >> pos;
+    
     { carry_0, sum_1 } = (b[31] & a_[1]) + (b[30] & a_[2]) + (b[29] & a_[3]);
     { carry_2, sum_3 } = (b[28] & a_[4]) + (b[27] & a_[5]) + (b[26] & a_[6]);
     { carry_4, sum_5 } = (b[25] & a_[7]) + (b[24] & a_[8]) + (b[23] & a_[9]);

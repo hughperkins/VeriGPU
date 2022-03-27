@@ -18,19 +18,19 @@ module float_mul_test();
     );
 
     task pos();
-        $display("  +");
+        // $display("  +");
         #5 clk = 1;
     endtask
 
     task neg();
-        $display("-");
+        // $display("-");
         #5 clk = 0;
     endtask
 
     task tick();
-        $display("-");
+        // $display("-");
         #5 clk = 0;
-        $display("  +");
+        // $display("  +");
         #5 clk = 1;
     endtask
 
@@ -71,7 +71,7 @@ module float_mul_test();
         cnt = 0;
         do begin
             tick();
-            $display("out %0d", out);
+            // $display("out %0d", out);
             cnt = cnt + 1;
         end while(~ack && cnt < 80);
         // `assert(~ack);
@@ -89,6 +89,7 @@ module float_mul_test();
         // `assert(~ack);
 
         // tick();
+        $display("cnt=%0d ack=%b", cnt, ack);
         `assert(ack);
         $display("test_mul a=%0f b=%0f out=%0f", _a, _b, to_real(out));
         `assert(reals_near(to_real(out), expected_out));
@@ -121,8 +122,8 @@ module float_mul_test();
         // test_mul_zero(0.0, 0.0, 0.0);
 
         // test_mul(1.0, 1.0, 1.0);
-        // test_mul(1.1, 1.1, 1.21);
-        // test_mul(11.0, 11.0, 121.0);
+        test_mul(1.1, 1.1, 1.21);
+        test_mul(11.0, 11.0, 121.0);
         test_mul(1.9, 1.9, 3.61);
 
     //     test_mul(1.0, 2.0, 2.0);
