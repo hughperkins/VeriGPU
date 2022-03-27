@@ -28,6 +28,7 @@
 - (use actual memory module?)
 
 done:
+- check what yosys synthesizes for `. + . + .`
 - document generators
 - document how the integer multiplication works
 - move apu, mem.sv, proc_reg_wr_mux.sv, reg_file* test_mem.sv into prot folder
