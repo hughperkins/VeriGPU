@@ -1,6 +1,6 @@
 # Implementation details
 
-![toy proc workflow](https://raw.githubusercontent.com/hughperkins/toy_proc/main/img/toy_proc_workflow.png)
+![toy proc workflow](https://raw.githubusercontent.com/hughperkins/toy_proc/main/docs/img/toy_proc_workflow.png)
 
 ## Processor instruction set
 
