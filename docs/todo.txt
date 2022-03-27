@@ -1,4 +1,4 @@
-- update timings for generated 32bit mul
+- update timings for generated 32bit mul, in int mul .md
 - float mul
 - matrix multiplication
 - change reset to active low
