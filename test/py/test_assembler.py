@@ -2,7 +2,7 @@ import pytest
 import struct
 import math
 
-from toy_proc import assembler
+from verigpu import assembler
 
 
 def bin_str_to_single(b):

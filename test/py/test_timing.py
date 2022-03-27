@@ -1,6 +1,6 @@
 import pytest
 from typing import Dict, List
-from toy_proc import timing
+from verigpu import timing
 
 
 @pytest.mark.parametrize(

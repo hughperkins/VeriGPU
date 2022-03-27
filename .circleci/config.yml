@@ -11,7 +11,7 @@ jobs:
     resource_class: small  # see https://circleci.com/docs/2.0/configuration-reference/#resource_class
     docker:
       - image: hughperkins/chip_design:latest
-      # - image: hughperkins/toy_proc:0.2
+      # - image: hughperkins/verigpu:0.2
       # - image: cimg/python:3.10.1
     # Add steps to the job
     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
@@ -29,7 +29,7 @@ jobs:
     resource_class: small  # see https://circleci.com/docs/2.0/configuration-reference/#resource_class
     docker:
       - image: hughperkins/chip_design:latest
-      # - image: hughperkins/toy_proc:0.2
+      # - image: hughperkins/verigpu:0.2
       # - image: cimg/python:3.10.1
     # Add steps to the job
     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
@@ -47,7 +47,7 @@ jobs:
     resource_class: small  # see https://circleci.com/docs/2.0/configuration-reference/#resource_class
     docker:
       - image: hughperkins/chip_design:latest
-      # - image: hughperkins/toy_proc:0.2
+      # - image: hughperkins/verigpu:0.2
       # - image: cimg/python:3.10.1
     # Add steps to the job
     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
@@ -65,7 +65,7 @@ jobs:
     resource_class: small  # see https://circleci.com/docs/2.0/configuration-reference/#resource_class
     docker:
       - image: hughperkins/chip_design:latest
-      # - image: hughperkins/toy_proc:0.2
+      # - image: hughperkins/verigpu:0.2
       # - image: cimg/python:3.10.1
     # Add steps to the job
     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
