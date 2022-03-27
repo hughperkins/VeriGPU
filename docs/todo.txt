@@ -1,8 +1,12 @@
 - float mul
+- move img to subfodler of doc
+- rename toy_proc folder to verigpu
+- move apu, mem.sv, proc_reg_wr_mux.sv, reg_file* test_mem.sv into prot folder
+- document generators
+- matrix multiplication
 - change reset to active low
 - parallel instruction execution
 - floats:  div, modulus, sub, beq, glt
-- matrix multiplication
 - add piccie for gate level simulation to readme/docs
 - simplify workflow piccie, just to have 'verilog' rather than filenames
 - create register file
