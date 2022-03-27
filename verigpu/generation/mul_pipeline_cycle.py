@@ -115,15 +115,40 @@ task {args.task_name}(
     for i, col in sorted(dots.items()):
         print('col', i, 'len', len(col))
 
-    # partial products to dots
-    # code we are replacing ours with:
-    # for(int i = 0; i < width; i++) begin  // iterate through b
-    #     {cout, sum} = {cout, sum} + (
-    #         a_shifted[width + bits_per_cycle - 1 - i -: bits_per_cycle] & {bits_per_cycle{b[i]}} );
-    # end
+    """
+    partial products to dots
+    code we are replacing ours with:
+    for(int i = 0; i < width; i++) begin  // iterate through b
+        {cout, sum} = {cout, sum} + (
+            a_shifted[width + bits_per_cycle - 1 - i -: bits_per_cycle] & {bits_per_cycle{b[i]}} );
+    end
+
+    eg        a 01
+              b 01
+           pos  00
+           bpc   2
+           width 2
+           i     0, 1
+    a_shifted 0100
+    a_shifed[2 + 2 - 1 - i -: 2]
+    = a_shifted[3 - i -: 2]
+
+    a_shifted 0100
+    i=0:      ##
+    j=0        #
+    j=1       #
+
+    for j in [0, 1]:
+
+    a_shifted[4 - i + bpc - 1 - k]  where k is 0, 1, and corresponds to moving right
+    then j = bpc - k - 1
+    and k = bpc - 1 - j
+    so, a_shifted[width + bits_per_cycle - i - bpc + 1 + j]
+    = a_shifted[width - i + 1 + j]
+    """
     for i in range(args.width):
         for j in range(args.bits_per_cycle):
-            dots[j].append(f'(b[{i}] & a_[{args.width + args.bits_per_cycle - 1 - i - j}])')
+            dots[j].append(f'(b[{i}] & a_[{args.width - i + j}])')
             dots_path[j].append(dots[j][-1])
     for i, col in sorted(dots.items()):
         print('i', i)
