@@ -135,11 +135,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--width', type=int, default=24)
     parser.add_argument('--out-width', type=int)
+    parser.add_argument('--out-dir', type=str, default='build')
     parser.add_argument('--module-name', type=str, default='dadda_{width}bit{out_width}')
     parser.add_argument('--a-name', type=str, default='a')
     parser.add_argument('--b-name', type=str, default='b')
     parser.add_argument('--out-name', type=str, default='out')
-    parser.add_argument('--out-path', type=str, default='src/generated/{module_name}.sv')
+    parser.add_argument('--out-path', type=str, default='{out_dir}/{module_name}.sv')
     args = parser.parse_args()
     if args.out_width is None:
         args.out_width = args.width * 2
