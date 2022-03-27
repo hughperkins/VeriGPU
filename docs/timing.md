@@ -7,7 +7,7 @@ We measure the following aspects of timing:
 
 ## Continuous Integration (CI)
 
-[![CircleCI](https://circleci.com/gh/hughperkins/verigpu/tree/main.svg?style=svg)](https://circleci.com/gh/hughperkins/verigpu/tree/main)
+[![CircleCI](https://circleci.com/gh/hughperkins/VeriGPU/tree/main.svg?style=svg)](https://circleci.com/gh/hughperkins/VeriGPU/tree/main)
 
 The CI server runs the following timing measurement scripts:
 - timing: [/cicd/run-timing.sh](/cicd/run-timing.sh).
