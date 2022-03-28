@@ -9,6 +9,9 @@ both will be available for a single clock tick, then we go back to idle
 
 This version will use the generated 2bits-per-cycle int multiplier
 
+Max propagation delay: 85.8 nand units
+Area:                  3575.5 nand units
+
 */
 module float_mul_pipeline(
     input                               clk,
@@ -30,7 +33,7 @@ module float_mul_pipeline(
     reg [float_mant_width:0]            b_mant;
 
     reg [float_exp_width - 1:0]         new_exp;
-    reg [float_mant_width * 2 + 3:0]    new_mant;
+    reg [float_mant_width * 2 + 1:0]    new_mant;
     reg                                 new_sign;
 
     reg [float_exp_width - 1:0]         norm_shift;
@@ -54,8 +57,8 @@ module float_mul_pipeline(
 
     // reg [float_mant_width + 1:0]    partial;
 
-    reg [$clog2(float_mant_width * 2):0] pos;
-    reg [$clog2(float_mant_width * 2):0] n_pos;
+    reg [$clog2(float_mant_width * 2) - 1:0] pos;
+    reg [$clog2(float_mant_width * 2) - 1:0] n_pos;
 
     typedef enum bit[1:0] {
         IDLE,
@@ -68,8 +71,8 @@ module float_mul_pipeline(
     reg [1:0] state;
     reg [1:0] n_state;
 
-    reg [5:0] carry;
-    reg [5:0] n_carry;
+    reg [4:0] carry;
+    reg [4:0] n_carry;
 
     always @(state, req, pos) begin
         // `assert_known(a);
@@ -162,8 +165,8 @@ module float_mul_pipeline(
             S2: begin
                 $display("floatmul.S2 n_new_mant=%b %0d", n_new_mant, n_new_mant);
                 norm_shift = 0;
-                for(int shift = float_mant_width + 1; shift <= 2 * float_mant_width + 1; shift++) begin
-                    if(n_new_mant[shift] == 1) begin
+                for(bit [float_exp_width - 1:0] shift = float_mant_width + 1; shift <= 2 * float_mant_width + 1; shift++) begin
+                    if(n_new_mant[shift[$clog2(float_mant_width * 2 + 2) - 1:0]] == 1) begin
                         norm_shift = shift;
                     end
                 end
@@ -198,11 +201,11 @@ module float_mul_pipeline(
             out <= 0;
             ack <= 0;
 
-            a_sign <= 0;
+            // a_sign <= 0;
             a_exp <= '0;
             a_mant <= '0;
 
-            b_sign <= 0;
+            // b_sign <= 0;
             b_exp <= '0;
             b_mant <= '0;
 
