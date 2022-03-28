@@ -400,7 +400,6 @@ module proc(
             SRA: wr_reg_data = c1_rs1_data >> c1_rs2_data[4:0];
             // RV32M
             MUL: begin
-                // wr_reg_data = c1_rs1_data * c1_rs2_data;
                 $display("%0d MUL.c1 %0d * %0d => x%0d", pc, c1_rs1_data, c1_rs2_data, _rd_sel);
                 n_mul_req = 1;
                 n_mul_a = c1_rs1_data;
