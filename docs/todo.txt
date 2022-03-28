@@ -1,6 +1,11 @@
-- update timings for generated 32bit mul, in int mul .md
 - matrix multiplication
+- update timings for generated 32bit mul, in int mul .md
 - change reset to active low
+- maybe eliminate the pos + 1 in multiplication code, by various heuristics?
+- reduce dpt of proc.sv?
+    - fix int division unit so setting ack doesnt cause high dpt
+    - fix dpt of ADD in proc.sv
+    - fix dpt of SUB in proc.sv
 - parallel instruction execution
 - floats:  div, modulus, sub, beq, glt
 - add piccie for gate level simulation to readme/docs
