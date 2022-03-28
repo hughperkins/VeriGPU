@@ -9,8 +9,8 @@ both will be available for a single clock tick, then we go back to idle
 
 This version will use the generated 2bits-per-cycle int multiplier
 
-Max propagation delay: 85.8 nand units
-Area:                  3575.5 nand units
+Max propagation delay: 54.4 nand units
+Area:                  3757.5 nand units
 
 */
 module float_mul_pipeline(
@@ -53,9 +53,7 @@ module float_mul_pipeline(
 
     reg                                 n_new_sign;
 
-    // reg [float_exp_width - 1:0]         n_norm_shift;
-
-    // reg [float_mant_width + 1:0]    partial;
+    reg [float_exp_width - 1:0]         n_norm_shift;
 
     reg [$clog2(float_mant_width * 2) - 1:0] pos;
     reg [$clog2(float_mant_width * 2) - 1:0] n_pos;
@@ -63,10 +61,7 @@ module float_mul_pipeline(
     typedef enum bit[1:0] {
         IDLE,
         MUL1,
-        // MUL2,
-        // MUL3,
         S2
-        // S3
     } e_state;
     reg [1:0] state;
     reg [1:0] n_state;
@@ -91,16 +86,14 @@ module float_mul_pipeline(
         n_new_mant = new_mant;
         n_new_sign = new_sign;
 
-        norm_shift = '0;
+        n_norm_shift = norm_shift;
 
         n_out = '0;
         n_ack = 0;
 
         n_carry = carry;
         n_pos = pos;
-        // partial = '0;
 
-        // $display("%0d float_mul.always state=%0d", $time, state);
         `assert_known(state);
         case(state)
             IDLE: begin
@@ -122,7 +115,6 @@ module float_mul_pipeline(
                         n_new_exp = '0;
                         n_new_sign = 0;
                         n_new_mant = '0;
-                        // $display("triggering out and ack for zero |a_exp=%0d b_exp=%0d", |n_a_exp, |n_b_exp);
                         n_out = {n_new_sign, n_new_exp, n_new_mant[float_mant_width - 1:0]};
                         n_ack = 1;
                         n_state = IDLE;
@@ -140,12 +132,11 @@ module float_mul_pipeline(
                         n_pos = 0;
                         n_carry = 0;
                         n_state = MUL1;
+                        n_norm_shift = 0;
                     end
                 end
             end
-            MUL1: begin                // partial[float_mant_width + pos -: float_mant_width + 1] = n_a_mant & {float_mant_width + 1{n_b_mant[n_pos]}};
-                // we assume bits_per_cycle 1 here
-                // $display("before pos=%0d n_new_mant=%b carry=%b n_carry=%b", n_pos, n_new_mant, carry, n_carry);
+            MUL1: begin
                 mul_pipeline_cycle_24bit_2bpc(
                     pos,
                     n_a_mant,
@@ -157,39 +148,29 @@ module float_mul_pipeline(
                 $display("pos=%0d n_new_mant=%b carry=%b n_carry=%b", n_pos, n_new_mant, carry, n_carry);
                 `assert_known(n_pos);
                 if(pos >= float_mant_width * 2 + 1) begin
-                    // $display("finishing, going to S2");
                     n_state = S2;
                 end
                 n_pos = pos + 2;
+                if(n_new_mant[pos + 1]) begin
+                    n_norm_shift = pos + 1;
+                end else if(n_new_mant[pos]) begin
+                    n_norm_shift = pos;
+                end
             end
             S2: begin
-                $display("floatmul.S2 n_new_mant=%b %0d", n_new_mant, n_new_mant);
-                norm_shift = 0;
-                for(bit [float_exp_width - 1:0] shift = float_mant_width + 1; shift <= 2 * float_mant_width + 1; shift++) begin
-                    if(n_new_mant[shift[$clog2(float_mant_width * 2 + 2) - 1:0]] == 1) begin
-                        norm_shift = shift;
-                    end
-                end
-                // $display("n_norm_shift %0d", norm_shift);
-                // n_state = S3;
-
-                // $display("floatmul.S3");
+                $display("floatmul.S3");
                 $display("n_norm_shift %0d", norm_shift);
-                // $display("norm_shift=%0d", norm_shift);
                 norm_shift = norm_shift - float_mant_width;
                 n_new_mant = n_new_mant >> norm_shift;
                 n_new_exp = n_new_exp + norm_shift;
 
                 $display("floatmul.S2b n_new_mant=%b n_new_exp=%0d", n_new_mant, n_new_exp);
 
-                // $display("new_mant %b new_exp %0d", new_mant, new_exp);
-                // $display("triggering out and ack");
                 n_out = {n_new_sign, n_new_exp, n_new_mant[float_mant_width - 1:0]};
                 n_ack = 1;
                 n_state = IDLE;
             end
             default: begin
-                // `assert(0);  // should never get here
             end
         endcase
     end
@@ -201,11 +182,9 @@ module float_mul_pipeline(
             out <= 0;
             ack <= 0;
 
-            // a_sign <= 0;
             a_exp <= '0;
             a_mant <= '0;
 
-            // b_sign <= 0;
             b_exp <= '0;
             b_mant <= '0;
 
@@ -213,12 +192,11 @@ module float_mul_pipeline(
             new_mant <= '0;
             new_sign <= '0;
 
-            // norm_shift <= '0;
+            norm_shift <= '0;
 
             carry <= '0;
             pos <= '0;
         end else begin
-            // $display("float_add_pipeline not rst state=%0d", n_state);
             out <= n_out;
             ack <= n_ack;
 
@@ -234,7 +212,7 @@ module float_mul_pipeline(
             new_mant <= n_new_mant;
             new_sign <= n_new_sign;
 
-            // norm_shift <= n_norm_shift;
+            norm_shift <= n_norm_shift;
 
             carry <= n_carry;
             pos <= n_pos;
