@@ -1,6 +1,6 @@
 // try adding one in blocks of two bytes
 
-module chunked_adder(input[adder_width - 1:0] a, [adder_width - 1:0] b, output [adder_width - 1:0] y);
+module chunked_adder_module(input[adder_width - 1:0] a, [adder_width - 1:0] b, output [adder_width - 1:0] y);
     parameter adder_width = 32;
     parameter half_width = adder_width / 2;
 
