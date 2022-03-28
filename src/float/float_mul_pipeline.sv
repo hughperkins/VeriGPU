@@ -159,10 +159,10 @@ module float_mul_pipeline(
             end
             S2: begin
                 $display("floatmul.S3");
-                $display("n_norm_shift %0d", norm_shift);
-                norm_shift = norm_shift - float_mant_width;
-                n_new_mant = n_new_mant >> norm_shift;
-                n_new_exp = n_new_exp + norm_shift;
+                $display("n_norm_shift %0d", n_norm_shift);
+                n_norm_shift = n_norm_shift - float_mant_width;
+                n_new_mant = n_new_mant >> n_norm_shift;
+                n_new_exp = n_new_exp + n_norm_shift;
 
                 $display("floatmul.S2b n_new_mant=%b n_new_exp=%0d", n_new_mant, n_new_exp);
 
