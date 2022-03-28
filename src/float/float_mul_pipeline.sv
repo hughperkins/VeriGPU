@@ -9,8 +9,8 @@ both will be available for a single clock tick, then we go back to idle
 
 This version will use the generated 2bits-per-cycle int multiplier
 
-Max propagation delay: 54.4 nand units
-Area:                  3757.5 nand units
+Max propagation delay: 53.8 nand units
+Area:                  3804.5 nand units
 
 */
 module float_mul_pipeline(
@@ -55,8 +55,11 @@ module float_mul_pipeline(
 
     reg [float_exp_width - 1:0]         n_norm_shift;
 
-    reg [$clog2(float_mant_width * 2) - 1:0] pos;
-    reg [$clog2(float_mant_width * 2) - 1:0] n_pos;
+    reg [pos_width - 1:0] pos;
+    reg [pos_width - 1:0] n_pos;
+    reg [pos_width - 1:0] pos_plus_one;
+
+    parameter pos_width = $clog2(float_mant_width * 2);
 
     typedef enum bit[1:0] {
         IDLE,
@@ -93,6 +96,8 @@ module float_mul_pipeline(
 
         n_carry = carry;
         n_pos = pos;
+
+        pos_plus_one = 0;
 
         `assert_known(state);
         case(state)
@@ -151,10 +156,14 @@ module float_mul_pipeline(
                     n_state = S2;
                 end
                 n_pos = pos + 2;
-                if(n_new_mant[pos + 1]) begin
-                    n_norm_shift = pos + 1;
+                pos_plus_one = pos + 1;
+                if(n_new_mant[pos_plus_one]) begin
+                    // n_norm_shift = pos +  { {pos_width - 1{1'b0}}, 1'b1 };
+                    n_norm_shift = '0;
+                    n_norm_shift[pos_width -1:0] = pos_plus_one;
                 end else if(n_new_mant[pos]) begin
-                    n_norm_shift = pos;
+                    n_norm_shift = '0;
+                    n_norm_shift[pos_width -1:0] = pos;
                 end
             end
             S2: begin
