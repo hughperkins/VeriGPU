@@ -14,12 +14,12 @@ Any comments sections using // /* or */ should always have the comment symbol (/
 
 there should be a space before each port name in the task declaration.
 
-There should probably not be any parameters inside the task. At least none which are needed for the port declarations.
-Since the module will not have access to such parameters.
-
-PRs to reduce these constraints welcome :)
+Internal parameters should each be declared on a line on their own; and the internal parameter lines will be copied
+verbatim inside the wrapper module, so they are available for port declarations.
 
 No comments allowed in the task declaration itself.
+
+PRs to reduce these constraints welcome :)
 """
 import argparse
 import os
@@ -62,6 +62,7 @@ def run(args):
         port_names = []  # just the name, e.g. "a"
         in_declaration = False
         in_block_comment = False
+        internal_parameters = []
         for line in task_contents.split('\n'):
             line = line.strip()
             if line.startswith('//'):
@@ -82,31 +83,48 @@ def run(args):
                 continue
             if in_declaration:
                 if line == ');':
-                    break
+                    in_declaration = False
+                    continue
                 port_declaration = line
                 if port_declaration.endswith(','):
                     port_declaration = port_declaration[:-1]
                 port_declarations.append(port_declaration)
                 name = port_declaration.split()[-1]
                 port_names.append(name)
+            else:
+                if line.startswith("parameter "):
+                    # parameter_name = line.split('=')[0].strip().split()[1].strip()
+                    # print('parameter_name', parameteliner_name)
+                    internal_parameters.append(line)
         print('declarations', port_declarations)
         print('names', port_names)
+        # new_port_declarations = []
+        # for decl in port_declarations:
+        #     for internal_param in internal_parameters:
+        #         decl = decl.replace(internal_param, f'{task_name}.{internal_param}')
+        #     new_port_declarations.append(decl)
+        # port_declarations = new_port_declarations
         wrapper_filepath = 'build/task_wrapper.sv'
         args.in_verilog.append(args.task_file)
         args.in_verilog.append(wrapper_filepath)
         args.top_module = f'{task_name}_module'
-        with open(wrapper_filepath, 'w') as f:
-            port_declarations_str = ',\n    '.join(port_declarations)
-            port_names_str = ', '.join(port_names)
-            f.write(f"""module {task_name}_module(
+        port_declarations_str = ',\n    '.join(port_declarations)
+        port_names_str = ', '.join(port_names)
+        wrapper_file_contents = f"""module {task_name}_module(
     {port_declarations_str}
-);
+);"""
+        if len(internal_parameters) > 0:
+            wrapper_file_contents += '    ' + '\n    '.join(internal_parameters)
+        wrapper_file_contents += f"""
     always @(*) begin
         {task_name}({port_names_str});
     end
 endmodule
-""")
-        os.system(f"cat {wrapper_filepath}")
+"""
+        with open(wrapper_filepath, 'w') as f:
+            f.write(wrapper_file_contents)
+        print(wrapper_file_contents)
+        # os.system(f"cat {wrapper_filepath}")
 
     with open('build/yosys.tcl', 'w') as f:
         for file in args.in_verilog:
