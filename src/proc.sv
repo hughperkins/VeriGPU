@@ -214,7 +214,7 @@ module proc(
                 write_reg(_rd, c1_rs1_data + _i_imm);
             end
             SLTI: begin
-                // FIXME
+                // FIXME: this should not be the same as SLTIU
                 write_reg(_rd, { {31{1'b0}}, (c1_rs1_data < _i_imm)});
                 write_reg(_rd, c1_rs1_data < _i_imm);
             end
@@ -240,7 +240,7 @@ module proc(
                 $display("%0d SRLI x%0d <= %0d >> %0d", pc, _rd, c1_rs1_data, c1_rs2_data);
                 write_reg(_rd, (c1_rs1_data >> c1_rs2_sel));
             end
-            // SRAI: begin
+            // SRAI: begin FIXME: implement
             // end
             default: begin
                 $display("op immm unhandled funct %0d", _funct);
@@ -380,7 +380,7 @@ module proc(
                 n_mul_b = c1_rs2_data;
                 next_state = C2;
             end
-            // this is actually unsigned. Need to fix...
+            // fixme: this should be signed
             SLT: wr_reg_data = c1_rs1_data < c1_rs2_data ? 1 : 0;
             SLTU: begin
                 $display("%0d SLTU x%0d <= %0d < %0d", pc, _rd_sel, c1_rs1_data, c1_rs2_data);
@@ -395,8 +395,7 @@ module proc(
             SLL: wr_reg_data = c1_rs1_data << c1_rs2_data[4:0];
             SRL: wr_reg_data = c1_rs1_data >> c1_rs2_data[4:0];
             SUB: wr_reg_data = c1_rs1_data - c1_rs2_data;
-            // not sure what an 'arithmetic' shift is
-            // need to fix...
+            // fixme: SRA is currently unsigned
             SRA: wr_reg_data = c1_rs1_data >> c1_rs2_data[4:0];
             // RV32M
             MUL: begin
