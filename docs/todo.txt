@@ -1,4 +1,5 @@
 - update timings for generated 32bit mul, in int mul .md
+- get norm shift for fmul from during the int mult stage
 - matrix multiplication
 - change reset to active low
 - parallel instruction execution
