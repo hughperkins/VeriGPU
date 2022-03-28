@@ -216,12 +216,12 @@ module proc(
             SLTI: begin
                 // FIXME
                 write_reg(_rd, { {31{1'b0}}, (c1_rs1_data < _i_imm)});
-                // write_reg(_rd, c1_rs1_data << _i_imm);
+                write_reg(_rd, c1_rs1_data < _i_imm);
             end
             SLTIU: begin
                 $display("%0d SLTIU x%0d <= %0d < %0d", pc, _rd, c1_rs1_data, c1_rs2_data);
                 write_reg(_rd, { {31{1'b0}}, (c1_rs1_data < _i_imm)});
-                // write_reg(_rd, c1_rs1_data << _i_imm);
+                write_reg(_rd, c1_rs1_data < _i_imm);
             end
             XORI: begin
                 write_reg(_rd, c1_rs1_data ^ _i_imm);
