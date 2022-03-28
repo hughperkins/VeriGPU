@@ -9,8 +9,8 @@ both will be available for a single clock tick, then we go back to idle
 
 This version will use the generated 2bits-per-cycle int multiplier
 
-Max propagation delay: 53.8 nand units
-Area:                  3804.5 nand units
+Max propagation delay: 54.6 nand units
+Area:                  3841.5 nand units
 
 */
 module float_mul_pipeline(
