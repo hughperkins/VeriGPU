@@ -1,4 +1,10 @@
-// represents processor, but not including any memory elements, such as mem and reg_file, which are slow to synthesize
+/*
+ epresents processor, but not including any memory elements, such as mem and reg_file, which are slow to synthesize
+
+As of mar 28 2022:
+Max propagation delay: 82.8 nand units
+Area:                  30956.0 nand units
+ */
 module proc(
     input rst, clk,
     output reg [data_width - 1:0] out,
@@ -372,11 +378,11 @@ module proc(
         case(_funct)
             ADD: begin
                 $display("%0d ADD x%0d <= %0d + %0d", pc, _rd_sel, c1_rs1_data, c1_rs2_data);
-                wr_reg_data = c1_rs1_data + c1_rs2_data;
-                n_mul_req = 1;
-                n_mul_a = c1_rs1_data;
-                n_mul_b = c1_rs2_data;
-                next_state = C2;
+                chunked_add_task(
+                    c1_rs1_data,
+                    c1_rs2_data,
+                    wr_reg_data
+                );
             end
             // fixme: this should be signed
             SLT: wr_reg_data = c1_rs1_data < c1_rs2_data ? 1 : 0;
@@ -392,7 +398,13 @@ module proc(
             XOR: wr_reg_data = c1_rs1_data ^ c1_rs2_data;
             SLL: wr_reg_data = c1_rs1_data << c1_rs2_data[4:0];
             SRL: wr_reg_data = c1_rs1_data >> c1_rs2_data[4:0];
-            SUB: wr_reg_data = c1_rs1_data - c1_rs2_data;
+            SUB: begin
+                chunked_sub_task(
+                    c1_rs1_data,
+                    c1_rs2_data,
+                    wr_reg_data
+                );
+            end
             // fixme: SRA is currently unsigned
             SRA: wr_reg_data = c1_rs1_data >> c1_rs2_data[4:0];
             // RV32M
