@@ -78,6 +78,7 @@ Some specific programs:
 - factorial of integers 0 to 5 [examples/calc_factorial.asm](/examples/calc_factorial.asm)
 - prime numbers up to 31 [examples/calc_primes.asm](/examples/calc_primes.asm)
 - sieve of eratosthenes, up to 31 [examples/sieve_eratosthenes.asm](/examples/sieve_eratosthenes.asm)
+- matrix multiplication [examples/matrix_mul.asm](/examples/matrix_mul.asm)
 
 ## Memory
 

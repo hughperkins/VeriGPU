@@ -20,7 +20,6 @@ outr x29
 mv x25, x29  ;       x25 is address of first matrix
 mul x10, x20 x21 ;   temp x10 is size of first matrix, in words
 slli x10, x10, 2   ; x10 is size of first mstrix, in bytes
-; outr x10
 add x26, x29, x10  ; x26 is address of second matrix
 outr x26
 
@@ -101,9 +100,6 @@ i_loop:
         slli x6, x6, 2    ; in bytes
         add x6, x6, x24  ; absolute address
         sw x5, 0, x6      ; store result
-
-        ; li x15, 1
-        ; beq x28, x15, finish
 
         addi x12, x12, 1
 

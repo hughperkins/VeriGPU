@@ -1,4 +1,3 @@
-- matrix multiplication
 - update timings for generated 32bit mul, in int mul .md
 - change reset to active low
 - maybe eliminate the pos + 1 in multiplication code, by various heuristics?
@@ -30,6 +29,7 @@
 - (use actual memory module?)
 
 done:
+- matrix multiplication
 - add chunked adder and subractor to proc.sv
 - chunked adder task (non cycled)
 - get norm shift for fmul from during the int mult stage
@@ -39,19 +39,6 @@ done:
 - document generators
 - document how the integer multiplication works
 - move apu, mem.sv, proc_reg_wr_mux.sv, reg_file* test_mem.sv into prot folder
-- rename toy_proc folder to verigpu
-- move img to subfodler of doc
-- update timing/run_yosys to be ble to hndle tasks (by wrapping in a module automatically)
-- check if yosys can handle tasks
-- check if yosys can handle functions
-- add area approximation to timing.py (eg count the number of cells :P)
-- move float add out of prot
-- coding guidelines, plus what can go wrong with GLS etc
-- float add
-- merge some of the examples, eg test_store, test_out, test_load, test_addi
-- sieve aratosthenes
-- add slli, slri
-- prime numbers calculator
 - [older stuff truncated]
 
 things for gpu:
