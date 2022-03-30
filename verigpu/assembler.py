@@ -369,6 +369,8 @@ def run(args):
             elif cmd.endswith(':') and p1 is None:
                 # label
                 label = cmd.strip().replace(':', '')
+                if label in label_pos_by_name:
+                    raise Exception('label ', label, 'already defined at ', label_pos_by_name[label])
                 label_pos_by_name[label] = len(new_asm_cmds) * 4
             else:
                 pass
@@ -449,7 +451,7 @@ def run(args):
                 #      rd     rs1    imm
                 op_bits = op_bits_by_op['OPIMM']  # "0010011"
                 imm_bits = int_str_to_bits(p3, 12)
-                print('addi imm_bits', imm_bits)
+                # print('addi imm_bits', imm_bits)
                 rd_bits = reg_str_to_bits(p1)
                 rs1_bits = reg_str_to_bits(p2)
 
@@ -491,7 +493,7 @@ def run(args):
                 bits = int_str_to_bits(p1, 16)
                 hex_lines.append("0000" + bits_to_hex(bits, num_bytes=2))
             elif cmd == 'word':
-                bits = int_str_to_bits(p1, 32)
+                bits = numeric_str_to_bits(p1, 32)
                 assert len(bits) == 32
                 hex_lines.append(bits_to_hex(bits, num_bytes=4))
             elif cmd in ['beq', 'bne', 'blt', 'bge', 'bltu', 'bgeu']:
@@ -516,7 +518,11 @@ def run(args):
                 l_bits_11 = label_offset_bits[-11]
                 l_bits_10_5 = label_offset_bits[-10:-4]
                 l_bits_4_1 = label_offset_bits[-4:]
+                print('rs1_bits', rs1_bits, 'rs2_bits', rs2_bits, 'label', label, 'label_offset', label_offset)
+                print('label_offset_bits', label_offset_bits)
                 instr_bits = f'{l_bits_12}{l_bits_10_5}{rs2_bits}{rs1_bits}{funct_bits}{l_bits_4_1}{l_bits_11}{op_bits}'
+                print('instr_bits', instr_bits)
+                assert len(instr_bits) == 32
                 hex_lines.append(bits_to_hex(instr_bits))
             elif cmd in [
                  'add', 'slt', 'sltu', 'and', 'or', 'xor', 'sll', 'srl', 'sub', 'sra',
