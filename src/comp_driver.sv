@@ -1,7 +1,9 @@
 // `timescale 1ns/10ps
 
-module comp_driver(
-);
+module comp_driver();
+    parameter mem_load_size = 256;
+    parameter out_size = 128;
+
     reg rst;
     reg clk;
     reg ena;
@@ -21,17 +23,16 @@ module comp_driver(
     reg [31:0] oob_wr_data;
     reg oob_wen;
 
-    reg [31:0] mem_load [256];
+    reg [31:0] mem_load [mem_load_size];
 
-    reg [31:0] outmem [32];
-    reg [32]outtype ;
-    reg [4:0] outpos;
+    reg [31:0] outmem [out_size];
+    reg [out_size]outtype ;
+    reg [$clog2(out_size) - 1:0] outpos;
     reg halt;
 
     reg [63:0] double;
 
     reg [31:0] t_at_reset;
-
     reg [31:0] cycle_count;
 
     comp comp1(
@@ -50,7 +51,7 @@ module comp_driver(
         forever #5 clk = ~clk;
     end
     always @(posedge clk) begin
-        if (outen | outflen) begin
+        if ((outen | outflen) & outpos < out_size - 1 ) begin
             outmem[outpos] <= out;
             outtype[outpos] <= outflen;
             outpos <= outpos + 1;
