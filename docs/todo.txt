@@ -2,10 +2,7 @@
 - update timings for generated 32bit mul, in int mul .md
 - change reset to active low
 - maybe eliminate the pos + 1 in multiplication code, by various heuristics?
-- reduce dpt of proc.sv?
-    - fix int division unit so setting ack doesnt cause high dpt
-    - fix dpt of ADD in proc.sv
-    - fix dpt of SUB in proc.sv
+- reduce int division unit dpt
 - parallel instruction execution
 - floats:  div, modulus, sub, beq, glt
 - add piccie for gate level simulation to readme/docs
@@ -33,6 +30,8 @@
 - (use actual memory module?)
 
 done:
+- add chunked adder and subractor to proc.sv
+- chunked adder task (non cycled)
 - get norm shift for fmul from during the int mult stage
 - float mul
 - int mul as pipeline

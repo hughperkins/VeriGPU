@@ -21,6 +21,7 @@ if [[ -f build/netlist/6.v ]]; then {
 
 python verigpu/run_yosys.py --in-verilog src/assert_ignore.sv src/op_const.sv src/const.sv src/int/int_div_regfile.sv src/proc.sv \
     src/float/float_params.sv src/float/float_add_pipeline.sv \
+    src/int/chunked_add_task.sv src/int/chunked_sub_task.sv \
     src/mem_delayed_large.sv src/mem_delayed.sv src/comp.sv \
     --top-module comp >/dev/null
 
