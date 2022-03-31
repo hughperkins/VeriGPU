@@ -21,7 +21,8 @@ op_bits_by_op = {
     'OPFP':     '1010011',
     'AUIPC':    '0010111',
     'OP32':     '0111011',
-    'OPIMM32':  '0011011'
+    'OPIMM32':  '0011011',
+    'JAL':      '1101111'
 }
 
 
@@ -169,6 +170,18 @@ def numeric_str_to_bits(numeric_str, num_bits):
 
 
 def reg_str_to_bits(reg_str, num_bits: int = 5):
+    reg_str = {
+        'sp': 'x2',
+        'ra': 'x1',
+        'a0': 'x10',
+        'a1': 'x11',
+        'a2': 'x12',
+        'a3': 'x13',
+        'a4': 'x14',
+        'a5': 'x15',
+        'a6': 'x16',
+        'a7': 'x17',
+    }.get(reg_str, reg_str)
     assert reg_str.startswith('x')
     assert len(reg_str) >= 2
     reg_str = reg_str[1:]
@@ -183,8 +196,8 @@ def bits_to_hex(bits, num_bytes: int = 4):
     return hex_str
 
 
-# def bits_to_int(bits: str) -> int:
-#     return int(bits, 2)
+def bits_to_int(bits: str) -> int:
+    return int(bits, 2)
 
 
 def word_bits_to_lui_addi_bits(word_bits: str):
@@ -206,6 +219,18 @@ def word_bits_to_lui_addi_bits(word_bits: str):
     upper_bits2 = int_to_binary(upper_int, 20)
     lower_bits2 = int_to_binary(lower_int, 12)
     return upper_bits2, lower_bits2
+
+
+def offset_to_auipc_jalr_offset(offset: int):
+    label_offset_bits = int_to_binary(offset, 32)
+    l_offset_31_12 = label_offset_bits[-32:-12]
+    assert len(l_offset_31_12) == 20
+    l_offset_31_12_int = bits_to_int(l_offset_31_12)
+    l_offset_11_0 = label_offset_bits[-12:]
+    assert len(l_offset_11_0) == 12
+    auipc_offset = l_offset_31_12_int + int(label_offset_bits[-11])
+    jalr_offset = bits_to_int(l_offset_11_0)
+    return auipc_offset, jalr_offset
 
 
 def run(args):
@@ -235,7 +260,10 @@ def run(args):
         p3 = split_line[3] if len(split_line) >= 4 else None
 
         try:
-            if cmd == 'li':
+            if cmd.startswith('.'):
+                # ignore, for now
+                continue
+            elif cmd == 'li':
                 # e.g.: li x1 0x12
                 # virtual command; convert to e.g. addi x1, x0, 0x12
 
@@ -366,9 +394,20 @@ def run(args):
                 asm_cmds.appendleft('sw x30, 0(x31)')
                 asm_cmds.appendleft('addi x31, x0, 1004')
                 continue
+            elif cmd == 'ret':
+                asm_cmds.appendleft('jalr x0, 0(x1)')
+                continue
+            elif cmd == 'call':
+                # e.g.
+                # call label
+                #      p1
+                new_asm_cmds.append(line)
+                new_asm_cmds.append('addi x0, x0, 0')  # NOP; we can fill this in later
+                continue
             elif cmd.endswith(':') and p1 is None:
                 # label
-                label = cmd.strip().replace(':', '')
+                # label = cmd.strip().replace(':', '')
+                label = line.strip().replace(':', '')
                 if label in label_pos_by_name:
                     raise Exception('label ', label, 'already defined at ', label_pos_by_name[label])
                 label_pos_by_name[label] = len(new_asm_cmds) * 4
@@ -392,6 +431,51 @@ def run(args):
         print('    ', label, pos)
     asm_cmds = new_asm_cmds
 
+    # instnatiate any new virutal instructions we need to handle, such as call
+    # in this pass, we are not allowed to change positions
+    do_another_pass = True
+    while do_another_pass:
+        do_another_pass = False
+        new_asm_cmds = deque()
+        while len(asm_cmds) > 0:
+            line = asm_cmds.popleft()
+            split_line = line.split()
+            cmd = split_line[0].lower()
+            p1 = split_line[1] if len(split_line) >= 2 else None
+            p2 = split_line[2] if len(split_line) >= 3 else None
+            p3 = split_line[3] if len(split_line) >= 4 else None
+
+            try:
+                if cmd in ['call']:
+                    # e.g.
+                    # call label
+                    #      p1
+                    # we will repalce the folllowing dummy nop too
+                    label = p1
+                    label_pos = label_pos_by_name[label]
+                    pc = len(new_asm_cmds) + 4 + 4
+                    label_offset = label_pos - pc
+                    print('label_offset', label_offset)
+                    auipc_offset, jalr_offset = offset_to_auipc_jalr_offset(label_offset)
+
+                    print('auipc_offset', auipc_offset)
+                    print('jalr offset', jalr_offset)
+
+                    new_asm_cmds.append(f'auipc x1, {auipc_offset}')
+                    new_asm_cmds.append(f'jalr x1, {jalr_offset}')
+
+                    # pop the nop
+                    asm_cmds.popleft()
+
+                    do_another_pass = False  # we dont need to handle these in intermeidate pass
+                else:
+                    new_asm_cmds.append(line)
+            except Exception as e:
+                print('cmd:', line)
+                raise e
+
+    asm_cmds = new_asm_cmds
+
     hex_lines = []
     while len(asm_cmds) > 0:
         line = asm_cmds.popleft()
@@ -408,7 +492,10 @@ def run(args):
         p3 = split_line[3] if len(split_line) >= 4 else None
 
         try:
-            if cmd == 'sw':
+            if cmd.startswith('.'):
+                # ignore, for now
+                continue
+            elif cmd == 'sw':
                 # e.g.
                 # sw x2,  0      (x3)
                 #    rs2  offset rs1
@@ -496,6 +583,39 @@ def run(args):
                 bits = numeric_str_to_bits(p1, 32)
                 assert len(bits) == 32
                 hex_lines.append(bits_to_hex(bits, num_bytes=4))
+            elif cmd in ['jal']:
+                # eg
+                # jal rd, label
+                #     p1  p2
+                # stores pc + 4 into rd, and jumps to label
+                rd_bits = reg_str_to_bits(p1)
+                label = p2
+                label_pos = label_pos_by_name[label]
+                pc = len(hex_lines) + 4
+                label_offset = label_pos - pc
+                label_offset_bits = int_to_binary(label_offset, 21)
+                l_bits_20 = label_offset_bits[-21]
+                l_bits_10_1 = label_offset_bits[-11:-1]
+                assert len(l_bits_10_1) == 10
+                l_bits_11 = label_offset_bits[-12]
+                l_bits_19_12 = label_offset_bits[-20:-12]
+
+                opcode_bits = op_bits_by_op['JAL']
+
+                instr_bits = f'{l_bits_20}{l_bits_10_1}{l_bits_19_12}{rd_bits}{opcode_bits}'
+                hex_lines.append(bits_to_hex(instr_bits))
+
+            elif cmd in ['jalr']:
+                # eg
+                # jalr rd, imm(rs1)
+                #      p1  p2  p3
+                # stores next pc in rd, and jumps to rs1 + imm
+                TODO IN PROGRESS
+                rd_bits = reg_str_to_bits(p1)
+                label = p2
+                rs1_bits = reg_str_to_bits(p3)
+                label_pos = label_pos_by_name[label]
+                pc = len(hex_lines) * 4
             elif cmd in ['beq', 'bne', 'blt', 'bge', 'bltu', 'bgeu']:
                 # beq rs1, rs2, immed
                 op_bits = op_bits_by_op['BRANCH']  # "1100011"

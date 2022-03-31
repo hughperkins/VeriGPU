@@ -65,3 +65,24 @@ def test_word_bits_to_lui_addi_bits(word_bits: str):
     print('reconstr_int', reconstr_int)
     reconstr_bits = assembler.int_to_binary(reconstr_int, 32)
     assert reconstr_bits == word_bits
+
+
+@pytest.mark.parametrize(
+    "offset", [
+        0,
+        1000,
+        -1000,
+        5000,
+        -5000
+    ]
+)
+def test_offset_to_auipc_jalr(offset: int):
+    auipc, jalr = assembler.offset_to_auipc_jalr_offset(offset)
+    print('auipc', auipc, 'jalr', jalr)
+    if jalr >= 2048:
+        jalr -= 4096
+    reconstr = auipc * int(math.pow(2, 12)) + jalr
+    if reconstr >= int(math.pow(2, 31)):
+        reconstr -= int(math.pow(2, 32))
+    print('reonstr', reconstr)
+    assert reconstr == offset

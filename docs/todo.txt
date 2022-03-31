@@ -1,3 +1,12 @@
+- implement JAL
+- make assembler ignore lines starting with . by default
+- add register aliases:
+   - sp == x2
+   - ra == x1
+   - a0-7 == x10-x17
+- create CALL pseudoinstruction, initially as alias for JAL
+- add RET pseudoinstruction, initially an alias for JAL
+- use llvm to obtain risc-v assembler, and run this
 - update timings for generated 32bit mul, in int mul .md
 - change reset to active low
 - maybe eliminate the pos + 1 in multiplication code, by various heuristics?
