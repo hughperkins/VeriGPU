@@ -194,6 +194,9 @@ module int_div_regfile_test();
         test_div(4, 4, 1, 0);
         test_div(4, 2, 2, 0);
         test_div(0, 2, 0, 0);
+        test_div(4294967295, 1234567, 3478, 1143269);
+        test_div(4294967295, 4294967295, 1, 0);
+        test_div(4294967295, 4294967293, 1, 2);
 
         #10 $finish;
     end
