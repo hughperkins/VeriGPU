@@ -100,6 +100,20 @@ funct5_bits_float = {
     'FSQRT': '01011'
 }
 
+reg_aliases = {
+    'sp': 'x2',
+    'ra': 'x1',
+    'a0': 'x10',
+    'a1': 'x11',
+    'a2': 'x12',
+    'a3': 'x13',
+    'a4': 'x14',
+    'a5': 'x15',
+    'a6': 'x16',
+    'a7': 'x17',
+    's0': 'x8'
+}
+
 
 def int_to_bits(int_value: int, num_bits: int) -> str:
     """
@@ -132,7 +146,6 @@ def int_str_to_int(int_str: str) -> int:
 
     (so they always start with a digit)
     """
-    print('int_str', int_str)
     if int_str.startswith('0x'):
         int_value = int(int_str[2:], 16)
     elif int_str.startswith('0b'):
@@ -145,12 +158,13 @@ def int_str_to_int(int_str: str) -> int:
 def int_str_to_bits(int_str: str, num_bits: int) -> str:
     int_value = int_str_to_int(int_str)
     bits = int_to_bits(int_value, num_bits)
+    if len(bits) != num_bits:
+        print('len(bits)', len(bits), bits)
     assert len(bits) == num_bits
     return bits
 
 
 def float_to_bits(float_value, num_exp_bits: int = 8, num_sig_bits: int = 23):
-    # bits_check = ''.join([format(byte, '#010b')[2:] for byte in list(struct.pack('!f', 23.567))])
     sign_bit = 1 if float_value < 0 else 0
     if float_value == 0:
         return '0' * (1 + num_exp_bits + num_sig_bits)
@@ -171,7 +185,6 @@ def float_to_bits(float_value, num_exp_bits: int = 8, num_sig_bits: int = 23):
         signif_to_store = (signif - 1) * math.pow(2, num_sig_bits)
         signif_bits = int_to_bits(int(signif_to_store), num_sig_bits)
     return f'{sign_bit}{exp_bits}{signif_bits}'
-    # return bits
 
 
 def numeric_str_to_value(numeric_str) -> Union[float, int]:
@@ -191,18 +204,8 @@ def numeric_str_to_bits(numeric_str, num_bits):
 
 
 def reg_str_to_bits(reg_str, num_bits: int = 5):
-    reg_str = {
-        'sp': 'x2',
-        'ra': 'x1',
-        'a0': 'x10',
-        'a1': 'x11',
-        'a2': 'x12',
-        'a3': 'x13',
-        'a4': 'x14',
-        'a5': 'x15',
-        'a6': 'x16',
-        'a7': 'x17',
-    }.get(reg_str, reg_str)
+    print('reg_str', reg_str)
+    reg_str = reg_aliases.get(reg_str, reg_str)
     assert reg_str.startswith('x')
     assert len(reg_str) >= 2
     reg_str = reg_str[1:]
@@ -244,12 +247,19 @@ def word_bits_to_lui_addi_bits(word_bits: str):
 
 def offset_to_auipc_jalr_offset(offset: int):
     label_offset_bits = int_to_bits(offset, 32)
+    print('label_offse_bits', label_offset_bits)
     l_offset_31_12 = label_offset_bits[-32:-12]
+    print('l_offset_31_12', l_offset_31_12)
     assert len(l_offset_31_12) == 20
     l_offset_31_12_int = bits_to_int(l_offset_31_12)
     l_offset_11_0 = label_offset_bits[-12:]
     assert len(l_offset_11_0) == 12
     auipc_offset = l_offset_31_12_int + int(label_offset_bits[-11])
+    print('auipc_offset', auipc_offset)
+    print('2^20', int(math.pow(2, 20)))
+    print('2^19', int(math.pow(2, 19)))
+    if auipc_offset >= int(math.pow(2, 20)):
+        auipc_offset -= int(math.pow(2, 20))
     jalr_offset = bits_to_int(l_offset_11_0)
     return auipc_offset, jalr_offset
 
@@ -332,10 +342,10 @@ def run(args):
         p3 = split_line[3] if len(split_line) >= 4 else None
 
         try:
-            if cmd.startswith('.'):
-                # ignore, for now
-                continue
-            elif cmd == 'li':
+            # if cmd.startswith('.'):
+            #     # ignore, for now
+            #     continue
+            if cmd == 'li':
                 # e.g.: li x1 0x12
                 # virtual command; convert to e.g. addi x1, x0, 0x12
                 #
@@ -458,6 +468,28 @@ def run(args):
                 asm_cmds.appendleft('sw x30, 0(x31)')
                 asm_cmds.appendleft('addi x31, x0, 1004')
                 continue
+            elif cmd == 'j':
+                # eg
+                # j offset
+                #   p1
+                asm_cmds.appendleft(f'jal x0, {p1}')
+                continue
+            elif cmd == 'jal' and p2 is None:
+                # eg jal offset
+                #        p1
+                asm_cmds.appendleft(f'jal x1, {p1}')
+                continue
+            elif cmd == 'jr':
+                # eg
+                # jr rs
+                #    p1
+                asm_cmds.appendleft(f'jalr x0, 0({p1})')
+                continue
+            elif cmd == 'jalr' and p2 is None:
+                # eg jalr x1
+                #         p1
+                asm_cmds.appendleft(f'jalr x1, 0({p1})')
+                continue
             elif cmd == 'ret':
                 asm_cmds.appendleft('jalr x0, 0(x1)')
                 continue
@@ -510,11 +542,19 @@ def run(args):
             p3 = split_line[3] if len(split_line) >= 4 else None
 
             try:
-                if cmd in ['call']:
+                if cmd in ['call', 'tail']:
                     # e.g.
                     # call label
                     #      p1
                     # we will repalce the folllowing dummy nop too
+                    pivot_reg1 = {
+                        'call': 'x1',
+                        'tail': 'x6'
+                    }[cmd]
+                    pivot_reg2 = {
+                        'call': 'x1',
+                        'tail': 'x0'
+                    }[cmd]
                     label = p1
                     label_pos = label_pos_by_name[label]
                     pc = len(new_asm_cmds) + 4 + 4
@@ -525,8 +565,8 @@ def run(args):
                     print('auipc_offset', auipc_offset)
                     print('jalr offset', jalr_offset)
 
-                    new_asm_cmds.append(f'auipc x1, {auipc_offset}')
-                    new_asm_cmds.append(f'jalr x1, {jalr_offset}')
+                    new_asm_cmds.append(f'auipc {pivot_reg1}, {auipc_offset}')
+                    new_asm_cmds.append(f'jalr {pivot_reg2}, {jalr_offset}({pivot_reg1})')
 
                     # pop the nop
                     asm_cmds.popleft()
@@ -675,14 +715,17 @@ def run(args):
                 #      p1  p2  p3
                 # stores next pc in rd, and jumps to rs1 + imm
                 # p2 can be a number; doesnt have to be a label
+                opcode_bits = op_bits_by_op['JALR']
                 rd_bits = reg_str_to_bits(p1)
-                label = p2
-                rs1_bits = reg_str_to_bits(p3)
-                label_pos = label_pos_by_name[label]
+                # label = p2
                 pc = len(hex_lines) * 4
-                label_offset = label_pos - pc
-                label_offset_bits = int_to_bits(label_offset, 21)
+                imm_val = imm_to_val(label_pos_by_name=label_pos_by_name, imm_str=p2, offset_start=pc)
+                rs1_bits = reg_str_to_bits(p3)
+                # label_pos = label_pos_by_name[label]
+                # label_offset = label_pos - pc
+                imm_bits = int_to_bits(imm_val, 12)
 
+                instr_bits = f'{imm_bits}{rs1_bits}000{rd_bits}{opcode_bits}'
                 hex_lines.append(bits_to_hex(instr_bits))
             elif cmd in ['beq', 'bne', 'blt', 'bge', 'bltu', 'bgeu']:
                 # beq rs1, rs2, immed
@@ -738,6 +781,9 @@ def run(args):
                 assert len(hex_lines) <= location
                 while len(hex_lines) < location:
                     hex_lines.append('00000000')
+            elif cmd.startswith('.'):
+                # ignore
+                continue
             else:
                 raise Exception('cmd ' + cmd + ' not recognized')
         except Exception as e:

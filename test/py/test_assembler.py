@@ -81,6 +81,7 @@ def test_word_bits_to_lui_addi_bits(word_bits: str):
 def test_offset_to_auipc_jalr(offset: int):
     auipc, jalr = assembler.offset_to_auipc_jalr_offset(offset)
     print('auipc', auipc, 'jalr', jalr)
+    assert auipc < int(math.pow(2, 20))
     if jalr >= 2048:
         jalr -= 4096
     reconstr = auipc * int(math.pow(2, 12)) + jalr
