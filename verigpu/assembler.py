@@ -523,6 +523,9 @@ def run(args):
     for i, line in enumerate(new_asm_cmds):
         print(i * 4, ':', line)
     print('')
+    with open('build/after_expand.asm', 'w') as f:
+        for i, line in enumerate(new_asm_cmds):
+            f.write(str(i * 4) + ':' + line + '\n')
 
     print('label pos by name:')
     for label, pos in label_pos_by_name.items():

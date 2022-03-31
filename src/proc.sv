@@ -816,7 +816,7 @@ module proc(
             c2_instr <= c2_instr_next;
 
             `assert_known(wr_reg_req);
-            if (wr_reg_req) begin
+            if (wr_reg_req && wr_reg_sel != 0) begin
                 regs[wr_reg_sel] <= wr_reg_data;
             end
 

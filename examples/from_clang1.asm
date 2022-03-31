@@ -23,22 +23,24 @@
 
 li sp, 800
 
+addi sp, sp, -16
+
 li a0, 123
 li a1, 2222
-sw  a0, -12(sp)
-sw  a1, -16(sp)
-jal x1, _Z3fooii
 
+jal x1, _Z3fooii
+out 999
+
+li a0, 99
+sw a0, 4(sp)
 
 li a0, 3
 li a1, 7
-li a2, 99
-sw  a0, -12(sp)
-sw  a1, -16(sp)
-sw  a2, -8(sp)
-addi a3, sp, -8
-sw a3, -20(sp)
+addi a2, sp, 4
+
 jal x1, _Z4foo2iiPi
+lw a0, 4(sp)
+outr a0
 
 finish:
 halt
