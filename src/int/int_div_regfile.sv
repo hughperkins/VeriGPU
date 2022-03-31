@@ -53,34 +53,38 @@ module int_div_regfile(
 
     parameter reg_sel_width = $clog2(num_regs);
     parameter pos_width = $clog2(data_width);
-    parameter data_width_minus_1 = data_width - 1;
+    parameter bit[pos_width - 1:0] data_width_minus_1 = data_width - 1;
 
-    typedef enum bit[1:0] {
+    parameter state_width = 3;
+    typedef enum bit[state_width - 1:0] {
         IDLE,
         CALC,
+        WRITE,
         WRITING_QUOTIENT,
         WRITING_MODULUS
     } e_state;
 
-    reg [1:0] state;
+    reg [state_width - 1:0] state;
 
-    reg [reg_sel_width -1:0] internal_r_quot_sel;
-    reg [reg_sel_width -1:0] internal_r_mod_sel;
-    reg [data_width -1:0] internal_b;
+    reg [reg_sel_width - 1:0] internal_r_quot_sel;
+    reg [reg_sel_width - 1:0] internal_r_mod_sel;
+    // reg [data_width -1:0] internal_b;
+    reg [data_width * 2 - 1:0] b_shifted;
 
     reg [pos_width - 1:0] pos;
     reg [data_width - 1:0] quotient;
     reg [data_width - 1:0] remainder;
     reg [data_width - 1: 0] a_remaining;
 
-    reg [reg_sel_width -1:0] next_internal_r_quot_sel;
-    reg [reg_sel_width -1:0] next_internal_r_mod_sel;
-    reg [data_width -1:0] next_internal_b;
+    reg [reg_sel_width - 1:0] next_internal_r_quot_sel;
+    reg [reg_sel_width - 1:0] next_internal_r_mod_sel;
+    // reg [data_width - 1:0] next_internal_b;
+    reg [data_width * 2 - 1:0] next_b_shifted;
 
-    reg [1:0] next_state;
-    reg [pos_width -1:0] next_pos;
-    reg [data_width -1:0] next_quotient;
-    reg [data_width -1:0] next_a_remaining;
+    reg [state_width - 1:0] next_state;
+    reg [pos_width - 1:0] next_pos;
+    reg [data_width - 1:0] next_quotient;
+    reg [data_width - 1:0] next_a_remaining;
 
     reg [reg_sel_width - 1:0] next_rf_wr_sel;
     reg [data_width - 1:0] next_rf_wr_data;
@@ -89,25 +93,22 @@ module int_div_regfile(
 
     always @(*) begin
     // always @(state, pos, req, rf_wr_ack) begin
-        reg [2 * data_width - 1: 0] shiftedb;
+        // reg [2 * data_width - 1: 0] shiftedb;
 
         next_state = state;
         next_pos = pos;
         next_quotient = quotient;
         next_a_remaining = a_remaining;
+        next_b_shifted = b_shifted;
         next_busy = 0;
 
         next_internal_r_quot_sel = internal_r_quot_sel;
         next_internal_r_mod_sel = internal_r_mod_sel;
-        next_internal_b = internal_b;
+        // next_internal_b = internal_b;
 
         next_rf_wr_req = 0;
         next_rf_wr_sel = '0;
         next_rf_wr_data = '0;
-
-        `assert_known(internal_b);
-        `assert_known(pos);
-        shiftedb = {{data_width{1'b0}}, internal_b} << pos;
 
         // $display("div comb req=%0d state=%0d pos=%0d rf_wr_ack=%0d", req, state, pos, rf_wr_ack);
         // $strobe("state %0d req=%0b", state, req);
@@ -122,7 +123,7 @@ module int_div_regfile(
                     `assert_known(r_mod_sel);
                     `assert_known(r_quot_sel);
 
-                    next_pos = data_width_minus_1[pos_width - 1:0];
+                    next_pos = data_width_minus_1;
                     next_quotient = '0;
                     next_a_remaining = a;
                     next_busy = 1;
@@ -130,7 +131,8 @@ module int_div_regfile(
 
                     next_internal_r_mod_sel = r_mod_sel;
                     next_internal_r_quot_sel = r_quot_sel;
-                    next_internal_b = b;
+                    // next_internal_b = b;
+                    next_b_shifted = b << data_width_minus_1;
 
                     `assert_known(b);
                     if(b == 0) begin
@@ -156,37 +158,52 @@ module int_div_regfile(
             end
             CALC: begin
                 next_busy = 1;
+
+                // `assert_known(internal_b);
+                // `assert_known(pos);
+                // shiftedb = {{data_width{1'b0}}, internal_b} << pos;
+
                 `assert_known(next_a_remaining);
-                `assert_known(shiftedb);
+                `assert_known(next_b_shifted);
+                // `assert_known(shiftedb);
                 // $display("pos %0d quot %0d a_remaining %0d shiftedb %0d", pos, next_quotient, next_a_remaining, shiftedb);
-                if (shiftedb <= {{data_width{1'b0}}, next_a_remaining}) begin
-                    next_a_remaining = next_a_remaining - shiftedb[data_width - 1 :0];
-                    next_quotient = next_quotient | (1 << pos);
+                if (b_shifted <= {{data_width{1'b0}}, next_a_remaining}) begin
+                    next_a_remaining = next_a_remaining - b_shifted[data_width - 1 :0];
+                    // next_quotient = next_quotient | (1 << pos);
+                    next_quotient[pos] = 1;
                     // $display("   match next_quot %0d next_a %0d", next_quotient, next_a_remaining);
                 end
                 `assert_known(pos);
                 if(pos == 0) begin
-                    `assert_known(internal_r_quot_sel);
-                    `assert_known(internal_r_mod_sel);
-                    if(internal_r_quot_sel != 0) begin
-                        next_rf_wr_req = 1;
-                        next_rf_wr_sel = internal_r_quot_sel;
-                        next_rf_wr_data = next_quotient;
-                        next_state = WRITING_QUOTIENT;
-                        // $display("div. wrote quotient");
-                    end else if(internal_r_mod_sel != 0) begin
-                        next_rf_wr_req = 1;
-                        next_rf_wr_sel = internal_r_mod_sel;
-                        next_rf_wr_data = next_a_remaining;
-                        next_state = WRITING_MODULUS;
-                    end else begin
-                        next_state = IDLE;  // this should never normally happen :), but it's a possible input
-                    end
+                    next_state = WRITE;
                 end else begin
                     next_pos = pos - 1;
+                    next_b_shifted = b_shifted >> 1;
+                end
+            end
+            WRITE: begin
+                $display("WRITE");
+                `assert_known(internal_r_quot_sel);
+                `assert_known(internal_r_mod_sel);
+                if(internal_r_quot_sel != 0) begin
+                    next_busy = 1;
+                    next_rf_wr_req = 1;
+                    next_rf_wr_sel = internal_r_quot_sel;
+                    next_rf_wr_data = quotient;
+                    next_state = WRITING_QUOTIENT;
+                    // $display("div. wrote quotient");
+                end else if(internal_r_mod_sel != 0) begin
+                    next_busy = 1;
+                    next_rf_wr_req = 1;
+                    next_rf_wr_sel = internal_r_mod_sel;
+                    next_rf_wr_data = next_a_remaining;
+                    next_state = WRITING_MODULUS;
+                end else begin
+                    next_state = IDLE;  // this should never normally happen :), but it's a possible input
                 end
             end
             WRITING_QUOTIENT: begin
+                $display("WRITING_QUOTIENT");
                 `assert_known(rf_wr_ack);
                 if(rf_wr_ack) begin
                     // $display("div got ack, maybe write modulus");
@@ -202,7 +219,7 @@ module int_div_regfile(
                         next_state = IDLE;
                     end
                 end else begin
-                    // $display("div waiting ack");
+                //     // $display("div waiting ack");
                     next_busy = 1;
                     next_rf_wr_req = 1;
                     next_rf_wr_sel = internal_r_quot_sel;
@@ -210,6 +227,7 @@ module int_div_regfile(
                 end
             end
             WRITING_MODULUS: begin
+                $display("WRITING_MODULUS");
                 `assert_known(rf_wr_ack);
                 if(rf_wr_ack) begin
                     next_state = IDLE;
@@ -239,9 +257,10 @@ module int_div_regfile(
 
             quotient <= '0;
             a_remaining <= '0;
+            b_shifted <= '0;
             internal_r_quot_sel <= '0;
             internal_r_mod_sel <= '0;
-            internal_b <= '0;
+            // internal_b <= '0;
 
             rf_wr_req <= 0;
             rf_wr_sel <= 0;
@@ -252,10 +271,11 @@ module int_div_regfile(
             pos <= next_pos;
             quotient <= next_quotient;
             a_remaining <= next_a_remaining;
+            b_shifted <= next_b_shifted;
 
             internal_r_quot_sel <= next_internal_r_quot_sel;
             internal_r_mod_sel <= next_internal_r_mod_sel;
-            internal_b <= next_internal_b;
+            // internal_b <= next_internal_b;
 
             rf_wr_req <= next_rf_wr_req;
             rf_wr_sel <= next_rf_wr_sel;
