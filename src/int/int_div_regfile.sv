@@ -53,7 +53,7 @@ module int_div_regfile(
 
     parameter reg_sel_width = $clog2(num_regs);
     parameter pos_width = $clog2(data_width);
-    parameter bit[pos_width - 1:0] data_width_minus_1 = data_width - 1;
+    parameter data_width_minus_1 = (data_width - 1);
 
     parameter state_width = 3;
     typedef enum bit[state_width - 1:0] {
@@ -123,7 +123,7 @@ module int_div_regfile(
                     `assert_known(r_mod_sel);
                     `assert_known(r_quot_sel);
 
-                    next_pos = data_width_minus_1;
+                    next_pos = data_width_minus_1[pos_width - 1:0];
                     next_quotient = '0;
                     next_a_remaining = a;
                     next_busy = 1;
@@ -132,7 +132,7 @@ module int_div_regfile(
                     next_internal_r_mod_sel = r_mod_sel;
                     next_internal_r_quot_sel = r_quot_sel;
                     // next_internal_b = b;
-                    next_b_shifted = b << data_width_minus_1;
+                    next_b_shifted = { {32{1'b0}}, b} << data_width_minus_1;
 
                     `assert_known(b);
                     if(b == 0) begin
