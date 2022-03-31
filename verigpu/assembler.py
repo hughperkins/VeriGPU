@@ -183,7 +183,7 @@ def numeric_str_to_value(numeric_str) -> Union[float, int]:
 def numeric_str_to_bits(numeric_str, num_bits):
     val = numeric_str_to_value(numeric_str)
     if isinstance(val, float):
-        bits = float_to_bits(val, exp_bits=8, sig_bits=23)
+        bits = float_to_bits(val, num_exp_bits=8, num_sig_bits=23)
     else:
         bits = int_to_bits(val, num_bits)
     assert len(bits) == num_bits
@@ -341,39 +341,12 @@ def run(args):
                 #
                 # immediate can be a number or a label
                 # if a label, will be converted into offset from 0
-                process_li(
+                cmds = process_li(
                     p1=p1,
                     p2=p2,
-                    label_pos_by_name=label_pos_by_name,
-                    asm_cmds=asm_cmds)
-                # p2 = p2.strip()
-                # assert len(p2) > 0
-
-                # if p2[0] in "0123456789":
-                #     # a label, convert to int
-                #     imm_val = imm_to_int(p2)
-                # else:
-                #     # numeric
-                #     if '.' in p2:
-                #         imm_val = float(p2)
-                #         # imm_bits = numeric_str_to_bits(p2, 32)
-                #     else:
-                #         imm_val = int_str_to_int(p2)
-
-                # if isinstance(imm_val, int):
-                #     if abs(imm_val) < 2048:
-                #         # small ints can be loaded with single addi
-                #         asm_cmds.appendleft(f'addi {p1}, x0, {p2}')
-                #         continue
-                #     imm_bits = int_str_to_bits(p2, 32)
-                # else:
-                #     # float
-                #     imm_bits = numeric_str_to_bits(p2, 32)
-
-                # lui_bits, addi_bits = word_bits_to_lui_addi_bits(imm_bits)
-
-                # asm_cmds.appendleft(f'addi {p1}, {p1}, 0b{addi_bits}')
-                # asm_cmds.appendleft(f'lui {p1}, 0b{lui_bits}')
+                    label_pos_by_name=label_pos_by_name)
+                while len(cmds) > 0:
+                    asm_cmds.appendleft(cmds.pop())
                 continue
             elif cmd == 'out':
                 # e.g.: out 0x1b
