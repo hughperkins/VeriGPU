@@ -1,4 +1,4 @@
-`timescale 1ns/10ps
+// `timescale 1ns/10ps
 
 module mem_delayed (
     input clk,
@@ -93,8 +93,8 @@ module mem_delayed (
             if (clks_to_wait == 0) begin
                 n_ack = 1;
                 n_write_now = 1;
-                n_received_rd_req <= 0;
-                n_received_wr_req <= 0;
+                n_received_rd_req = 0;
+                n_received_wr_req = 0;
                 n_busy = 0;
             end else begin
                 n_clks_to_wait = clks_to_wait - 1;
