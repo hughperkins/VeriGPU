@@ -1,7 +1,7 @@
 ; do a matrix multiplication, of two real matrices
-li x29, 700   ; x29 is current address
+li x29, data   ; x29 is current address
 lw x28, 0 x29  ; x28 is number of multiplicaitons to go
-li x24, 900  ; results area
+li x24, results  ; results area
 
 outr x28
 
@@ -15,18 +15,15 @@ outr x20
 outr x21
 outr x22
 addi x29, x29, 12   ; x29 is now start of first matrix
-outr x29
 
 mv x25, x29  ;       x25 is address of first matrix
 mul x10, x20 x21 ;   temp x10 is size of first matrix, in words
 slli x10, x10, 2   ; x10 is size of first mstrix, in bytes
 add x26, x29, x10  ; x26 is address of second matrix
-outr x26
 
 mul x10, x21, x22  ; size of second matrix, in words
 slli x10, x10, 2   ; x10 is siz of second matrix, in bytes
 add x27, x26, x10  ; x27 is address of next matrix mult declaration
-outr x27
 
 
 li x10 0  ; i
@@ -140,7 +137,7 @@ bne x28, x0, loop_mmul
 finish:
 halt
 
-location 700:
+data:
 
 word 2  ; number of multiplications
 word 1  ; rows in first matrix
@@ -148,6 +145,8 @@ word 1  ; cols in first, and rows in second matrix
 word 1  ; cols in second matrix
 word 1.2
 word 3.5
+
+; result will be 4.2
 
 word 2
 word 3
@@ -162,19 +161,6 @@ word 4
 ; 4.1 * 3.3 + 1.3 * -10.0 + 4.4 * 15.2   4.1 * 9.1 + 1.3 * -2.5 + 4.4 * 3.2    4.1 * 2.8 + 1.3 * 15.0 + 4.4 * 3.1 
 ;                                                                                  4.1 * -0.1 + 1.3 * 8.3 + 4.4 * 8.8
 ; 
-
-; check what the results should be, using pytorch:
-; In [1]: import torch
-
-; In [2]: a = torch.Tensor([[1.7,2.4,5.5],[4.1,1.3,4.4]])
-
-; In [3]: b= torch.Tensor([[3.3, 9.1, 2.8, -0.1],[-10.0, -2.5, 15.0, 8.3], [15.2,3.2,3.1,
-;    ...: 8.8]])
-
-; In [4]: a @ b
-; Out[4]: 
-; tensor([[65.2100, 27.0700, 57.8100, 68.1500],
-;         [67.4100, 48.1400, 44.6200, 49.1000]])
 
 word 1.7
 word 2.4
@@ -202,3 +188,19 @@ word 15.2
 word 3.2
 word 3.1
 word 8.8
+
+results:
+
+; check what the results should be, using pytorch:
+; In [1]: import torch
+
+; In [2]: a = torch.Tensor([[1.7,2.4,5.5],[4.1,1.3,4.4]])
+
+; In [3]: b= torch.Tensor([[3.3, 9.1, 2.8, -0.1],[-10.0, -2.5, 15.0, 8.3], [15.2,3.2,3.1,
+;    ...: 8.8]])
+
+; In [4]: a @ b
+; Out[4]: 
+; tensor([[65.2100, 27.0700, 57.8100, 68.1500],
+;         [67.4100, 48.1400, 44.6200, 49.1000]])
+

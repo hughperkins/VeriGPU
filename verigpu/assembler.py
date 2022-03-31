@@ -350,13 +350,24 @@ def run(args):
                 #
                 # immediate can be a number or a label
                 # if a label, will be converted into offset from 0
-                cmds = process_li(
-                    p1=p1,
-                    p2=p2,
-                    label_pos_by_name=label_pos_by_name)
-                while len(cmds) > 0:
-                    asm_cmds.appendleft(cmds.pop())
-                continue
+                # if it's a label, we will just put placeholders for now, and handle later
+                # we will put two placeholders
+                p2 = p2.strip()
+                assert len(p2) > 0
+                if p2[0] in "-1234566790":
+                    # numeric
+                    cmds = process_li(
+                        p1=p1,
+                        p2=p2,
+                        label_pos_by_name=label_pos_by_name)
+                    while len(cmds) > 0:
+                        asm_cmds.appendleft(cmds.pop())
+                    continue
+                else:
+                    # not numeric, it's a label, just put placeholders for now
+                    new_asm_cmds.append(line)
+                    new_asm_cmds.append('addi x0, x0, 0')  # NOP; we can fill this in later
+                    continue
             elif cmd == 'out':
                 # e.g.: out 0x1b
                 # virtual instruction. map to storing to location 1000
@@ -547,7 +558,26 @@ def run(args):
             p3 = split_line[3] if len(split_line) >= 4 else None
 
             try:
-                if cmd in ['call', 'tail']:
+                if cmd == 'li':
+                    # e.g.: li x1 0x12
+                    # virtual command; convert to e.g. addi x1, x0, 0x12
+                    #
+                    # by this point, it should be a label
+                    # anyway, we have two placehodlers for the new instructions
+                    # this insturction, and the next
+                    cmds = process_li(
+                        p1=p1,
+                        p2=p2,
+                        label_pos_by_name=label_pos_by_name)
+
+                    assert len(cmds) in [1, 2]
+                    if len(cmds) == 2:
+                        # pop the nop
+                        asm_cmds.popleft()
+                    while len(cmds) > 0:
+                        asm_cmds.appendleft(cmds.pop())
+                    continue
+                elif cmd in ['call', 'tail']:
                     # e.g.
                     # call label
                     #      p1
