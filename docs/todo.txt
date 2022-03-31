@@ -1,3 +1,6 @@
+- get examples running using verilator
+- be able to pass data backwards and forwards between the 'kernels' from c/c++
+    - might need verilator?
 - update timings for generated 32bit mul, in int mul .md
 - change reset to active low
 - maybe eliminate the pos + 1 in multiplication code, by various heuristics?
