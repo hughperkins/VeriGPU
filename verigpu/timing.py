@@ -87,6 +87,7 @@ g_cell_times = {
 }
 
 g_cell_areas = {
+    'bufx2': 4.0,
     'invx1': 1,
     'invx8': 14.7,
     'and2x1': 1.5,
