@@ -101,7 +101,8 @@ module comp_driver();
 
         // while(~halt && $time < 4040) begin
         // while(~halt && $time - t_at_reset < 3940) begin
-        while(~halt && $time - t_at_reset < 200000) begin
+        while(~halt && $time - t_at_reset < 400000) begin
+        // while(~halt && $time - t_at_reset < 200000) begin
         // while(~halt && $time - t_at_reset < 6000) begin
         // while(~halt && $time - t_at_reset < 10000) begin
         // while(~halt && $time - t_at_reset < 50000) begin
