@@ -484,7 +484,7 @@ module proc(
 
         $display("_instr %b", _instr);
         $display("_instr[31] %b", _instr[31]);
-        imm = { {12{_instr[31]}}, _instr[31], _instr[19:12], _instr[20], _instr[30:21], 1'b0 };
+        imm = { {11{_instr[31]}}, _instr[31], _instr[19:12], _instr[20], _instr[30:21], 1'b0 };
         $display("imm %b %0d", imm, imm);
         write_reg(_rd_sel, pc + 4);
         next_pc = imm + pc;
