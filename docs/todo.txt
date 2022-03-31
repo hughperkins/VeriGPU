@@ -29,6 +29,7 @@
 - (use actual memory module?)
 
 done:
+- can use labels in li now
 - use llvm to obtain risc-v assembler, and run this
 - implement JAL
 - implement JALR

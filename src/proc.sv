@@ -458,7 +458,7 @@ module proc(
                 end
             end
             default: begin
-                $display("ERROR: unknown _funct=%0d", _funct);
+                $display("ERROR: unknown _funct=%b", _funct);
             end
         endcase
         // $display("op regs[_rd]=%0d _rd=%0d regs[_rs1]=%0d regs[_rs2]=%0d", regs[_rd], _rd, regs[_rs1], regs[_rs2]);
