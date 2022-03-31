@@ -21,9 +21,25 @@
 ; - ignore things starting wtih .
 ; some way of deciding which function name to jump to
 
-li sp, 1000
+li sp, 800
+
+li a0, 123
+li a1, 2222
+sw  a0, -12(sp)
+sw  a1, -16(sp)
 jal x1, _Z3fooii
+
+
+li a0, 3
+li a1, 7
+li a2, 99
+sw  a0, -12(sp)
+sw  a1, -16(sp)
+sw  a2, -8(sp)
+addi a3, sp, -8
+sw a3, -20(sp)
 jal x1, _Z4foo2iiPi
+
 finish:
 halt
 

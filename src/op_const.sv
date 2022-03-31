@@ -15,7 +15,8 @@ typedef enum bit[6:0] {
     OPFP =     7'b1010011,
     AUIPC =    7'b0010111,
     OP32 =     7'b0111011,
-    OPIMM32 =  7'b0011011
+    OPIMM32 =  7'b0011011,
+    JAL =      7'b1101111
 } e_op;
 
 typedef enum bit[2:0] {

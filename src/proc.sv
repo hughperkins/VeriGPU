@@ -478,6 +478,39 @@ module proc(
         read_next_instr(pc + 4);
     endtask
 
+    task op_jal(input [31:0] _instr, input [4:0] _rd_sel);
+        reg signed [31:0] imm;
+        reg [31:0] next_pc;
+
+        $display("_instr %b", _instr);
+        $display("_instr[31] %b", _instr[31]);
+        imm = { {12{_instr[31]}}, _instr[31], _instr[19:12], _instr[20], _instr[30:21], 1'b0 };
+        $display("imm %b %0d", imm, imm);
+        write_reg(_rd_sel, pc + 4);
+        next_pc = imm + pc;
+        $display("pc %0d next_pc %0d", pc, next_pc);
+        $display("JAL storing %0d in x%0d", pc + 4, _rd_sel);
+        read_next_instr(next_pc);
+    endtask
+
+    task op_jalr(input [31:0] _instr, input [4:0] _rd_sel, input [data_width - 1:0] _rs1_data);
+        reg signed [31:0] imm;
+        reg [31:0] next_pc;
+
+        $display("_instr %b", _instr);
+        $display("_instr[31] %b", _instr[31]);
+        // imm = { {12{_instr[31]}}, _instr[31], _instr[19:12], _instr[20], _instr[30:21], 1'b0 };
+        imm = { {20{_instr[31]}}, _instr[31:20] };
+        $display("imm %b %0d", imm, imm);
+        write_reg(_rd_sel, pc + 4);
+        next_pc = imm + pc;
+        $display("pc %0d next_pc %0d", pc, next_pc);
+        next_pc = imm + _rs1_data;
+        $display("pc %0d next_pc %0d", pc, next_pc);
+        $display("JALR storing %0d in x%0d", pc + 4, _rd_sel);
+        read_next_instr(next_pc);
+    endtask
+
     task op_store(input [addr_width - 1:0] _addr);
         $display("%0d STORE addr %0d <= %0d", pc, _addr, c1_rs2_data);
         `assert_known(_addr);
@@ -552,6 +585,14 @@ module proc(
             AUIPC: begin
                 $display("c1.AUIPC");
                 op_auipc(c1_instr, c1_rd_sel);
+            end
+            JAL: begin
+                $display("c1.JAL");
+                op_jal(c1_instr, c1_rd_sel);
+            end
+            JALR: begin
+                $display("c1.JALR");
+                op_jalr(c1_instr, c1_rd_sel, c1_rs1_data);
             end
             default: begin
                 $display("default: HALT c1_op %b", c1_op);

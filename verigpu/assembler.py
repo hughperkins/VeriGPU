@@ -204,7 +204,6 @@ def numeric_str_to_bits(numeric_str, num_bits):
 
 
 def reg_str_to_bits(reg_str, num_bits: int = 5):
-    print('reg_str', reg_str)
     reg_str = reg_aliases.get(reg_str, reg_str)
     assert reg_str.startswith('x')
     assert len(reg_str) >= 2
@@ -507,6 +506,9 @@ def run(args):
                 if label in label_pos_by_name:
                     raise Exception('label ', label, 'already defined at ', label_pos_by_name[label])
                 label_pos_by_name[label] = len(new_asm_cmds) * 4
+            elif cmd.startswith('.'):
+                # ignore
+                continue
             else:
                 pass
                 # ignore everything else, let it through...
@@ -518,8 +520,8 @@ def run(args):
 
     print('')
     print('cmds after expanding pseudocommands:')
-    for line in new_asm_cmds:
-        print(line)
+    for i, line in enumerate(new_asm_cmds):
+        print(i * 4, ':', line)
     print('')
 
     print('label pos by name:')
@@ -556,8 +558,9 @@ def run(args):
                         'tail': 'x0'
                     }[cmd]
                     label = p1
+                    print(cmd, p1)
                     label_pos = label_pos_by_name[label]
-                    pc = len(new_asm_cmds) + 4 + 4
+                    pc = len(new_asm_cmds) * 4
                     label_offset = label_pos - pc
                     print('label_offset', label_offset)
                     auipc_offset, jalr_offset = offset_to_auipc_jalr_offset(label_offset)
@@ -692,22 +695,32 @@ def run(args):
                 # jal rd, label
                 #     p1  p2
                 # stores pc + 4 into rd, and jumps to label
+                print('jal', p1, p2)
                 rd_bits = reg_str_to_bits(p1)
                 label = p2
                 label_pos = label_pos_by_name[label]
-                pc = len(hex_lines) + 4
+                pc = len(hex_lines) * 4
+                # print('jal pc', pc)
                 label_offset = label_pos - pc
+                print('jal label_offset', label_offset)
                 label_offset_bits = int_to_bits(label_offset, 21)
+                assert label_offset_bits[-1] == '0'
+                # print('jal label_offset_bits', label_offset_bits)
                 l_bits_20 = label_offset_bits[-21]
                 l_bits_10_1 = label_offset_bits[-11:-1]
+                # print('jal l_bits_10_1', l_bits_10_1)
                 assert len(l_bits_10_1) == 10
                 l_bits_11 = label_offset_bits[-12]
+                # print('jal l_bits_11', l_bits_11)
                 l_bits_19_12 = label_offset_bits[-20:-12]
+                # print('jal l_bits_19_12', l_bits_19_12)
 
                 opcode_bits = op_bits_by_op['JAL']
 
-                instr_bits = f'{l_bits_20}{l_bits_10_1}{l_bits_19_12}{rd_bits}{opcode_bits}'
-                hex_lines.append(bits_to_hex(instr_bits))
+                instr_bits = f'{l_bits_20}{l_bits_10_1}{l_bits_11}{l_bits_19_12}{rd_bits}{opcode_bits}'
+                # print('instr_bits', instr_bits)
+                assert len(instr_bits) == 32
+                hex_lines.append(bits_to_hex(instr_bits, 32))
 
             elif cmd in ['jalr']:
                 # eg
@@ -715,11 +728,13 @@ def run(args):
                 #      p1  p2  p3
                 # stores next pc in rd, and jumps to rs1 + imm
                 # p2 can be a number; doesnt have to be a label
+                print('JALR', p1, p2, p3)
                 opcode_bits = op_bits_by_op['JALR']
                 rd_bits = reg_str_to_bits(p1)
                 # label = p2
                 pc = len(hex_lines) * 4
                 imm_val = imm_to_val(label_pos_by_name=label_pos_by_name, imm_str=p2, offset_start=pc)
+                print('jalr imm val', imm_val)
                 rs1_bits = reg_str_to_bits(p3)
                 # label_pos = label_pos_by_name[label]
                 # label_offset = label_pos - pc
