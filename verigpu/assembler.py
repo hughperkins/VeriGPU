@@ -1,6 +1,7 @@
 import argparse
 import os
 import math
+from typing import Dict, Union, List
 from collections import deque
 
 
@@ -100,22 +101,38 @@ funct5_bits_float = {
 }
 
 
-def int_to_binary(int_value, num_bits):
+def int_to_bits(int_value: int, num_bits: int) -> str:
+    """
+    1234
+    """
     if int_value < 0:
         offset = int(math.pow(2, num_bits))
         int_value += offset
     return format(int_value, f'#0{num_bits + 2}b')[2:]
 
 
-def hex_to_binary(hex_value, num_bits):
+def hex_to_binary(hex_value: str, num_bits: int) -> str:
+    """
+    0xabcd
+    """
     assert hex_value.startswith('0x')
     hex_value = hex_value[2:]
-    bits = int_to_binary(int(hex_value, 16), num_bits)
+    bits = int_to_bits(int(hex_value, 16), num_bits)
     assert len(bits) == num_bits
     return bits
 
 
-def int_str_to_int(int_str):
+def int_str_to_int(int_str: str) -> int:
+    """
+    example formats:
+
+    1234
+    0xabcd
+    0b0101
+
+    (so they always start with a digit)
+    """
+    print('int_str', int_str)
     if int_str.startswith('0x'):
         int_value = int(int_str[2:], 16)
     elif int_str.startswith('0b'):
@@ -125,20 +142,20 @@ def int_str_to_int(int_str):
     return int_value
 
 
-def int_str_to_bits(int_str, num_bits):
+def int_str_to_bits(int_str: str, num_bits: int) -> str:
     int_value = int_str_to_int(int_str)
-    bits = int_to_binary(int_value, num_bits)
+    bits = int_to_bits(int_value, num_bits)
     assert len(bits) == num_bits
     return bits
 
 
-def float_to_bits(float_value, exp_bits: int = 8, sig_bits: int = 23):
+def float_to_bits(float_value, num_exp_bits: int = 8, num_sig_bits: int = 23):
     # bits_check = ''.join([format(byte, '#010b')[2:] for byte in list(struct.pack('!f', 23.567))])
     sign_bit = 1 if float_value < 0 else 0
     if float_value == 0:
-        return '0' * 32
+        return '0' * (1 + num_exp_bits + num_sig_bits)
     elif float_value != float_value:
-        return '0' + '1' * 31
+        return '0' + '1' * (num_exp_bits + num_sig_bits)
     else:
         float_value = float_value if float_value >= 0 else - float_value
         exp = 0
@@ -150,21 +167,25 @@ def float_to_bits(float_value, exp_bits: int = 8, sig_bits: int = 23):
             signif *= 2
             exp -= 1
         exp_to_store = exp + 127
-        exp_bits = int_to_binary(exp_to_store, 8)
-        signif_to_store = (signif - 1) * math.pow(2, 23)
-        signif_bits = int_to_binary(int(signif_to_store), 23)
+        exp_bits = int_to_bits(exp_to_store, num_exp_bits)
+        signif_to_store = (signif - 1) * math.pow(2, num_sig_bits)
+        signif_bits = int_to_bits(int(signif_to_store), num_sig_bits)
     return f'{sign_bit}{exp_bits}{signif_bits}'
     # return bits
 
 
-def numeric_str_to_bits(numeric_str, num_bits):
+def numeric_str_to_value(numeric_str) -> Union[float, int]:
     if '.' in numeric_str:
-        float_value = float(numeric_str)
-        print('float_value', float_value)
-        bits = float_to_bits(float_value, exp_bits=8, sig_bits=23)
+        return float(numeric_str)
+    return int_str_to_int(numeric_str)
+
+
+def numeric_str_to_bits(numeric_str, num_bits):
+    val = numeric_str_to_value(numeric_str)
+    if isinstance(val, float):
+        bits = float_to_bits(val, exp_bits=8, sig_bits=23)
     else:
-        int_value = int_str_to_int(numeric_str)
-        bits = int_to_binary(int_value, num_bits)
+        bits = int_to_bits(val, num_bits)
     assert len(bits) == num_bits
     return bits
 
@@ -216,13 +237,13 @@ def word_bits_to_lui_addi_bits(word_bits: str):
     if lower_int > 2047:
         lower_int -= 4096
         upper_int += 1
-    upper_bits2 = int_to_binary(upper_int, 20)
-    lower_bits2 = int_to_binary(lower_int, 12)
+    upper_bits2 = int_to_bits(upper_int, 20)
+    lower_bits2 = int_to_bits(lower_int, 12)
     return upper_bits2, lower_bits2
 
 
 def offset_to_auipc_jalr_offset(offset: int):
-    label_offset_bits = int_to_binary(offset, 32)
+    label_offset_bits = int_to_bits(offset, 32)
     l_offset_31_12 = label_offset_bits[-32:-12]
     assert len(l_offset_31_12) == 20
     l_offset_31_12_int = bits_to_int(l_offset_31_12)
@@ -233,7 +254,59 @@ def offset_to_auipc_jalr_offset(offset: int):
     return auipc_offset, jalr_offset
 
 
+def imm_to_val(label_pos_by_name: Dict[str, int], imm_str: str, offset_start: int) -> Union[int, float]:
+    """
+    imm_str could be a number, or a label
+    if a label, comess back as a relative offset, relative to offset_start
+    otherwise comes back as an integer, or a float
+    """
+    imm_str = imm_str.strip()
+    assert len(imm_str) > 0
+    if imm_str[0] in "0123456789-":
+        # return int_str_to_int(imm_str)
+        return numeric_str_to_value(imm_str)
+    else:
+        label_pos = label_pos_by_name[imm_str]
+        offset = label_pos - offset_start
+        return offset
+
+
+def process_li(p1: str, p2: str, label_pos_by_name: Dict[str, int]) -> List[str]:
+    # e.g.: li x1 0x12
+    # virtual command; convert to e.g. addi x1, x0, 0x12
+    #
+    # immediate can be a number or a label
+    # if a label, will be converted into offset from 0
+    p2 = p2.strip()
+    assert len(p2) > 0
+
+    rd_str = p1
+    imm_val = imm_to_val(label_pos_by_name=label_pos_by_name, imm_str=p2, offset_start=0)
+
+    if isinstance(imm_val, int):
+        if abs(imm_val) < 2048:
+            # small ints can be loaded with single addi
+            return [f'addi {rd_str}, x0, {imm_val}']
+        imm_bits = int_to_bits(imm_val, 32)
+    else:
+        # float
+        imm_bits = float_to_bits(imm_val)
+
+    lui_bits, addi_bits = word_bits_to_lui_addi_bits(imm_bits)
+    lui_value = bits_to_int(lui_bits)
+    addi_value = bits_to_int(addi_bits)
+
+    cmds = []
+    # cmds.append(f'lui {rd_str}, 0b{lui_bits}')
+    # cmds.append(f'addi {rd_str}, {rd_str}, 0b{addi_bits}')
+    cmds.append(f'lui {rd_str}, {lui_value}')
+    cmds.append(f'addi {rd_str}, {rd_str}, {addi_value}')
+    return cmds
+
+
 def run(args):
+    label_pos_by_name = {}
+
     if not os.path.isdir('build'):
         os.makedirs('build')
     with open(args.in_asm) as f:
@@ -243,7 +316,6 @@ def run(args):
     # first we run a pass to expand pseudocommands, and record the locations of labels
     # then we run the assembly pass
 
-    label_pos_by_name = {}
     new_asm_cmds = deque()
     while len(asm_cmds) > 0:
         line = asm_cmds.popleft()
@@ -266,23 +338,42 @@ def run(args):
             elif cmd == 'li':
                 # e.g.: li x1 0x12
                 # virtual command; convert to e.g. addi x1, x0, 0x12
+                #
+                # immediate can be a number or a label
+                # if a label, will be converted into offset from 0
+                process_li(
+                    p1=p1,
+                    p2=p2,
+                    label_pos_by_name=label_pos_by_name,
+                    asm_cmds=asm_cmds)
+                # p2 = p2.strip()
+                # assert len(p2) > 0
 
-                if '.' not in p2:
-                    # not float
-                    imm_int = int_str_to_int(p2)
-                    if abs(imm_int) < 2048:
-                        # small ints can be loaded with single addi
-                        asm_cmds.appendleft(f'addi {p1}, x0, {p2}')
-                        continue
-                    imm_bits = int_str_to_bits(p2, 32)
-                else:
-                    # float
-                    imm_bits = numeric_str_to_bits(p2, 32)
+                # if p2[0] in "0123456789":
+                #     # a label, convert to int
+                #     imm_val = imm_to_int(p2)
+                # else:
+                #     # numeric
+                #     if '.' in p2:
+                #         imm_val = float(p2)
+                #         # imm_bits = numeric_str_to_bits(p2, 32)
+                #     else:
+                #         imm_val = int_str_to_int(p2)
 
-                lui_bits, addi_bits = word_bits_to_lui_addi_bits(imm_bits)
+                # if isinstance(imm_val, int):
+                #     if abs(imm_val) < 2048:
+                #         # small ints can be loaded with single addi
+                #         asm_cmds.appendleft(f'addi {p1}, x0, {p2}')
+                #         continue
+                #     imm_bits = int_str_to_bits(p2, 32)
+                # else:
+                #     # float
+                #     imm_bits = numeric_str_to_bits(p2, 32)
 
-                asm_cmds.appendleft(f'addi {p1}, {p1}, 0b{addi_bits}')
-                asm_cmds.appendleft(f'lui {p1}, 0b{lui_bits}')
+                # lui_bits, addi_bits = word_bits_to_lui_addi_bits(imm_bits)
+
+                # asm_cmds.appendleft(f'addi {p1}, {p1}, 0b{addi_bits}')
+                # asm_cmds.appendleft(f'lui {p1}, 0b{lui_bits}')
                 continue
             elif cmd == 'out':
                 # e.g.: out 0x1b
@@ -593,7 +684,7 @@ def run(args):
                 label_pos = label_pos_by_name[label]
                 pc = len(hex_lines) + 4
                 label_offset = label_pos - pc
-                label_offset_bits = int_to_binary(label_offset, 21)
+                label_offset_bits = int_to_bits(label_offset, 21)
                 l_bits_20 = label_offset_bits[-21]
                 l_bits_10_1 = label_offset_bits[-11:-1]
                 assert len(l_bits_10_1) == 10
@@ -610,12 +701,16 @@ def run(args):
                 # jalr rd, imm(rs1)
                 #      p1  p2  p3
                 # stores next pc in rd, and jumps to rs1 + imm
-                TODO IN PROGRESS
+                # p2 can be a number; doesnt have to be a label
                 rd_bits = reg_str_to_bits(p1)
                 label = p2
                 rs1_bits = reg_str_to_bits(p3)
                 label_pos = label_pos_by_name[label]
                 pc = len(hex_lines) * 4
+                label_offset = label_pos - pc
+                label_offset_bits = int_to_bits(label_offset, 21)
+
+                hex_lines.append(bits_to_hex(instr_bits))
             elif cmd in ['beq', 'bne', 'blt', 'bge', 'bltu', 'bgeu']:
                 # beq rs1, rs2, immed
                 op_bits = op_bits_by_op['BRANCH']  # "1100011"
@@ -633,7 +728,7 @@ def run(args):
                 label_pos = label_pos_by_name[label]
                 pc = len(hex_lines) * 4
                 label_offset = label_pos - pc
-                label_offset_bits = int_to_binary(label_offset // 2, 12)
+                label_offset_bits = int_to_bits(label_offset // 2, 12)
                 l_bits_12 = label_offset_bits[-12]
                 l_bits_11 = label_offset_bits[-11]
                 l_bits_10_5 = label_offset_bits[-10:-4]
