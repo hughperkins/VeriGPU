@@ -37,8 +37,3 @@ If we want to tape-out, we need solid verification. Read more at:
 we want the GPU to run quickly, and to use minimal die area. Read how we measure timings and area at:
 
 - [docs/metrics.md](docs/metrics.md)
-
-# Related projects
-
-- [verigpu-cuda-frontend](https://github.com/hughperkins/verigpu-cuda-frontend): Front-end for VeriGPU, providing NVIDIA® CUDA™ compatibility, for compatibility purposes
-- [coriander](https://github.com/hughperkins/coriander): Build NVIDIA® CUDA™ code for OpenCL™ 1.2 devices
