@@ -8,13 +8,13 @@ System components
 
 |Component                     |Status|
 |------------------------------|------|
-|Processor controller          |Drafted|
+|Processor controller          |In progress|
 |Parallel instruction execution|Planned|
 | Out of order execution       |Won't do (see below)|
 | Data memory caching           |Planned|
 | Instruction memory cachine   |Planned|
-| Integer APU                  |Drafted|
-| Floating point unit          |Planned|
+| Integer APU                  |In progress|
+| Floating point unit          |In progress|
 | Branching                    |Drafted|
 | Single instruction multiple thread (SIMT) |Planned|
 |Assembler                      |In progress|
