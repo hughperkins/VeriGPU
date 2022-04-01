@@ -17,7 +17,7 @@ System components
 | Floating point unit          |Planned|
 | Branching                    |Drafted|
 | Single instruction multiple thread (SIMT) |Planned|
-|Assember                      |In progress|
+|Assembler                      |In progress|
 | OpenCL™ compiler              |Planned (stretch)|
 | CUDA® compiler (for compatibility} |Planned (stretch)|
 
