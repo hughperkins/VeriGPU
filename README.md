@@ -40,4 +40,5 @@ we want the GPU to run quickly, and to use minimal die area. Read how we measure
 
 # Related projects
 
-- [Vortex GPU](https://github.com/vortexgpgpu/vortex), targeting FPGAs, compatible with OpenCL.
+- [verigpu-cuda-frontend](https://github.com/hughperkins/verigpu-cuda-frontend): Front-end for VeriGPU, providing NVIDIA® CUDA™ compatibility, for compatibility purposes
+- [coriander](https://github.com/hughperkins/coriander): Build NVIDIA® CUDA™ code for OpenCL™ 1.2 devices
