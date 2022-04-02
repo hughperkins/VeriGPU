@@ -16,4 +16,5 @@ if [[ ! -e build ]]; then {
 } fi
 
 bash test/behav/run_sv_tests.sh
+bash test/behav/run_examples_verilator.sh
 bash test/behav/run_examples.sh
