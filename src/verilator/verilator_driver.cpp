@@ -10,6 +10,7 @@
 #include "comp.h"
 
 #define MAX_SIM_TIME 5000000
+// #define MAX_SIM_TIME 2000
 vluint64_t sim_time = 0;
 
 double sc_time_stamp() {
@@ -18,6 +19,8 @@ double sc_time_stamp() {
 
 int main(int argc, char **argv, char **env)
 {
+    Verilated::commandArgs(argc, argv);
+
     comp *dut = new comp;
 
     // Verilated::traceEverOn(true);

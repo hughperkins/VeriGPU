@@ -675,11 +675,14 @@ module proc(
     endtask
 
     always @(mem_rd_data, div_wr_reg_req, c2_instr, state, pc, mem_ack, fadd_ack, mul_ack, fmul_ack) begin
-    // always @(*) begin
         // $display("t=%0d proc.comb mem_rd_data=%0d div_wr_reg_req=%0d c2_instr=%0h state=%0d pc=%0d mem_ack=%0d",
         //     $time, mem_rd_data, div_wr_reg_req, c2_instr, state, pc, mem_ack
         // );
     // always_comb begin
+        // $display("t=%0d proc.comb state=%0d pc=%0d",
+        //     $time, state, pc
+        // );
+
         halt = 0;
         out = '0;
         outen = 0;
@@ -782,7 +785,7 @@ module proc(
     always @(posedge clk or posedge rst) begin
         // assert(~$isunknown(rst));
         if (rst) begin
-            $display("proc.rst");
+            // $display("proc.rst state=%0d n_state=%0d pc=%0d n_pc=%0d", state, next_state, pc, next_pc);
             pc <= 0;
             state <= C0;
             regs[0] <= '0;
