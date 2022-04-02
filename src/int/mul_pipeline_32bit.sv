@@ -46,7 +46,7 @@ module mul_pipeline_32bit(
 
     always @(req, state, pos) begin
         // `assert(bits_per_cycle == (1 << clog2_bits_per_cycle));
-        $display("mul @(*) req=%b state=%0d pos=%0d", req, state, pos);
+        // $display("mul @(*) req=%b state=%0d pos=%0d", req, state, pos);
 
         n_out = out;
         n_ack = 0;

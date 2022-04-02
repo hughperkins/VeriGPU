@@ -121,6 +121,7 @@ module mem_delayed (
     always @(posedge clk, posedge rst) begin
         `assert_known(rst);
         if(rst) begin
+            $display("mem_delayed.rst");
             clks_to_wait <= 0;
             busy <= 0;
             ack <= 0;
@@ -132,9 +133,11 @@ module mem_delayed (
             received_rd_req <= 0;
             received_wr_req <= 0;
         end else begin
+            // $display("mem_delayed.clk non reset");
             `assert_known(oob_wen);
             if(oob_wen) begin
-                mem[oob_wr_addr] <= oob_wr_data;
+                $display("oob_wen mem[%0d] = %0d", oob_wr_addr, oob_wr_data);
+                mem[oob_wr_addr >> 2] <= oob_wr_data;
             end
             // if(ena) begin
             //     $display(
@@ -162,8 +165,8 @@ module mem_delayed (
             `assert_known(n_read_now);
             if(n_read_now) begin
                 // $display(
-                    // "reading rd data n_received_addr=%0d mem[ {2'b0, n_received_addr[31:2]} ]=%0d",
-                    // n_received_addr, mem[ {2'b0, n_received_addr[31:2]} ]);
+                //     // "reading rd data n_received_addr=%0d mem[ {2'b0, n_received_addr[31:2]} ]=%0d",
+                //     n_received_addr, mem[ {2'b0, n_received_addr[31:2]} ]);
                 rd_data <= mem[ {2'b0, n_received_addr[31:2]} ];
             end
         end

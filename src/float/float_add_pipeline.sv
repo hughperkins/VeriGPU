@@ -95,7 +95,7 @@ module float_add_pipeline(
             new_mant_lookup[shift] = 0;
         end
 
-        $display("t=%0d float_add always(*) state=%0d", $time, state);
+        // $display("t=%0d float_add always(*) state=%0d", $time, state);
         `assert_known(state);
         case(state)
             IDLE: begin

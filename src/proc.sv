@@ -782,6 +782,7 @@ module proc(
     always @(posedge clk or posedge rst) begin
         // assert(~$isunknown(rst));
         if (rst) begin
+            $display("proc.rst");
             pc <= 0;
             state <= C0;
             regs[0] <= '0;
@@ -806,6 +807,7 @@ module proc(
             mul_a <= '0;
             mul_b <= '0;
         end else begin
+            // $display("proc.run pc=%0d state=%0d mem_ack=%0d mem_rd_data=%0d %h", pc, state, mem_ack, mem_rd_data, mem_rd_data);
             // $display(
             //     "t=%0d proc.ff mem_addr %0d mem_wr_data %0d mem_rd_data %0d mem_wr_req %b mem_rd_req  %b mem_ack %b mem_busy %b",
             //     $time,
