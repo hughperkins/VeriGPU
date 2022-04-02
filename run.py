@@ -14,16 +14,19 @@ def run(args):
     with open('build/comp_driver.sv', 'w') as f:
         f.write(comp_driver)
     os.system(f'cat examples/{args.name}.asm')
-    assert os.system(
-        'iverilog -Wall -g2012 -pfileline=1 src/assert.sv src/op_const.sv'
-        ' src/const.sv src/int/int_div_regfile.sv'
-        ' src/float/float_params.sv src/float/float_add_pipeline.sv'
-        ' src/int/chunked_add_task.sv src/int/chunked_sub_task.sv '
-        ' src/generated/mul_pipeline_cycle_24bit_2bpc.sv src/float/float_mul_pipeline.sv'
-        ' src/generated/mul_pipeline_cycle_32bit_2bpc.sv src/int/mul_pipeline_32bit.sv'
-        ' src/proc.sv src/comp.sv'
-        ' src/mem_delayed_large.sv src/mem_delayed.sv build/comp_driver.sv') == 0
-    os.system('./a.out | tee /tmp/out.txt')
+    if args.verilator:
+        os.system('prot/verilator/run.sh | tee /tmp/out.txt')
+    else:
+        assert os.system(
+            'iverilog -Wall -g2012 -pfileline=1 src/assert.sv src/op_const.sv'
+            ' src/const.sv src/int/int_div_regfile.sv'
+            ' src/float/float_params.sv src/float/float_add_pipeline.sv'
+            ' src/int/chunked_add_task.sv src/int/chunked_sub_task.sv '
+            ' src/generated/mul_pipeline_cycle_24bit_2bpc.sv src/float/float_mul_pipeline.sv'
+            ' src/generated/mul_pipeline_cycle_32bit_2bpc.sv src/int/mul_pipeline_32bit.sv'
+            ' src/proc.sv src/comp.sv'
+            ' src/mem_delayed_large.sv src/mem_delayed.sv build/comp_driver.sv') == 0
+        os.system('./a.out | tee /tmp/out.txt')
     with open('/tmp/out.txt') as f:
         output = f.read()
         if 'ERROR' in output:
@@ -56,5 +59,6 @@ def run(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--name', type=str, required=True, help='eg prog5')
+    parser.add_argument('--verilator', action='store_true', help='use verilator')
     args = parser.parse_args()
     run(args)
