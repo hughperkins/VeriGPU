@@ -7,12 +7,16 @@ In order to run this you need to use the branch of iverilog at https://github.co
 ## Setup/installation
 
 ```
+# on linux
+sudo apt-get install clang bison gperf flex build-essential libreadline-dev
+# (or redhat equivalent)
+
+# on Mac
+brew install bison
+export PATH="/usr/local/opt/bison/bin:$PATH"
+
 bison -V
 # bison must be at least version 3
-# if you see e.g. 2.3, and you're on a Mac, you'll need to `brew install bison`, but it's not enough
-# see https://stackoverflow.com/questions/31805431/how-to-install-bison-on-mac-osx
-# you need to do also, on a Mac:
-# export PATH="/usr/local/opt/bison/bin:$PATH"
 
 # if you already used a package manager to install iverilog, uinstall it, eg on Mac
 # brew uninstall icarus-verilog
@@ -23,6 +27,7 @@ git checkout hp/vvp-so
 
 sh autoconf.sh
 ./configure
+make clean
 make -j $(nproc)
 
 # if you're on a Mac, with /usr/local writable:
