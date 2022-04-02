@@ -23,7 +23,7 @@ bison -V
 
 git clone https://github.com/hughperkins/iverilog.git
 cd iverilog
-git checkout hp/vvp-so
+git checkout hp/v11_0_vvp_so
 
 sh autoconf.sh
 ./configure
