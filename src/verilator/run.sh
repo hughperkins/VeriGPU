@@ -13,4 +13,4 @@ cd build
 
 cmake ..
 make -j $(nproc)
-./verilator1
+./verilator1 +verilator+rand+reset+2 +verilator+seed+$(($RANDOM * 65536 + $RANDOM))

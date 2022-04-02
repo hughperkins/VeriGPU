@@ -17,5 +17,6 @@ verilate(verilator1 SOURCES ${BASE}/assert.sv ${BASE}/const.sv ${BASE}/op_const.
     ${BASE}/comp.sv
     TOP_MODULE comp
     PREFIX comp
+    VERILATOR_ARGS +1800-2017ext+sv --x-initial unique --x-assign unique
 )
 # target_link_libraries(verilator1 ${VERILATOR_ROOT}/include/verilated.cpp)
