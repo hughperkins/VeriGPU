@@ -6,6 +6,7 @@
 #include <verilated.h>
 #include <vector>
 #include <bitset>
+#include <iomanip>
 #include <verilated_vcd_c.h>
 #include "comp.h"
 
