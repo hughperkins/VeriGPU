@@ -3,7 +3,7 @@
 set -ex
 set -o pipefail
 
-cd prot/verilator
+cd src/verilator
 
 if [[ ! -d build ]]; then {
     mkdir build

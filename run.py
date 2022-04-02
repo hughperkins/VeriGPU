@@ -15,7 +15,7 @@ def run(args):
         f.write(comp_driver)
     os.system(f'cat examples/{args.name}.asm')
     if args.verilator:
-        os.system('prot/verilator/run.sh | tee /tmp/out.txt')
+        os.system('SRC/verilator/run.sh | tee /tmp/out.txt')
     else:
         assert os.system(
             'iverilog -Wall -g2012 -pfileline=1 src/assert.sv src/op_const.sv'
