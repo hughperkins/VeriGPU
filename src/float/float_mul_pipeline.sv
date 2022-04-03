@@ -226,6 +226,7 @@ module float_mul_pipeline(
 
             norm_shift <= n_norm_shift;
             // $display("mul posedge norm_shift=%0d", norm_shift);
+            // $display("float_mul_pipeline.ff state=%0d pos=%0d n_new_mant=%b out=%b ack=%b", state, pos, n_new_mant, out, ack);
 
             carry <= n_carry;
             pos <= n_pos;
