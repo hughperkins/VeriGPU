@@ -10,8 +10,8 @@ module comp(
     output reg [7:0] out
 );
     reg [2:0] cnt;
-    always @(posedge clk, posedge rst) begin
-        if (rst) begin
+    always @(posedge clk, negedge rst) begin
+        if (~rst) begin
             cnt <= 0;
         end else begin
             out <= read_data;

@@ -24,8 +24,8 @@ module comp(
     reg [7:0] write_value;
     reg [3:0] cnt;
 
-    always @(posedge clk, posedge rst) begin
-        if (rst) begin
+    always @(posedge clk, negedge rst) begin
+        if (~rst) begin
             cnt <= '0;
         end else begin
             case(cnt)
@@ -87,8 +87,8 @@ module test_driver(
 
     initial begin
         $monitor("t=%d write=%b addr=%d data=%d out=%d", $time, write, addr, data, out);
-        rst = 1;
-        # 10 rst = 0;
+        rst = 0;
+        # 10 rst = 1;
         # 100 $finish();
     end
 endmodule

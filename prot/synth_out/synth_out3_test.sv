@@ -29,12 +29,12 @@ module synth_out3_test();
     endtask
 
     initial begin
-        rst = 1;
+        rst = 0;
         req = 0;
         tick();
         tick();
 
-        rst = 0;
+        rst = 1;
         $monitor("req=%0b cnt=%0d", req, cnt);
 
         tick();

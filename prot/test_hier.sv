@@ -1,8 +1,8 @@
 // test running timing.py on hierarchy
 
 module mod1(input clk, input rst, input a, input b, output c);
-    always @(posedge clk, posedge rst) begin
-        if(rst) begin
+    always @(posedge clk, negedge rst) begin
+        if(~rst) begin
         end else begin
             c <= a & b;
         end

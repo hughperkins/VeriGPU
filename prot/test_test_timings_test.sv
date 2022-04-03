@@ -51,13 +51,13 @@ module test_test_timings_test();
     initial begin
         $monitor("t=%0d rst=%0d req=%0d out=%0d", $time, rst, req, out);
         // 0
-        rst <= 1;
+        rst <= 0;
         req <= 0;
         clr <= 0;
         tick();
         // 10
-        rst <= 0;
-        $display("rst <= 0");
+        rst <= 1;
+        $display("rst <= 1");
         tick();
         // 20
         `assert(~out);

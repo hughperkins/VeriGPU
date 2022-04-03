@@ -20,9 +20,9 @@ module comb_vs_ff_test();
 
     initial begin
         $monitor("t=%0d rst=%0b cnt=%0d", $time, rst, cnt);
-        rst = 1;
-        #10
         rst = 0;
+        #10
+        rst = 1;
         op = ADD;
 
         #40

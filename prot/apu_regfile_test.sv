@@ -60,13 +60,13 @@ module apu_regfile_test();
     initial begin
         $monitor("t=%0d rs1=%0d rs2=%0d busy=%0b apu_wr_req=%0b apu_wr_sel=%0d apu_wr_data=%0d proc_rs1_data=%0d", $time, rs1, rs2, busy, apu_wr_req, apu_wr_sel, apu_wr_data, proc_rs1_data);
 
-        rst = 1;
+        rst = 0;
         #10
 
         assert (busy == 0);
         assert (apu_wr_req == 0);
 
-        rst = 0;
+        rst = 1;
         rs1 = 1234;
         rs2 = 53;  // q = 23 r 15
         rd_sel = 11;

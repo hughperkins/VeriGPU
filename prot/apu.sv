@@ -77,8 +77,8 @@ module apu(
         .rf_wr_req(div_wr_req)
     );
 
-    always @(posedge clk, posedge rst) begin
-        if(rst) begin
+    always @(posedge clk, negedge rst) begin
+        if(~rst) begin
             apu_wr_req <= 0;
             busy <= 0;
             div_req <= 0;

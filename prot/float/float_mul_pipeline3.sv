@@ -195,8 +195,8 @@ module float_mul_pipeline(
         endcase
     end
 
-    always @(posedge clk, posedge rst) begin
-        if(rst) begin
+    always @(posedge clk, negedge rst) begin
+        if(~rst) begin
             state <= IDLE;
 
             out <= 0;

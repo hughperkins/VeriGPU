@@ -33,10 +33,10 @@ module reg_file_test();
     initial begin
         $monitor("t=%0d rst=%0b rs1_data=%0d rs2_data=%0d", $time, rst, rs1_data, rs2_data);
 
-        rst = 1;
+        rst = 0;
 
         #10
-        rst = 0;
+        rst = 1;
         wr_sel = 3;
         wr_data = 111;
         wr_req = 1;

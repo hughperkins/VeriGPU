@@ -19,8 +19,8 @@ module test_test_timings(
         end
     end
 
-    always @(posedge clk, posedge rst) begin
-        if(rst) begin
+    always @(posedge clk, negedge rst) begin
+        if(~rst) begin
             out <= 0;
         end else begin
             out <= n_out;

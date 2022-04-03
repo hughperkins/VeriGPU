@@ -27,8 +27,8 @@ module reg_file_dual_write(
 );
     reg [data_width - 1:0] regs [num_regs];
 
-    always @(posedge clk, posedge rst) begin
-        if(rst) begin
+    always @(posedge clk, negedge rst) begin
+        if(~rst) begin
             proc_ack <= 0;
             apu_ack <= 0;
         end else begin

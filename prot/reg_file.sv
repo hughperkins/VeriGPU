@@ -34,8 +34,8 @@ module reg_file(
         // end
     end
 
-    always @(posedge clk, posedge rst) begin
-        if(rst) begin
+    always @(posedge clk, negedge rst) begin
+        if(~rst) begin
             regs[0] <= '0;
         end else begin
             if(wr_req && (wr_sel != 0)) begin

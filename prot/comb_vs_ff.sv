@@ -40,8 +40,8 @@ module comb_vs_ff(
         endcase
     end
 
-    always @(posedge clk, posedge rst) begin
-        if(rst) begin
+    always @(posedge clk, negedge rst) begin
+        if(~rst) begin
             cnt <= '0;
         end else begin
             cnt <= new_cnt;

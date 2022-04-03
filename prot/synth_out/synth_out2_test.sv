@@ -49,12 +49,12 @@ module synth_out_test2();
     endtask
 
     initial begin
-        rst = 1;
+        rst = 0;
         a = 0;
         tick();
         tick();
 
-        rst = 0;
+        rst = 1;
         $monitor("a=%0b out=%0b", a, out);
 
         tick();

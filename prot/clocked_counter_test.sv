@@ -12,8 +12,8 @@ module test_clocked_counter();
 
     initial begin
         $monitor("t=%0d rst=%0d cnt=%0d", $time, rst, cnt);
-        rst = 1;
-        #20 rst = 0;
+        rst = 0;
+        #20 rst = 1;
         #100 $finish();
     end
 endmodule

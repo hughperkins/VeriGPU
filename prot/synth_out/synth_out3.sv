@@ -31,8 +31,8 @@ module synth_out3(
         endcase
     end
 
-    always @(posedge clk, posedge rst) begin
-        if(rst) begin
+    always @(posedge clk, negedge rst) begin
+        if(~rst) begin
             state <= 0;
             cnt <= 0;
         end else begin

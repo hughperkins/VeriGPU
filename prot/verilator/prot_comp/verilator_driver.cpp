@@ -25,7 +25,7 @@ int main(int argc, char **argv, char **env)
     // dut->trace(m_trace, 5);
     // m_trace->open("waveform.vcd");
 
-    dut->rst = 1;
+    dut->rst = 0;
     dut->oob_wen = 0;
     dut->ena = 0;
     dut->clk = 0;
@@ -34,7 +34,8 @@ int main(int argc, char **argv, char **env)
     dut->clk = 1;
     sim_time += 5;
     dut->eval();
-    dut->rst = 0;
+
+    dut->rst = 1;
     dut->clk = 0;
     sim_time += 5;
     dut->eval();
@@ -127,20 +128,7 @@ int main(int argc, char **argv, char **env)
         }
         i += 1;
     }
-    // for(auto it = begin(outs); it != end(outs); ++it) {
-    //     std::bitset<32> bits(*it);
-    //     std::cout << "out " << i << " " << bits << " " << std::hex << std::setw(8) << std::setfill('0') << *it << " " << std::dec << *it << std::endl;
-    //     i += 1;
-    // }
 
-    // for(auto it = begin(out_floats); it != end(out_floats); ++it) {
-    //     std::cout << "out.s " << i << *it << std::endl;
-    //     // std::bitset<32> bits(*it);
-    //     // std::cout << "out " << i << " " << bits << " " << std::hex << std::setw(8) << std::setfill('0') << *it << " " << std::dec << *it << std::endl;
-    //     i += 1;
-    // }
-
-    // m_trace->close();
     delete dut;
     exit(EXIT_SUCCESS);
 }

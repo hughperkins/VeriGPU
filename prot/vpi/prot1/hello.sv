@@ -22,8 +22,8 @@ module main();
         n_cpp_in = 0;
     end
 
-    always @(posedge clk, posedge rst) begin
-        if(rst) begin
+    always @(posedge clk, negedge rst) begin
+        if(~rst) begin
             cpp_in <= 0;
         end else begin
             cpp_in <= n_cpp_in;
@@ -34,10 +34,10 @@ module main();
     end
 
     initial begin
-        rst = 1;
+        rst = 0;
         tick();
 
-        rst <= 0;
+        rst <= 1;
         tick();
 
         $hello;

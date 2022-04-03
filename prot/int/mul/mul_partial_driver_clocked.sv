@@ -109,8 +109,8 @@ module mul_clocked(
         endcase
     end
 
-    always @(posedge clk, posedge rst) begin
-        if(rst) begin
+    always @(posedge clk, negedge rst) begin
+        if(~rst) begin
             state <= IDLE;
             cin <= '0;
             pos <= '0;

@@ -31,8 +31,8 @@ module call_div(
         
     end
 
-    always @(posedge clk, posedge rst) begin
-        if(rst) begin
+    always @(posedge clk, negedge rst) begin
+        if(~rst) begin
             div_req <= 0;
         end else begin
             if (trigger_div) begin
@@ -95,11 +95,11 @@ module int_div_regfile_test();
     initial begin
         $display("test2");
         $monitor("t=%0d trig=%0d busy=%0d pos=%0d", $time, trigger_div, div_busy, div_pos);
-        rst = 1;
+        rst = 0;
         trigger_div = 0;
         tick();
 
-        rst = 0;
+        rst = 1;
         tick();
 
         trigger_div = 1;
