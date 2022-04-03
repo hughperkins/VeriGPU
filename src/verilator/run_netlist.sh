@@ -14,6 +14,6 @@ if [[ ! -d build ]]; then {
 
 cd build
 
-cmake ..
+cmake .. -DBUILD_NETLIST:bool=true
 make -j $(nproc) comp_netlist
 ./comp_netlist +verilator+rand+reset+2 +verilator+seed+$(($RANDOM * 65536 + $RANDOM))

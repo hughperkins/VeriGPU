@@ -20,7 +20,8 @@ verilate(comp SOURCES ${BASE}/assert.sv ${BASE}/const.sv ${BASE}/op_const.sv
     PREFIX comp
     VERILATOR_ARGS +1800-2017ext+sv --x-initial unique --x-assign unique
 )
-
+option(BUILD_NETLIST "build netlist" OFF)
+if(BUILD_NETLIST)
 add_executable(comp_netlist ../verilator_driver.cpp ${VERILATOR_ROOT}/include/verilated.cpp)
 verilate(comp_netlist SOURCES ${BASE}/assert.sv ${BASE}/const.sv ${BASE}/op_const.sv
     ${BASE}/../tech/osu018/osu018_stdcells-verilator.sv
@@ -31,3 +32,4 @@ verilate(comp_netlist SOURCES ${BASE}/assert.sv ${BASE}/const.sv ${BASE}/op_cons
     PREFIX comp
     VERILATOR_ARGS +1800-2017ext+sv --x-initial unique --x-assign unique
 )
+endif()
