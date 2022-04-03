@@ -50,8 +50,8 @@ module float_mul_pipeline_test_vtor(
         end
     endtask;
 
-    always @(posedge clk, posedge rst) begin
-        if(rst) begin
+    always @(posedge clk, negedge rst) begin
+        if(~rst) begin
             finish <= 0;
             fail <= 0;
             cnt <= 0;
