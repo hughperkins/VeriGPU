@@ -1,5 +1,8 @@
 /*
-Targeting testing using verilator, whihc will provide a clock
+Targeting testing using verilator, whihc will provide a clock, and reset
+
+The idea is that this module does most fo the work; so can easily be run by a lightweight
+head from whatever simulator, eg pure verilog driver, or verilator c++ driver.
 */
 
 module float_mul_pipeline_test_vtor(
