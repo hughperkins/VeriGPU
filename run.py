@@ -44,16 +44,24 @@ def run(args):
         print('')
         print('Target prog: ' + args.name)
         print('')
-        if expected != output:
-            print('TEST ERROR: output mismatch')
-            print('')
-            print('actual:')
+        if output.startswith('out 0'):
+            output_l = ['out 0 ' + out.strip() for out in output.split('out 0 ') if out.strip() != '']
+        else:
+            output_l = ['out.s 0 ' + out.strip() for out in output.split('out.s 0 ') if out.strip() != '']
+        for i, output in enumerate(output_l):
+            print('run', i)
+            print('output')
             print(output)
-            print('')
-            print('expected:')
-            print(expected)
-            raise Exception('assert failed')
-        print('output verified')
+            if expected != output:
+                print('TEST ERROR: output mismatch')
+                print('')
+                print('actual:')
+                print(output)
+                print('')
+                print('expected:')
+                print(expected)
+                raise Exception('assert failed')
+            print('output verified')
 
 
 if __name__ == '__main__':
