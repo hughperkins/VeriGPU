@@ -669,7 +669,7 @@ module proc(
                 endcase
             end
             default: begin
-                $display("ERROR got unrecognized op in c2 %0d", c2_op);
+                $display("WARNING got unrecognized op in c2 %0d", c2_op);
             end
         endcase
     endtask
