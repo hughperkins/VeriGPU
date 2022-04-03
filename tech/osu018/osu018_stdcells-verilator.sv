@@ -3,6 +3,9 @@
 /*
 this is modified from the original, to replace udp primitives with 'always' modules instead,
 for verilator usage.
+
+Note that because of the hacky way that I'm handling the notifier, you'll need your circuit's reset
+to last at least 2 clock cycles, in order to remove the `x` that will be created in every flip flop.
 */
 
 `celldefine
@@ -1009,8 +1012,13 @@ module my_dff(
   output reg out,
   input in, clk, clr, set, NOTIFIER
 );
-  always @(posedge clk, posedge clr, posedge set) begin
-    if(set) begin
+  reg old_notifier;
+  always @(posedge clk, posedge clr, posedge set, posedge NOTIFIER, negedge NOTIFIER) begin
+    if(NOTIFIER ^ old_notifier) begin
+      old_notifier = NOTIFIER;
+      $display("notifier triggered, going to x");
+      out <= 1'bx;
+    end else if(set) begin
       out <= 1;
     end else if(clr) begin
       out <= 0;
@@ -1052,8 +1060,11 @@ module my_tlat(
   output reg out,
   input in, enable, clr, set, NOTIFIER
 );
+  reg old_notifier;
   always @(*) begin
-    if(set) begin
+    if(NOTIFIER ^ old_notifier) begin
+      out = 1'bx;
+    end else if(set) begin
       out = 1;
     end else if(clr) begin
       out = 0;

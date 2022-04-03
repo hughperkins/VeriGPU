@@ -38,6 +38,14 @@ int main(int argc, char **argv, char **env)
     dut->clk = 1;
     sim_time += 5;
     dut->eval();
+
+    dut->clk = 0;
+    sim_time += 5;
+    dut->eval();
+    dut->clk = 1;
+    sim_time += 5;
+    dut->eval();
+
     dut->rst = 0;
     dut->clk = 0;
     sim_time += 5;
