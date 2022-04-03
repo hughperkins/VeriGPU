@@ -1,4 +1,4 @@
-module float_add_test();
+module float_add_pipeline_test();
     reg                     clk;
     reg                     rst;
     reg                     req;
@@ -7,7 +7,7 @@ module float_add_test();
     reg [float_width - 1:0] b;
     reg [float_width - 1:0] out;
 
-    float_add_pipeline float_add_pipeline_(
+    float_add_pipeline_test float_add_pipeline_(
         .clk(clk),
         .rst(rst),
         .req(req),

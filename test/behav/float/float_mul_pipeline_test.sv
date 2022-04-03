@@ -1,4 +1,4 @@
-module float_mul_test();
+module float_mul_pipeline_test();
     reg                     clk;
     reg                     rst;
     reg                     req;

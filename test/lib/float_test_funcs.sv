@@ -85,6 +85,7 @@ function [float_width - 1:0] make_float(input real val);
     reg sign;
     reg [float_exp_width - 1:0] exp;
     reg [float_mant_width - 1:0] mant;
+    reg [data_width - float_mant_width - 1:0] _dummy_sig_exp;
 
     if(val == 0.0) begin
         make_float = '0;
@@ -108,7 +109,7 @@ function [float_width - 1:0] make_float(input real val);
         for(int i = 0; i < float_mant_width; i = i + 1) begin
             val = val * 2;
         end
-        mant = $rtoi(val);
+        {_dummy_sig_exp, mant} = $rtoi(val);
         make_float = {sign, exp, mant};
     end
 endfunction
