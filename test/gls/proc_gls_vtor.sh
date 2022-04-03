@@ -47,7 +47,17 @@ for prog in ${progs}; do {
         exit 1
     } fi
 
-    if diff build/out_only.txt examples/expected/${prog}_expected.txt; then {
+    cat examples/expected/${prog}_expected.txt > /tmp/expected.txt
+    cat examples/expected/${prog}_expected.txt >> /tmp/expected.txt
+    cat examples/expected/${prog}_expected.txt >> /tmp/expected.txt
+
+    echo "output"
+    cat build/out.txt
+
+    echo "expected"
+    cat /tmp/expected.txt
+
+    if diff build/out_only.txt /tmp/expected.txt; then {
         echo SUCCESS
     } else {
         echo FAIL
