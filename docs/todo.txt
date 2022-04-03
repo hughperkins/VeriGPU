@@ -1,9 +1,8 @@
-- run GLS using verilator
-- make unit tests work with verilator
 - be able to pass data backwards and forwards between the 'kernels' from c/c++
     - might need verilator?
+- update coding guidelines now we are using verilator
 - update timings for generated 32bit mul, in int mul .md
-- change reset to active low
+- change reset to active low?
 - maybe eliminate the pos + 1 in multiplication code, by various heuristics?
 - reduce int division unit dpt
 - parallel instruction execution
@@ -32,6 +31,8 @@
 - (use actual memory module?)
 
 done:
+- run GLS using verilator
+- make unit tests work with verilator
 - verilator driver file?
 - get examples running using verilator
 - can use labels in li now
