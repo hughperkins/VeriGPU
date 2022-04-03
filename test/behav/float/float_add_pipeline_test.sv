@@ -70,13 +70,13 @@ module float_add_pipeline_test();
         $monitor(
             "t=%0d test.mon a=%0f b=%0f out=%0f",
             $time, a_real, b_real, out_real);
-        rst <= 1;
+        rst <= 0;
         req <= 0;
         clk <= 0;
 
         tick();
         $display("reset going off");
-        rst <= 0;
+        rst <= 1;
 
         tick();
 

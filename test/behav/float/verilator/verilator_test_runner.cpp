@@ -38,13 +38,13 @@ int main(int argc, char **argv, char **env)
 
     Verilated::assertOn(false);
 
-    dut_rst() = 1;
+    dut_rst() = 0;
     dut_clk() = 0;
     dut_eval();
     dut_clk() = 1;
     dut_eval();
 
-    dut_rst() = 0;
+    dut_rst() = 1;
     dut_clk() = 0;
     dut_eval();
     Verilated::assertOn(true);

@@ -68,13 +68,13 @@ module mul_clocked_test();
         // $monitor(
         //     "t=%0d test.mon a=%0d b=%0d out=%0d ack=%b",
         //     $time, a, b, out, ack);
-        rst = 1;
+        rst = 0;
         req = 0;
         clk = 0;
 
         tick();
         $display("reset going off");
-        rst <= 0;
+        rst <= 1;
 
         tick();
 

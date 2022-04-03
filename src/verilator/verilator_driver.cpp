@@ -29,7 +29,7 @@ int main(int argc, char **argv, char **env)
     // dut->trace(m_trace, 5);
     // m_trace->open("waveform.vcd");
 
-    dut->rst = 1;
+    dut->rst = 0;
     dut->oob_wen = 0;
     dut->ena = 0;
     dut->clk = 0;
@@ -46,7 +46,7 @@ int main(int argc, char **argv, char **env)
     sim_time += 5;
     dut->eval();
 
-    dut->rst = 0;
+    dut->rst = 1;
     dut->clk = 0;
     sim_time += 5;
     dut->eval();

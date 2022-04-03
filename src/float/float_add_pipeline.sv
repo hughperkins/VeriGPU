@@ -209,8 +209,8 @@ module float_add_pipeline(
 
     end
 
-    always @(posedge clk, posedge rst) begin
-        if(rst) begin
+    always @(posedge clk, negedge rst) begin
+        if(~rst) begin
             state <= IDLE;
 
             out <= 0;

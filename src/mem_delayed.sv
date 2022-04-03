@@ -118,9 +118,9 @@ module mem_delayed (
         end
     end
 
-    always @(posedge clk, posedge rst) begin
+    always @(posedge clk, negedge rst) begin
         `assert_known(rst);
-        if(rst) begin
+        if(~rst) begin
             $display("mem_delayed.rst");
             clks_to_wait <= 0;
             busy <= 0;
@@ -165,7 +165,7 @@ module mem_delayed (
             `assert_known(n_read_now);
             if(n_read_now) begin
                 // $display(
-                //     // "reading rd data n_received_addr=%0d mem[ {2'b0, n_received_addr[31:2]} ]=%0d",
+                //     "reading rd data n_received_addr=%0d mem[ {2'b0, n_received_addr[31:2]} ]=%0d",
                 //     n_received_addr, mem[ {2'b0, n_received_addr[31:2]} ]);
                 rd_data <= mem[ {2'b0, n_received_addr[31:2]} ];
             end

@@ -100,7 +100,7 @@ module mem_delayed_test();
 
     initial begin
         // $monitor("t=%0d test.mon ack=%d busy=%d rd_req=%h wr_req=%h addr=%0h rd_data=%0h wr_data=%0h", $time, ack, busy, rd_req, wr_req, addr, rd_data, wr_data);
-        rst <= 1;
+        rst <= 0;
         wr_req <= 0;
         rd_req <= 0;
         oob_wen <= 0;
@@ -108,7 +108,7 @@ module mem_delayed_test();
 
         #5
         #10
-        rst <= 0;
+        rst <= 1;
         ena <= 1;
         $display("reset off");
         #10

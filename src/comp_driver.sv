@@ -64,11 +64,11 @@ module comp_driver();
 
     initial begin
         $readmemh("build/prog.hex", mem_load);
-        rst <= 1;
+        rst <= 0;
         ena <= 0;
         oob_wen <= 0;
         #10
-        rst <= 0;
+        rst <= 1;
         #10
         #5;
 

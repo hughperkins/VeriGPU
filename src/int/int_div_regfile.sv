@@ -239,18 +239,18 @@ module int_div_regfile(
                 end
             end
             default: begin
-                if(~rst) $display("ERROR: got to default state state=%0d", state);
+                if(rst) $display("ERROR: got to default state state=%0d", state);
             end
         endcase
     end
 
-    always @(posedge clk, posedge rst) begin
+    always @(posedge clk, negedge rst) begin
         // $strobe(
         //     "t=%0d int.ff state=%0d req=%0b rf_wr_req=%0d pos=%0d rst=%0b next_internal_b=%0d",
         //     $time,
         //     state, req, rf_wr_req, pos, rst, next_internal_b);
         // assert(~$isunknown(rst));
-        if (rst) begin
+        if (~rst) begin
             state <= IDLE;
             pos <= 0;
             busy <= 0;

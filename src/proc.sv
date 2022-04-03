@@ -783,9 +783,9 @@ module proc(
         // end
     end
 
-    always @(posedge clk or posedge rst) begin
+    always @(posedge clk or negedge rst) begin
         // assert(~$isunknown(rst));
-        if (rst) begin
+        if (~rst) begin
             // $display("proc.rst state=%0d n_state=%0d pc=%0d n_pc=%0d", state, next_state, pc, next_pc);
             pc <= 0;
             state <= C0;
