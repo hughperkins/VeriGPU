@@ -9,12 +9,16 @@ test/behav/verilator_compile_comp.sh
 
 python -V
 yosys -V
-pip install -e .
+
+if ! python -c 'import verigpu'; then {
+    pip install -e .
+} fi
 
 if [[ ! -e build ]]; then {
     mkdir build
 } fi
 
-bash test/behav/run_sv_tests.sh
+bash test/behav/run_sv_unit_tests.sh
+bash test/behav/run_verilator_unit_tests.sh
 bash test/behav/run_examples_verilator.sh
 bash test/behav/run_examples.sh
