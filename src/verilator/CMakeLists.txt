@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.16.3)
 
 project(verilator1)
 find_package(verilator HINTS $ENV{VERILATOR_ROOT})
-add_executable(verilator1 ../verilator_driver.cpp ${VERILATOR_ROOT}/include/verilated.cpp)
-set(BASE "..")
-verilate(verilator1 SOURCES ${BASE}/assert.sv ${BASE}/const.sv ${BASE}/op_const.sv
+add_executable(verilator ../verilator_driver.cpp ${VERILATOR_ROOT}/include/verilated.cpp)
+set(BASE ${CMAKE_SOURCE_DIR}/..)
+verilate(verilator SOURCES ${BASE}/assert.sv ${BASE}/const.sv ${BASE}/op_const.sv
     ${BASE}/int/chunked_add_task.sv ${BASE}/int/chunked_sub_task.sv
     ${BASE}/float/float_params.sv ${BASE}/float/float_mul_pipeline.sv
     ${BASE}/float/float_add_pipeline.sv
@@ -19,4 +19,3 @@ verilate(verilator1 SOURCES ${BASE}/assert.sv ${BASE}/const.sv ${BASE}/op_const.
     PREFIX comp
     VERILATOR_ARGS +1800-2017ext+sv --x-initial unique --x-assign unique
 )
-# target_link_libraries(verilator1 ${VERILATOR_ROOT}/include/verilated.cpp)

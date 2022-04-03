@@ -3,7 +3,10 @@
 set -ex
 set -o pipefail
 
-cd prot/verilator/prot_comp
+SCRIPTDIR=$(dirname $0)
+BASENAME=$(basename $SCRIPTDIR)
+
+cd ${SCRIPTDIR}
 
 if [[ ! -d build ]]; then {
     mkdir build
@@ -13,4 +16,4 @@ cd build
 
 cmake ..
 make -j $(nproc)
-./verilator1
+./${BASENAME} +verilator+rand+reset+2 +verilator+seed+$(($RANDOM * 65536 + $RANDOM))
