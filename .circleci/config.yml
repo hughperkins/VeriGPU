@@ -50,7 +50,7 @@ jobs:
           no_output_timeout: 2m
 
   gls-verilator:
-    resource_class: small
+    resource_class: large
     docker:
       - image: hughperkins/chip_design:latest
     steps:
