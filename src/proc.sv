@@ -342,7 +342,7 @@ module proc(
                 $display("FADD.C2");
                 `assert_known(fadd_ack);
                 if(fadd_ack) begin
-                    $display("FADD.C2 x%0d <=", _rd_sel);
+                    $display("FADD.C2 x%0d <= %b", _rd_sel, fadd_out);
                     wr_reg_data = fadd_out;
                     wr_reg_sel = _rd_sel;
                     wr_reg_req = 1;
@@ -353,7 +353,7 @@ module proc(
                 $display("FMUL.C2");
                 `assert_known(fmul_ack);
                 if(fmul_ack) begin
-                    $display("FMUL.C2 x%0d <=", _rd_sel);
+                    $display("FMUL.C2 x%0d <= %b", _rd_sel, fmul_out);
                     wr_reg_data = fmul_out;
                     wr_reg_sel = _rd_sel;
                     wr_reg_req = 1;
