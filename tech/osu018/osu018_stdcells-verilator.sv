@@ -1016,7 +1016,6 @@ module my_dff(
   always @(posedge clk, posedge clr, posedge set, posedge NOTIFIER, negedge NOTIFIER) begin
     if(NOTIFIER ^ old_notifier) begin
       old_notifier = NOTIFIER;
-      $display("notifier triggered, going to x");
       out <= 1'bx;
     end else if(set) begin
       out <= 1;
