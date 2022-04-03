@@ -35,14 +35,15 @@ module float_mul_pipeline_test_vtor(
             submitted <= 1;
         end else begin
             req <= 0;
+            cnt <= cnt + 1;
             if(ack) begin
                 $display("out=%0f", to_real(out));
                 assert(reals_near(to_real(out), _expected));
-                // finish <= 1;
                 test_num <= test_num + 1;
                 submitted <= 0;
                 cnt <= 0;
             end
+            assert(cnt < 100);
         end
     endtask;
 
@@ -94,7 +95,7 @@ module float_mul_pipeline_test_vtor(
 
                     25: finish <= 1;
                 endcase
-                cnt <= cnt + 1;
+                // cnt <= cnt + 1;
             end
         end
     end
