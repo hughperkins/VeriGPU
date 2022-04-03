@@ -18,5 +18,5 @@ if [[ ! -e build ]]; then {
     mkdir build
 } fi
 
-bash test/behav/run_sv_unit_tests.sh
-bash test/behav/run_examples.sh
+bash test/behav/run_verilator_unit_tests.sh
+bash test/behav/run_examples_verilator.sh

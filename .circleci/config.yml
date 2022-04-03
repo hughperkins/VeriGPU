@@ -1,20 +1,10 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
   behavioral:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
-    resource_class: small  # see https://circleci.com/docs/2.0/configuration-reference/#resource_class
+    resource_class: small
     docker:
       - image: hughperkins/chip_design:latest
-      # - image: hughperkins/verigpu:0.2
-      # - image: cimg/python:3.10.1
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     steps:
       - checkout
       - run:
@@ -23,16 +13,22 @@ jobs:
             cicd/run-behav.sh
           no_output_timeout: 2m
 
-  py:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
-    resource_class: small  # see https://circleci.com/docs/2.0/configuration-reference/#resource_class
+  behavioral-verilator:
+    resource_class: small
     docker:
       - image: hughperkins/chip_design:latest
-      # - image: hughperkins/verigpu:0.2
-      # - image: cimg/python:3.10.1
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+    steps:
+      - checkout
+      - run:
+          name: "Run behavioral tests using verilator"
+          command: |
+            cicd/run-behav-verilator.sh
+          no_output_timeout: 2m
+
+  py:
+    resource_class: small
+    docker:
+      - image: hughperkins/chip_design:latest
     steps:
       - checkout
       - run:
@@ -42,15 +38,9 @@ jobs:
           no_output_timeout: 2m
 
   gls:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
-    resource_class: small  # see https://circleci.com/docs/2.0/configuration-reference/#resource_class
+    resource_class: small
     docker:
       - image: hughperkins/chip_design:latest
-      # - image: hughperkins/verigpu:0.2
-      # - image: cimg/python:3.10.1
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     steps:
       - checkout
       - run:
@@ -59,16 +49,22 @@ jobs:
             cicd/run-gls.sh
           no_output_timeout: 2m
 
-  timing:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
-    resource_class: small  # see https://circleci.com/docs/2.0/configuration-reference/#resource_class
+  gls-verilator:
+    resource_class: small
     docker:
       - image: hughperkins/chip_design:latest
-      # - image: hughperkins/verigpu:0.2
-      # - image: cimg/python:3.10.1
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+    steps:
+      - checkout
+      - run:
+          name: "Run GLS tests using verilator"
+          command: |
+            cicd/run-gls-verilator.sh
+          no_output_timeout: 2m
+
+  timing:
+    resource_class: small
+    docker:
+      - image: hughperkins/chip_design:latest
     steps:
       - checkout
       - run:
@@ -83,12 +79,12 @@ jobs:
       - store_artifacts:
           path: build/clock-cycles.txt
 
-# Invoke jobs via workflows
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
   test-workflow:
     jobs:
       - py
       - behavioral
+      - behavioral-verilator
       - gls
+      - gls-verilator
       - timing
