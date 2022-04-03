@@ -237,11 +237,11 @@ module proc(
                 write_reg(_rd, c1_rs1_data & _i_imm);
             end
             SLLI: begin
-                $display("%0d SLLI x%0d <= %0d << %0d", pc, _rd, c1_rs1_data, c1_rs2_data);
+                $display("%0d SLLI x%0d <= %0d << %0d", pc, _rd, c1_rs1_data, c1_rs2_sel);
                 write_reg(_rd, (c1_rs1_data << c1_rs2_sel));
             end
             SRLI: begin
-                $display("%0d SRLI x%0d <= %0d >> %0d", pc, _rd, c1_rs1_data, c1_rs2_data);
+                $display("%0d SRLI x%0d <= %0d >> %0d", pc, _rd, c1_rs1_data, c1_rs2_sel);
                 write_reg(_rd, (c1_rs1_data >> c1_rs2_sel));
             end
             // SRAI: begin FIXME: implement
