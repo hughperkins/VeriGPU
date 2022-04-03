@@ -1,4 +1,10 @@
 `timescale 1ns/10ps
+
+/*
+this is modified from the original, to replace udp primitives with 'always' modules instead,
+for verilator usage.
+*/
+
 `celldefine
 module AND2X1 (A, B, Y);
 input  A ;
@@ -58,7 +64,9 @@ input  B ;
 input  C ;
 output Y ;
 
+   /* verilator lint_off IMPLICIT */
    and (I0_out, A, B);
+   /* verilator lint_off IMPLICIT */
    or  (I1_out, I0_out, C);
    not (Y, I1_out);
 
@@ -91,8 +99,11 @@ input  C ;
 input  D ;
 output Y ;
 
+   /* verilator lint_off IMPLICIT */
    and (I0_out, A, B);
+   /* verilator lint_off IMPLICIT */
    and (I1_out, C, D);
+   /* verilator lint_off IMPLICIT */
    or  (I2_out, I0_out, I1_out);
    not (Y, I2_out);
 
@@ -237,8 +248,12 @@ input  D ;
 output Q ;
 reg NOTIFIER ;
 
+   /* verilator lint_off IMPLICIT */
    not (I0_CLOCK, CLK);
-   udp_dff (DS0000, D, I0_CLOCK, 1'B0, 1'B0, NOTIFIER);
+   //udp_dff (DS0000, D, I0_CLOCK, 1'B0, 1'B0, NOTIFIER);
+   /* verilator lint_off IMPLICIT */
+   my_dff DFFNEGX1_line242(DS0000, D, I0_CLOCK, 1'B0, 1'B0, NOTIFIER);
+   /* verilator lint_off IMPLICIT */
    not (P0002, DS0000);
    buf (Q, DS0000);
 
@@ -276,7 +291,10 @@ input  D ;
 output Q ;
 reg NOTIFIER ;
 
-   udp_dff (DS0000, D, CLK, 1'B0, 1'B0, NOTIFIER);
+//   udp_dff (DS0000, D, CLK, 1'B0, 1'B0, NOTIFIER);
+   /* verilator lint_off IMPLICIT */
+   my_dff my_dff_line281(DS0000, D, CLK, 1'B0, 1'B0, NOTIFIER);
+   /* verilator lint_off IMPLICIT */
    not (P0002, DS0000);
    buf (Q, DS0000);
 
@@ -316,15 +334,25 @@ input  S ;
 output Q ;
 reg NOTIFIER ;
 
+   /* verilator lint_off IMPLICIT */
    not (I0_CLEAR, R);
+   /* verilator lint_off IMPLICIT */
    not (I0_SET, S);
-   udp_dff (P0003, D_, CLK, I0_SET, I0_CLEAR, NOTIFIER);
+   // udp_dff (P0003, D_, CLK, I0_SET, I0_CLEAR, NOTIFIER);
+   /* verilator lint_off IMPLICIT */
+   my_dff my_dff_line324(P0003, D_, CLK, I0_SET, I0_CLEAR, NOTIFIER);
+   /* verilator lint_off IMPLICIT */
    not (D_, D);
+   /* verilator lint_off IMPLICIT */
    not (P0002, P0003);
    buf (Q, P0002);
+   /* verilator lint_off IMPLICIT */
    and (\D&S , D, S);
+   /* verilator lint_off IMPLICIT */
    not (I7_out, D);
+   /* verilator lint_off IMPLICIT */
    and (\~D&R , I7_out, R);
+   /* verilator lint_off IMPLICIT */
    and (\S&R , S, R);
 
    specify
@@ -383,10 +411,14 @@ input  C ;
 output YC ;
 output YS ;
 
+   /* verilator lint_off IMPLICIT */
    and (I0_out, A, B);
+   /* verilator lint_off IMPLICIT */
    and (I1_out, B, C);
+   /* verilator lint_off IMPLICIT */
    and (I3_out, C, A);
    or  (YC, I0_out, I1_out, I3_out);
+   /* verilator lint_off IMPLICIT */
    xor (I5_out, A, B);
    xor (YS, I5_out, C);
 
@@ -549,7 +581,10 @@ input  D ;
 output Q ;
 reg NOTIFIER ;
 
-   udp_tlat (DS0000, D, CLK, 1'B0, 1'B0, NOTIFIER);
+   // udp_tlat (DS0000, D, CLK, 1'B0, 1'B0, NOTIFIER);
+   /* verilator lint_off IMPLICIT */
+   my_tlat my_tlat_line556(DS0000, D, CLK, 1'B0, 1'B0, NOTIFIER);
+   /* verilator lint_off IMPLICIT */
    not (P0000, DS0000);
    buf (Q, DS0000);
 
@@ -588,7 +623,9 @@ input  B ;
 input  S ;
 output Y ;
 
-   udp_mux2 (I0_out, B, A, S);
+   // udp_mux2 (I0_out, B, A, S);
+   /* verilator lint_off IMPLICIT */
+   my_mux2 my_mux2_line596(I0_out, B, A, S);
    not (Y, I0_out);
 
    specify
@@ -618,6 +655,7 @@ input  A ;
 input  B ;
 output Y ;
 
+   /* verilator lint_off IMPLICIT */
    and (I0_out, A, B);
    not (Y, I0_out);
 
@@ -646,6 +684,7 @@ input  B ;
 input  C ;
 output Y ;
 
+   /* verilator lint_off IMPLICIT */
    and (I1_out, A, B, C);
    not (Y, I1_out);
 
@@ -704,6 +743,7 @@ input  B ;
 input  C ;
 output Y ;
 
+   /* verilator lint_off IMPLICIT */
    or  (I1_out, A, B, C);
    not (Y, I1_out);
 
@@ -735,7 +775,9 @@ input  B ;
 input  C ;
 output Y ;
 
+   /* verilator lint_off IMPLICIT */
    or  (I0_out, A, B);
+   /* verilator lint_off IMPLICIT */
    and (I1_out, I0_out, C);
    not (Y, I1_out);
 
@@ -768,8 +810,11 @@ input  C ;
 input  D ;
 output Y ;
 
+  /* verilator lint_off IMPLICIT */
    or  (I0_out, A, B);
+   /* verilator lint_off IMPLICIT */
    or  (I1_out, C, D);
+   /* verilator lint_off IMPLICIT */
    and (I2_out, I0_out, I1_out);
    not (Y, I2_out);
 
@@ -913,6 +958,7 @@ input  A ;
 input  B ;
 output Y ;
 
+   /* verilator lint_off IMPLICIT */
    xor (I0_out, A, B);
    not (Y, I0_out);
 
@@ -959,6 +1005,22 @@ output Y ;
 endmodule
 `endcelldefine
 
+module my_dff(
+  output reg out,
+  input in, clk, clr, set, NOTIFIER
+);
+  always @(posedge clk, posedge clr, posedge set) begin
+    if(set) begin
+      out <= 1;
+    end else if(clr) begin
+      out <= 0;
+    end else begin
+      out <= in;
+    end
+  end
+endmodule
+
+/*
 primitive udp_dff (out, in, clk, clr, set, NOTIFIER);
    output out;
    input  in, clk, clr, set, NOTIFIER;
@@ -966,8 +1028,8 @@ primitive udp_dff (out, in, clk, clr, set, NOTIFIER);
 
    table
 
-// in  clk  clr   set  NOT  : Qt : Qt+1
-//
+// in     clr set NOT : Qt :  Qt+1
+//    clk
    0  r   ?   0   ?   : ?  :  0  ; // clock in 0
    1  r   0   ?   ?   : ?  :  1  ; // clock in 1
    1  *   0   ?   ?   : 1  :  1  ; // reduce pessimism
@@ -984,7 +1046,24 @@ primitive udp_dff (out, in, clk, clr, set, NOTIFIER);
 
    endtable
 endprimitive // udp_dff
+*/
 
+module my_tlat(
+  output reg out,
+  input in, enable, clr, set, NOTIFIER
+);
+  always @(*) begin
+    if(set) begin
+      out = 1;
+    end else if(clr) begin
+      out = 0;
+    end else if(ena) begin
+      out = in;
+    end
+  end
+endmodule
+
+/*
 primitive udp_tlat (out, in, enable, clr, set, NOTIFIER);
 
    output out;
@@ -993,8 +1072,8 @@ primitive udp_tlat (out, in, enable, clr, set, NOTIFIER);
 
    table
 
-// in  enable  clr   set  NOT  : Qt : Qt+1
-//
+// in     clr set NOT : Qt :  Qt+1
+//    ena
    1  1   0   ?   ?   : ?  :  1  ; //
    0  1   ?   0   ?   : ?  :  0  ; //
    1  *   0   ?   ?   : 1  :  1  ; // reduce pessimism
@@ -1010,7 +1089,8 @@ primitive udp_tlat (out, in, enable, clr, set, NOTIFIER);
 
    endtable
 endprimitive // udp_tlat
-
+*/
+/*
 primitive udp_rslat (out, clr, set, NOTIFIER);
 
    output out;
@@ -1029,6 +1109,15 @@ primitive udp_rslat (out, clr, set, NOTIFIER);
 
    endtable
 endprimitive // udp_tlat
+*/
+module my_mux2(
+  output reg out,
+  input reg in0, in1, sel
+);
+  always @(*) begin
+    out = sel ? in1 : in0;
+  end
+endmodule
 
 primitive udp_mux2 (out, in0, in1, sel);
    output out;
