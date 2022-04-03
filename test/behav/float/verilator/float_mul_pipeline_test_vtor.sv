@@ -98,7 +98,6 @@ module float_mul_pipeline_test_vtor(
 
                     25: finish <= 1;
                 endcase
-                // cnt <= cnt + 1;
             end
         end
     end
