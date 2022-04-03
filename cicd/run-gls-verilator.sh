@@ -14,4 +14,4 @@ if [[ ! -e build ]]; then {
     mkdir build
 } fi
 
-bash test/gls/proc_gl_vtor.sh
+bash test/gls/proc_gls_vtor.sh
