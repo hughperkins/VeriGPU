@@ -183,7 +183,7 @@ module float_add_pipeline(
                     for(int shift_int = float_mant_width - 1; shift_int >= 0; shift_int--) begin
                         reg [$clog2(float_mant_width) - 1:0] shift;
                         shift = shift_int[$clog2(float_mant_width) - 1:0];
-                        $display("shift %0d new_mant[shift]=%0d", shift, n_new_mant[float_mant_width - shift]);
+                        // $display("shift %0d new_mant[shift]=%0d", shift, n_new_mant[float_mant_width - shift]);
                         `assert_known(n_new_mant);
                         if(n_new_mant[float_mant_width - shift] == 1) begin
                             norm_shift = shift;

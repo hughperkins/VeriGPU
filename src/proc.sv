@@ -336,10 +336,10 @@ module proc(
         reg [4:0] funct5;
         funct5 = _instr[31:27];
         `assert_known(funct5);
-        $display("op_fp_c2");
+        // $display("op_fp_c2");
         case (funct5)
             FADD: begin
-                $display("FADD.C2");
+                // $display("FADD.C2");
                 `assert_known(fadd_ack);
                 if(fadd_ack) begin
                     $display("FADD.C2 x%0d <= %b", _rd_sel, fadd_out);
@@ -350,7 +350,7 @@ module proc(
                 end
             end
             FMUL: begin
-                $display("FMUL.C2");
+                // $display("FMUL.C2");
                 `assert_known(fmul_ack);
                 if(fmul_ack) begin
                     $display("FMUL.C2 x%0d <= %b", _rd_sel, fmul_out);
@@ -630,7 +630,7 @@ module proc(
                 `assert_known(c2_op_funct);
                 case(c2_op_funct)
                     MUL: begin
-                        $display("MUL.C2");
+                        // $display("MUL.C2");
                         `assert_known(mul_ack);
                         if(mul_ack) begin
                             $display("MUL.C2 x%0d <=", c2_rd_sel);
@@ -674,6 +674,7 @@ module proc(
         endcase
     endtask
 
+    // always @(*) begin
     always @(mem_rd_data, div_wr_reg_req, c2_instr, state, pc, mem_ack, fadd_ack, mul_ack, fmul_ack) begin
         // $display("t=%0d proc.comb mem_rd_data=%0d div_wr_reg_req=%0d c2_instr=%0h state=%0d pc=%0d mem_ack=%0d",
         //     $time, mem_rd_data, div_wr_reg_req, c2_instr, state, pc, mem_ack

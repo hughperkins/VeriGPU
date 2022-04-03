@@ -136,7 +136,7 @@ module mem_delayed (
             // $display("mem_delayed.clk non reset");
             `assert_known(oob_wen);
             if(oob_wen) begin
-                $display("oob_wen mem[%0d] = %0d", oob_wr_addr, oob_wr_data);
+                // $display("oob_wen mem[%0d] = %0d", oob_wr_addr, oob_wr_data);
                 mem[oob_wr_addr >> 2] <= oob_wr_data;
             end
             // if(ena) begin

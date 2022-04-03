@@ -33,7 +33,7 @@ module float_mul_pipeline(
     reg [float_mant_width:0]            b_mant;
 
     reg [float_exp_width - 1:0]         new_exp;
-    reg [float_mant_width * 2 + 1:0]    new_mant;
+    reg [float_mant_width * 2 + 3:0]    new_mant;
     reg                                 new_sign;
 
     reg [float_exp_width - 1:0]         norm_shift;
@@ -49,7 +49,7 @@ module float_mul_pipeline(
     reg [float_mant_width:0]            n_b_mant;
 
     reg [float_exp_width - 1:0]         n_new_exp;
-    reg [float_mant_width * 2 + 1:0]    n_new_mant;
+    reg [float_mant_width * 2 + 3:0]    n_new_mant;
 
     reg                                 n_new_sign;
 
@@ -104,13 +104,15 @@ module float_mul_pipeline(
             IDLE: begin
                 `assert_known(req);
                 if(req) begin
-                    $display("floatmul.req");
+                    // $display("floatmul.req");
                     `assert_known(a);
                     `assert_known(b);
 
                     n_a_mant = '0;
                     n_b_mant = '0;
 
+                    // $display("a %b", a);
+                    // $display("b %b", b);
                     {a_sign, n_a_exp, n_a_mant[float_mant_width - 1:0]} = a;
                     {b_sign, n_b_exp, n_b_mant[float_mant_width - 1:0]} = b;
 
@@ -127,8 +129,8 @@ module float_mul_pipeline(
                         n_a_mant[float_mant_width] = 1;
                         n_b_mant[float_mant_width] = 1;
 
-                        $display("a        %b e %0d", n_a_mant, n_a_exp);
-                        $display("b        %b e %0d", n_b_mant, n_a_exp);
+                        // $display("a        %b e %0d", n_a_mant, n_a_exp);
+                        // $display("b        %b e %0d", n_b_mant, n_a_exp);
 
                         n_new_exp = n_a_exp + n_b_exp - 127 - float_mant_width;
                         n_new_sign = a_sign ^ b_sign;
@@ -150,7 +152,7 @@ module float_mul_pipeline(
                     n_new_mant[pos + bits_per_cycle - 1 -: bits_per_cycle],
                     n_carry
                 );
-                $display("pos=%0d n_new_mant=%b carry=%b n_carry=%b", n_pos, n_new_mant, carry, n_carry);
+                // $display("pos=%0d n_new_mant=%b carry=%b n_carry=%b norm_shift %0d", n_pos, n_new_mant, carry, n_carry, norm_shift);
                 `assert_known(n_pos);
                 if(pos >= float_mant_width * 2 + 1) begin
                     n_state = S2;
@@ -160,20 +162,21 @@ module float_mul_pipeline(
                 if(n_new_mant[pos_plus_one]) begin
                     // n_norm_shift = pos +  { {pos_width - 1{1'b0}}, 1'b1 };
                     n_norm_shift = '0;
-                    n_norm_shift[pos_width -1:0] = pos_plus_one;
+                    n_norm_shift[pos_width - 1:0] = pos_plus_one;
                 end else if(n_new_mant[pos]) begin
                     n_norm_shift = '0;
-                    n_norm_shift[pos_width -1:0] = pos;
+                    n_norm_shift[pos_width - 1:0] = pos;
                 end
+                // $display("MUL1 pos_plus_one=%0d n_new_mant[pos_plus_one] %b, n_norm_shift %0d", pos_plus_one, n_new_mant[pos_plus_one], n_norm_shift);
             end
             S2: begin
-                $display("floatmul.S3");
-                $display("n_norm_shift %0d", n_norm_shift);
+                // $display("floatmul.S3");
+                // $display("S3 n_norm_shift %0d", n_norm_shift);
                 n_norm_shift = n_norm_shift - float_mant_width;
                 n_new_mant = n_new_mant >> n_norm_shift;
                 n_new_exp = n_new_exp + n_norm_shift;
 
-                $display("floatmul.S2b n_new_mant=%b n_new_exp=%0d", n_new_mant, n_new_exp);
+                // $display("floatmul.S2b n_new_mant=%b n_new_exp=%0d", n_new_mant, n_new_exp);
 
                 n_out = {n_new_sign, n_new_exp, n_new_mant[float_mant_width - 1:0]};
                 n_ack = 1;
@@ -222,6 +225,7 @@ module float_mul_pipeline(
             new_sign <= n_new_sign;
 
             norm_shift <= n_norm_shift;
+            // $display("mul posedge norm_shift=%0d", norm_shift);
 
             carry <= n_carry;
             pos <= n_pos;

@@ -182,7 +182,7 @@ module int_div_regfile(
                 end
             end
             WRITE: begin
-                $display("WRITE");
+                // $display("WRITE");
                 `assert_known(internal_r_quot_sel);
                 `assert_known(internal_r_mod_sel);
                 if(internal_r_quot_sel != 0) begin
@@ -203,7 +203,7 @@ module int_div_regfile(
                 end
             end
             WRITING_QUOTIENT: begin
-                $display("WRITING_QUOTIENT");
+                // $display("WRITING_QUOTIENT");
                 `assert_known(rf_wr_ack);
                 if(rf_wr_ack) begin
                     // $display("div got ack, maybe write modulus");
@@ -227,7 +227,7 @@ module int_div_regfile(
                 end
             end
             WRITING_MODULUS: begin
-                $display("WRITING_MODULUS");
+                // $display("WRITING_MODULUS");
                 `assert_known(rf_wr_ack);
                 if(rf_wr_ack) begin
                     next_state = IDLE;
