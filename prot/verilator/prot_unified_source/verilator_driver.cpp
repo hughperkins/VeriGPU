@@ -7,8 +7,8 @@
 #include <verilated.h>
 #include <vector>
 #include <bitset>
-// #include <verilated_vcd_c.h>
-// #include "comp.h"
+#include <verilated_vcd_c.h>
+#include "prot_unified_source.h"
 
 #define MAX_SIM_TIME 5000000
 vluint64_t sim_time = 0;
@@ -71,24 +71,28 @@ void *gpuMalloc(unsigned int requestedBytes) {
     }
 }
 
+void gpuCopy(void *gpuMemPtr, void *srcData, size_t numBytes) {
+
+}
+
 int main(int argc, char **argv, char **env)
 {
-    // comp *dut = new comp;
+    prot_unified_source *dut = new prot_unified_source;
 
     MemoryInfo *p_memInfo = new MemoryInfo(0, totalMemoryBytes);
     freeSpaces.insert(p_memInfo);
 
-    // dut->rst = 0;
-    // dut->oob_wen = 0;
-    // dut->ena = 0;
-    // dut->clk = 0;
-    // sim_time += 5;
-    // dut->eval();
-    // dut->clk = 1;
-    // sim_time += 5;
-    // dut->eval();
+    dut->rst = 0;
+    dut->oob_wen = 0;
+    dut->ena = 0;
+    dut->clk = 0;
+    sim_time += 5;
+    dut->eval();
+    dut->clk = 1;
+    sim_time += 5;
+    dut->eval();
 
-    // dut->rst = 1;
+    dut->rst = 1;
     // dut->clk = 0;
     // sim_time += 5;
     // dut->eval();
@@ -102,11 +106,11 @@ int main(int argc, char **argv, char **env)
     unsigned int numValues = 5;
     void *ptrMemory = gpuMalloc(numValues * sizeof(unsigned int));
     std::cout << "found memory at " << ptrMemory << std::endl;
-    return 0;
-    // gpuCopy(handle, values, numValues * sizeof(unsigned int));
-    // copyToGpu(values, );
 
-    // delete dut;
-    // exit(EXIT_SUCCESS);
+    gpuCopy(ptrMemory, values, numValues * sizeof(unsigned int));
+    // copyToGpu(values, );
     return 0;
+
+    delete prot_unified_source;
+    exit(EXIT_SUCCESS);
 }
