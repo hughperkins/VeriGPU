@@ -122,7 +122,7 @@ module controller(
                     endcase
                 end
                 RECV_PARAMS: begin
-                    $display("RECV_PARAMS param_pos=%0d recv_instr=%0d", param_pos, recv_instr);
+                    $display("RECV_PARAMS param_pos=%0d in_data=%0d", param_pos, in_data);
                     // we use in_data to receive because
                     // means we can give more control to recv_instr, eg it could
                     // send RESET in the middle of sending a new instruction, and we wouldn't
@@ -134,8 +134,8 @@ module controller(
                         case(instr)
                             COPY_TO_GPU: begin
                                 n_data_addr = params[0];
-                                n_last_data_addr_excl = params[0] + params[1];
-                                $display("addr %0d count %0d final_addr_excl %0d", params[0], params[1], n_last_data_addr_excl);
+                                n_last_data_addr_excl = params[0] + n_params[1];
+                                $display("RECV_PARAMS COPY_TO_GPU addr %0d count %0d final_addr_excl %0d", params[0], n_params[1], n_last_data_addr_excl);
                                 n_state = RECEIVE_DATA;
                             end
                             default: begin
@@ -161,7 +161,7 @@ module controller(
         end
     end
     always @(posedge clk, negedge rst) begin
-        $display("controller.ff");
+        // $display("controller.ff");
         if(~rst) begin
             out_data <= '0;
             state <= IDLE;

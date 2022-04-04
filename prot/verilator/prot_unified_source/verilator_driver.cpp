@@ -88,6 +88,7 @@ void *gpuMalloc(uint32_t requestedBytes) {
 }
 
 void gpuCopy(controller *dut, void *gpuMemPtr, void *srcData, size_t numBytes) {
+    std::cout << "gpuCopy our addr " << srcData << " theirs " << gpuMemPtr << " numBytes " << numBytes << std::endl;
     dut->recv_instr = COPY_TO_GPU;
     tick(dut);
 
@@ -101,6 +102,7 @@ void gpuCopy(controller *dut, void *gpuMemPtr, void *srcData, size_t numBytes) {
     uint32_t *srcDataWords = (uint32_t *)srcData;
     long numWords = numBytes >> 2;
     for(long i = 0; i < numWords; i++) {
+        std::cout << "sending word " << i << " which is " << srcDataWords[i] << std::endl;
         dut->in_data = srcDataWords[i];
         tick(dut);
     }
