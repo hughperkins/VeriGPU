@@ -87,8 +87,8 @@ void *gpuMalloc(uint32_t requestedBytes) {
     }
 }
 
-void gpuCopy(controller *dut, void *gpuMemPtr, void *srcData, size_t numBytes) {
-    std::cout << "gpuCopy our addr " << srcData << " theirs " << gpuMemPtr << " numBytes " << numBytes << std::endl;
+void gpuCopyToDevice(controller *dut, void *gpuMemPtr, void *srcData, size_t numBytes) {
+    std::cout << "gpuCopyToDevice our addr " << srcData << " theirs " << gpuMemPtr << " numBytes " << numBytes << std::endl;
     dut->recv_instr = COPY_TO_GPU;
     tick(dut);
 
@@ -107,6 +107,28 @@ void gpuCopy(controller *dut, void *gpuMemPtr, void *srcData, size_t numBytes) {
         tick(dut);
     }
     std::cout << "hopefully copied data to GPU" << std::endl;
+}
+
+void gpuCopyFromDevice(controller *dut, void *destData, void *gpuMemPtr, size_t numBytes) {
+    std::cout << "gpuCopyFromDevice our addr " << destData << " theirs " << gpuMemPtr << " numBytes " << numBytes << std::endl;
+    dut->recv_instr = COPY_FROM_GPU;
+    tick(dut);
+
+    dut->in_data = (uint32_t)(size_t)gpuMemPtr;
+    tick(dut);
+
+    dut->in_data = (uint32_t)numBytes;
+    tick(dut);
+
+    dut->recv_instr = NOP;
+    uint32_t *destDataWords = (uint32_t *)destData;
+    long numWords = numBytes >> 2;
+    for(long i = 0; i < numWords; i++) {
+        tick(dut);
+        destDataWords[i] = dut->out_data;
+        std::cout << "received word " << i << " which is " << destDataWords[i] << std::endl;
+    }
+    std::cout << "hopefully received data from GPU" << std::endl;
 }
 
 int main(int argc, char **argv, char **env)
@@ -140,8 +162,18 @@ int main(int argc, char **argv, char **env)
     void *ptrMemory = gpuMalloc(numValues * sizeof(uint32_t));
     std::cout << "found memory at " << ptrMemory << std::endl;
 
-    gpuCopy(dut, ptrMemory, values, numValues * sizeof(uint32_t));
+    gpuCopyToDevice(dut, ptrMemory, values, numValues * sizeof(uint32_t));
+
+    uint32_t valuesBack[] = {0, 0, 0, 0, 0};
+
+    gpuCopyFromDevice(dut, valuesBack, ptrMemory, numValues * sizeof(uint32_t));
     // copyToGpu(values, );
+    for(int i = 0; i < numValues; i++) {
+        std::cout << "c++ received data from gpu i=" << i << " val=" << valuesBack[i] << std::endl;
+    }
+    for(int i = 0; i < numValues; i++) {
+        assert(valuesBack[i] == values[i]);
+    }
 
     delete dut;
     exit(EXIT_SUCCESS);

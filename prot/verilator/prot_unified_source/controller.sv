@@ -63,6 +63,13 @@ module controller(
     reg [31:0] last_data_addr_excl;
     // reg [31:0] data_cnt;
 
+    // reg mem_wr_req;
+    // reg mem_rd_req;
+    // reg [31:0] mem_wr_addr;
+    // reg [31:0] mem_rd_addr;
+    // reg [31:0] mem_wr_data;
+    reg [31:0] mem_rd_data;
+
     reg [5:0] n_state;
     reg [31:0] n_instr;
     reg [$clog2(MAX_PARAMS) - 1:0] n_param_pos;
@@ -71,6 +78,13 @@ module controller(
     reg [31:0] n_data_addr;
     reg [31:0] n_last_data_addr_excl;
     // reg [31:0] n_data_cnt;
+
+    reg n_mem_wr_req;
+    reg n_mem_rd_req;
+    reg [31:0] n_mem_wr_addr;
+    reg [31:0] n_mem_rd_addr;
+    reg [31:0] n_mem_wr_data;
+    // reg [31:0] n_mem_rd_data;
 
     reg [31:0] n_out_data;
 
@@ -88,6 +102,8 @@ module controller(
         KERNEL_LAUNCH = 3
     } e_instr;
 
+    reg [31:0] mem [512];  // put here for now, use comp's in a bit
+
     always @(*) begin
         n_state = state;
         n_instr = instr;
@@ -95,6 +111,12 @@ module controller(
         n_out_data = '0;
         n_last_data_addr_excl = last_data_addr_excl;
         n_data_addr = data_addr;
+
+        n_mem_rd_req = 0;
+        n_mem_wr_req = 0;
+        n_mem_rd_addr = '0;
+        n_mem_wr_addr = '0;
+        n_mem_wr_data = '0;
 
         for(int i = 0; i < MAX_PARAMS; i++) begin
             n_params[i] = '0; 
@@ -109,6 +131,10 @@ module controller(
                     case(recv_instr)
                         COPY_TO_GPU: begin
                             $display("COPY_TO_GPU");
+                            n_num_params = 2;
+                        end
+                        COPY_FROM_GPU: begin
+                            $display("COPY_FROM_GPU");
                             n_num_params = 2;
                         end
                         NOP: begin
@@ -138,6 +164,14 @@ module controller(
                                 $display("RECV_PARAMS COPY_TO_GPU addr %0d count %0d final_addr_excl %0d", params[0], n_params[1], n_last_data_addr_excl);
                                 n_state = RECEIVE_DATA;
                             end
+                            COPY_FROM_GPU: begin
+                                n_data_addr = params[0];
+                                n_last_data_addr_excl = params[0] + n_params[1];
+                                $display("RECV_PARAMS COPY_FROM_GPU addr %0d count %0d final_addr_excl %0d", params[0], n_params[1], n_last_data_addr_excl);
+                                n_state = SEND_DATA;
+                                n_mem_rd_addr = params[0];
+                                n_mem_rd_req = 1;
+                            end
                             default: begin
                                 $display("recv params case instr hit default");
                             end
@@ -146,12 +180,29 @@ module controller(
                 end
                 RECEIVE_DATA: begin
                     $display("RECEIVE_DATA");
-                    // just mock this for now...
                     $display("receive data addr %0d val %0d", data_addr, in_data);
+                    // mem[data_addr] = in_data;
                     n_data_addr = data_addr + 4;
+                    n_mem_wr_req = 1;
+                    n_mem_wr_addr = data_addr;
+                    n_mem_wr_data = in_data;
                     if(n_data_addr >= last_data_addr_excl) begin
                         $display("finished data receive");
                         n_state = IDLE;
+                    end
+                end
+                SEND_DATA: begin
+                    $display("SEND_DATA");
+                    $display("send data addr %0d val %0d", data_addr, mem_rd_data);
+                    n_data_addr = data_addr + 4;
+                    // n_out_data = mem[data_addr];
+                    n_out_data = mem_rd_data;
+                    if(n_data_addr >= last_data_addr_excl) begin
+                        $display("finished data send");
+                        n_state = IDLE;
+                    end else begin
+                        n_mem_rd_req = 1;
+                        n_mem_rd_addr = n_data_addr;
                     end
                 end
                 default: begin
@@ -175,6 +226,8 @@ module controller(
 
             data_addr <= '0;
             last_data_addr_excl <= '0;
+
+            mem_rd_data <= '0;
         end else begin
             out_data <= n_out_data;
             state <= n_state;
@@ -188,6 +241,15 @@ module controller(
 
             data_addr <= n_data_addr;
             last_data_addr_excl <= n_last_data_addr_excl;
+
+            if(n_mem_wr_req) begin
+                $display("ff write mem addr=%0d data=%0d", n_mem_wr_addr, n_mem_wr_data);
+                mem[n_mem_wr_addr] <= n_mem_wr_data;
+            end
+            if(n_mem_rd_req) begin
+                $display("ff read mem addr=%0d data=%0d", n_mem_rd_addr, mem[n_mem_rd_addr]);
+                mem_rd_data <= mem[n_mem_rd_addr];
+            end
         end
     end
 endmodule;
