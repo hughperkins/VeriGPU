@@ -30,6 +30,10 @@
 - (out of order execution?)
 - (use actual memory module?)
 
+things I need that not thinking of implementing myself in short-term
+- PCIe4 interface, to receive commands from computer's CPU
+- DDR4 controller, to control the global GPU off-chip memory
+
 done:
 - change reset to active low?
 - run GLS using verilator
