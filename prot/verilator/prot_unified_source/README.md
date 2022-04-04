@@ -1,13 +1,4 @@
-# Verilator PoC
+# cpu-side unified code poc
 
-PoC of running using verilator.
-
-Assumes you have an appropriate build/prog.hex file, which you can generate by doing e.g.:
-```
-python run.py --name sum_ints
-```
-
-Then run:
-```
-prot/verilator/run.sh
-```
+PoC of writing gpu kernel, in unified source, passing that to gpu, along with data,
+running kernel, and getting result data back :)
