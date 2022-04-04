@@ -31,6 +31,7 @@
 - (use actual memory module?)
 
 things I need that not thinking of implementing myself in short-term
+(i.e. opportunity to implement yourself if you are interested :) )
 - PCIe4 interface, to receive commands from computer's CPU
 - DDR4 controller, to control the global GPU off-chip memory
 
