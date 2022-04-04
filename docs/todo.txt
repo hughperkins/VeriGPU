@@ -1,5 +1,6 @@
 - be able to pass data backwards and forwards between the 'kernels' from c/c++
     - might need verilator?
+- check if coding guidelines talk about `n_` notation
 - update coding guidelines now we are using verilator
 - update timings for generated 32bit mul, in int mul .md
 - maybe eliminate the pos + 1 in multiplication code, by various heuristics?

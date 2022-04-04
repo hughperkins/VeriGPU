@@ -16,4 +16,4 @@ cd build
 
 cmake ..
 make -j $(nproc)
-./${BASENAME} +verilator+rand+reset+2 +verilator+seed+$(($RANDOM * 65536 + $RANDOM))
+./controller +verilator+rand+reset+2 +verilator+seed+$(($RANDOM * 65536 + $RANDOM))

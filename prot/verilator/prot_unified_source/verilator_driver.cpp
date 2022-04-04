@@ -8,7 +8,7 @@
 #include <vector>
 #include <bitset>
 #include <verilated_vcd_c.h>
-#include "prot_unified_source.h"
+#include "controller.h"
 
 #define MAX_SIM_TIME 5000000
 vluint64_t sim_time = 0;
@@ -17,7 +17,23 @@ double sc_time_stamp() {
     return sim_time;
 }
 
-uint totalMemoryBytes = 1024;
+uint32_t totalMemoryBytes = 1024;  // yes we need to move to 64-bits soonish...
+
+enum e_instr {
+    NOP = 0,
+    COPY_TO_GPU = 1,
+    COPY_FROM_GPU = 2,
+    KERNEL_LAUNCH = 3
+};
+
+void tick(controller *dut) {
+    dut->clk = 0;
+    sim_time += 5;
+    dut->eval();
+    dut->clk = 1;
+    sim_time += 5;
+    dut->eval();
+}
 
 class MemoryInfo {
 public:
@@ -40,7 +56,7 @@ std::ostream& operator<<(std::ostream& os, const MemoryInfo& mi)
 std::set<MemoryInfo *> freeSpaces;
 std::set<MemoryInfo *> usedSpaces;
 
-void *gpuMalloc(unsigned int requestedBytes) {
+void *gpuMalloc(uint32_t requestedBytes) {
     // who should manage the memory? driver? gpu?
     // maybe driver???
     MemoryInfo *freeSpace = 0;
@@ -71,28 +87,43 @@ void *gpuMalloc(unsigned int requestedBytes) {
     }
 }
 
-void gpuCopy(void *gpuMemPtr, void *srcData, size_t numBytes) {
+void gpuCopy(controller *dut, void *gpuMemPtr, void *srcData, size_t numBytes) {
+    dut->recv_instr = COPY_TO_GPU;
+    tick(dut);
 
+    dut->in_data = (uint32_t)(size_t)gpuMemPtr;
+    tick(dut);
+
+    dut->in_data = (uint32_t)numBytes;
+    tick(dut);
+
+    dut->recv_instr = NOP;
+    uint32_t *srcDataWords = (uint32_t *)srcData;
+    long numWords = numBytes >> 2;
+    for(long i = 0; i < numWords; i++) {
+        dut->in_data = srcDataWords[i];
+        tick(dut);
+    }
+    std::cout << "hopefully copied data to GPU" << std::endl;
 }
 
 int main(int argc, char **argv, char **env)
 {
-    prot_unified_source *dut = new prot_unified_source;
+    controller *dut = new controller;
 
     MemoryInfo *p_memInfo = new MemoryInfo(0, totalMemoryBytes);
     freeSpaces.insert(p_memInfo);
 
     dut->rst = 0;
-    dut->oob_wen = 0;
-    dut->ena = 0;
-    dut->clk = 0;
-    sim_time += 5;
-    dut->eval();
-    dut->clk = 1;
-    sim_time += 5;
-    dut->eval();
+    // dut->oob_wen = 0;
+    // dut->ena = 0;
+    dut->recv_instr = NOP;
+
+    tick(dut);
 
     dut->rst = 1;
+    tick(dut);
+
     // dut->clk = 0;
     // sim_time += 5;
     // dut->eval();
@@ -102,15 +133,14 @@ int main(int argc, char **argv, char **env)
 
     // first copy data in
     // we'll just make up our own commands for now
-    unsigned int values[] = {3,1,7,9,11};
-    unsigned int numValues = 5;
-    void *ptrMemory = gpuMalloc(numValues * sizeof(unsigned int));
+    uint32_t values[] = {3,1,7,9,11};
+    uint32_t numValues = 5;
+    void *ptrMemory = gpuMalloc(numValues * sizeof(uint32_t));
     std::cout << "found memory at " << ptrMemory << std::endl;
 
-    gpuCopy(ptrMemory, values, numValues * sizeof(unsigned int));
+    gpuCopy(dut, ptrMemory, values, numValues * sizeof(uint32_t));
     // copyToGpu(values, );
-    return 0;
 
-    delete prot_unified_source;
+    delete dut;
     exit(EXIT_SUCCESS);
 }
