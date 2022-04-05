@@ -79,9 +79,29 @@ jobs:
       - store_artifacts:
           path: build/clock-cycles.txt
 
+  timing:
+    resource_class: small
+    docker:
+      - image: hughperkins/chip_design:latest
+    steps:
+      - check-markdown-links
+      - run:
+          name: "Run check markdown links"
+          command: |
+            npm i --global -D markdown-link-check
+            bash cicd/check_markdown.sh
+          no_output_timeout: 2m
+      - store_artifacts:
+          path: build/timing-proc.txt
+      - store_artifacts:
+          path: build/timing-comp.txt
+      - store_artifacts:
+          path: build/clock-cycles.txt
+
 workflows:
   test-workflow:
     jobs:
+      - check-markdown-links
       - py
       - behavioral
       - behavioral-verilator
