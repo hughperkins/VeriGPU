@@ -4,7 +4,7 @@ import sys
 
 
 def run(args):
-    args.name = args.name.replace('.asm', '').replace('examples/', '')
+    args.name = args.name.replace('.asm', '').replace('examples/direct/', '')
     assert os.system(
         f'{sys.executable} verigpu/assembler.py --in-asm examples/direct/{args.name}.asm'
         f' --out-hex build/prog.hex') == 0
