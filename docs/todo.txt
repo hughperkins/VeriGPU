@@ -1,5 +1,5 @@
 - check if coding guidelines talk about `n_` notation
-- what is 'zero' mean in riscv32?
+- check what does 'zero' mean in riscv32?
 - update coding guidelines now we are using verilator
 - update timings for generated 32bit mul, in int mul .md
 - maybe eliminate the pos + 1 in multiplication code, by various heuristics?
@@ -35,6 +35,7 @@ things I need that not thinking of implementing myself in short-term
 - DDR4 controller, to control the global GPU off-chip memory
 
 done:
+- add CI check for broken doc links ,and fix the broken doc links
 - be able to compile a simple kernel, in single source, to riscv32 assembler
 - be able to pass data backwards and forwards between c++ and hardware
 - change reset to active low?
@@ -46,20 +47,6 @@ done:
 - use llvm to obtain risc-v assembler, and run this
 - implement JAL
 - implement JALR
-- make assembler ignore lines starting with . by default
-- add register aliases: sp == x2, ra == x1, a0-7 == x10-x17
-- create CALL pseudoinstruction, initially as alias for JAL
-- add RET pseudoinstruction, initially an alias for JAL
-- matrix multiplication
-- add chunked adder and subractor to proc.sv
-- chunked adder task (non cycled)
-- get norm shift for fmul from during the int mult stage
-- float mul
-- int mul as pipeline
-- check what yosys synthesizes for `. + . + .`
-- document generators
-- document how the integer multiplication works
-- move apu, mem.sv, proc_reg_wr_mux.sv, reg_file* test_mem.sv into prot folder
 - [older stuff truncated]
 
 things for gpu:
