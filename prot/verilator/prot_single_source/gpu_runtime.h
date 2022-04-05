@@ -31,4 +31,3 @@ void gpuCopyFromDevice(void *destData, void *gpuMemPtr, size_t numBytes);
 void tick();
 void gpuCreateContext();
 void gpuDestroyContext();
-
