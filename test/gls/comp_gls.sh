@@ -5,7 +5,7 @@
 set -ex
 set -o pipefail
 
-progs=$(ls -b examples/*.asm)
+progs=$(ls -b examples/direct/*.asm)
 
 if [[ x$1 != x ]]; then {
     progs=$1

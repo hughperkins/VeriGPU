@@ -10,7 +10,7 @@
 set -ex
 set -o pipefail
 
-progs=$(cd examples; ls -b *.asm | sed -e 's/.asm//')
+progs=$(cd examples/direct; ls -b *.asm | sed -e 's/.asm//')
 
 if [[ x$1 != x ]]; then {
     progs=$1
