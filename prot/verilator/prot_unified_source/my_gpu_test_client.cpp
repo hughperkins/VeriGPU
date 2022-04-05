@@ -1,7 +1,6 @@
+#include "gpu_runtime.h"
 #include <iostream>
 #include <cassert>
-#include "gpu_runtime.h"
-
 
 __global__ void sum_ints(unsigned  int *in, unsigned int numInts, unsigned int *p_out) {
     // sum the ints in in, and write the result to *out

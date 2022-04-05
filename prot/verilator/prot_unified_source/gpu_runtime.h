@@ -1,3 +1,7 @@
+#define __global__ __attribute__((global))
+#define __device__ __attribute__((device))
+#define __host__ __attribute__((host))
+
 // #include <stdlib.h>
 #include <cstdlib>
 #include <ostream>
@@ -28,4 +32,3 @@ void tick();
 void gpuCreateContext();
 void gpuDestroyContext();
 
-#define __global__ __attribute__((global))

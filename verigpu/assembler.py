@@ -111,7 +111,8 @@ reg_aliases = {
     'a5': 'x15',
     'a6': 'x16',
     'a7': 'x17',
-    's0': 'x8'
+    's0': 'x8',
+    'zero': 'x0'  # is this right? need to check
 }
 
 
@@ -330,6 +331,8 @@ def run(args):
         line = asm_cmds.popleft()
         if line.strip() == '' or line.strip().startswith('#') or line.strip().startswith(';'):
             continue
+        if '#' in line:
+            line = line.split('#')[0].strip()  # remove comments
 
         line = line.split(';')[0]
         line = line.replace(',', ' ').replace("(", " ").replace(")", " ").replace(
