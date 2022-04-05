@@ -8,7 +8,7 @@ set -e
 set -x
 set -o pipefail
 
-files=$(ls -b examples/*.asm)
+files=$(ls -b examples/direct/*.asm)
 
 for prog in ${files}; do {
     python run.py --verilator --name ${prog}
