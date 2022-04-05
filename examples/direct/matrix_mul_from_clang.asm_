@@ -1,0 +1,89 @@
+; generated from prot/cpp/prime_numbers_cpp.cpp by doing
+; clang prot/cpp/test.cpp -S -o test.ll -target riscv32
+; then adding these headers lines, to test.ll, down to line 11 below, by hand
+li sp, 800
+addi sp, sp, -16
+jal x1, _Z14matrix_mul_cppv
+halt
+
+_Z3outi:
+    outr a0
+    ret
+
+	.text
+	.attribute	4, 16
+	.attribute	5, "rv32i2p0_m2p0_a2p0_c2p0"
+	.file	"matrix_mul_cpp.cpp"
+	.globl	_Z14matrix_mul_cppv
+	.p2align	1
+	.type	_Z14matrix_mul_cppv,@function
+_Z14matrix_mul_cppv:
+	.cfi_startproc
+	addi	sp, sp, -48
+	.cfi_def_cfa_offset 48
+	sw	ra, 44(sp)
+	sw	s0, 40(sp)
+	.cfi_offset ra, -4
+	.cfi_offset s0, -8
+	addi	s0, sp, 48
+	.cfi_def_cfa s0, 0
+	lui	a0, %hi(.L__const._Z14matrix_mul_cppv.m1)
+	lw	a1, %lo(.L__const._Z14matrix_mul_cppv.m1)(a0)
+	sw	a1, -32(s0)
+	addi	a0, a0, %lo(.L__const._Z14matrix_mul_cppv.m1)
+	lw	a1, 20(a0)
+	sw	a1, -12(s0)
+	lw	a1, 16(a0)
+	sw	a1, -16(s0)
+	lw	a1, 12(a0)
+	sw	a1, -20(s0)
+	lw	a1, 8(a0)
+	sw	a1, -24(s0)
+	lw	a0, 4(a0)
+	sw	a0, -28(s0)
+	li	a0, 0
+	sw	a0, -36(s0)
+	j	.LBB0_1
+.LBB0_1:
+	lw	a1, -36(s0)
+	li	a0, 5
+	blt	a0, a1, .LBB0_4
+	j	.LBB0_2
+.LBB0_2:
+	lw	a0, -36(s0)
+	slli	a1, a0, 2
+	addi	a0, s0, -32
+	add	a0, a0, a1
+	lw	a0, 0(a0)
+	call	_Z3outi
+	j	.LBB0_3
+.LBB0_3:
+	lw	a0, -36(s0)
+	addi	a0, a0, 1
+	sw	a0, -36(s0)
+	j	.LBB0_1
+.LBB0_4:
+	lw	ra, 44(sp)
+	lw	s0, 40(sp)
+	addi	sp, sp, 48
+	ret
+.Lfunc_end0:
+	.size	_Z14matrix_mul_cppv, .Lfunc_end0-_Z14matrix_mul_cppv
+	.cfi_endproc
+
+	.type	.L__const._Z14matrix_mul_cppv.m1,@object
+	.section	.rodata,"a",@progbits
+	.p2align	2
+.L__const._Z14matrix_mul_cppv.m1:
+	.word	1
+	.word	2
+	.word	5
+	.word	4
+	.word	1
+	.word	4
+	.size	.L__const._Z14matrix_mul_cppv.m1, 24
+
+	.ident	"clang version 14.0.0 (https://github.com/tru/llvm-release-build fc075d7c96fe7c992dde351695a5d25fe084794a)"
+	.section	".note.GNU-stack","",@progbits
+	.addrsig
+	.addrsig_sym _Z3outi

@@ -6,7 +6,7 @@ import sys
 def run(args):
     args.name = args.name.replace('.asm', '').replace('examples/', '')
     assert os.system(
-        f'{sys.executable} verigpu/assembler.py --in-asm examples/{args.name}.asm'
+        f'{sys.executable} verigpu/assembler.py --in-asm examples/direct/{args.name}.asm'
         f' --out-hex build/prog.hex') == 0
     with open('src/comp_driver.sv') as f:
         comp_driver = f.read()
@@ -35,11 +35,11 @@ def run(args):
                     print(line)
             print('')
             raise Exception('Error')
-    if os.path.exists(f'examples/expected/{args.name}_expected.txt'):
+    if os.path.exists(f'examples/direct/expected/{args.name}_expected.txt'):
         with open('/tmp/out.txt') as f:
             output = f.read()
             output = '\n'.join([line for line in output.split('\n') if line.startswith('out')])
-        with open(f'examples/expected/{args.name}_expected.txt') as f:
+        with open(f'examples/direct/expected/{args.name}_expected.txt') as f:
             expected = f.read().strip()
         print('')
         print('Target prog: ' + args.name)

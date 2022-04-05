@@ -33,7 +33,7 @@ python verigpu/run_yosys.py --in-verilog src/assert_ignore.sv src/op_const.sv sr
     --top-module proc >/dev/null
 
 for prog in ${progs}; do {
-    python verigpu/assembler.py --in-asm examples/${prog}.asm --out-hex build/prog.hex
+    python verigpu/assembler.py --in-asm examples/direct/${prog}.asm --out-hex build/prog.hex
     cat src/comp_driver.sv | sed -e "s/{PROG}/prog/g" > build/comp_driver.sv
 
     bash src/verilator/run_netlist.sh | tee build/out.txt
@@ -47,9 +47,9 @@ for prog in ${progs}; do {
         exit 1
     } fi
 
-    cat examples/expected/${prog}_expected.txt > /tmp/expected.txt
-    cat examples/expected/${prog}_expected.txt >> /tmp/expected.txt
-    cat examples/expected/${prog}_expected.txt >> /tmp/expected.txt
+    cat examples/expected/direct/${prog}_expected.txt > /tmp/expected.txt
+    cat examples/expected/direct/${prog}_expected.txt >> /tmp/expected.txt
+    cat examples/expected/direct/${prog}_expected.txt >> /tmp/expected.txt
 
     echo "output"
     cat build/out.txt

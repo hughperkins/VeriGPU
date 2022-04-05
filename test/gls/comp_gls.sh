@@ -26,7 +26,7 @@ python verigpu/run_yosys.py --in-verilog src/assert_ignore.sv src/op_const.sv sr
     --top-module comp >/dev/null
 
 for prog in ${progs}; do {
-    python verigpu/assembler.py --in-asm examples/${prog}.asm --out-hex build/prog.hex
+    python verigpu/assembler.py --in-asm examples/direct/${prog}.asm --out-hex build/prog.hex
     cat src/comp_driver.sv | sed -e "s/{PROG}/prog/g" > build/comp_driver.sv
 
     iverilog -g2012 tech/osu018/osu018_stdcells.v build/netlist/6.v src/assert_ignore.sv src/const.sv \
@@ -42,7 +42,7 @@ for prog in ${progs}; do {
         exit 1
     } fi
 
-    if diff build/out_only.txt examples/expected/${prog}_expected.txt; then {
+    if diff build/out_only.txt examples/direct/expected/${prog}_expected.txt; then {
         echo SUCCESS
     } else {
         echo FAIL

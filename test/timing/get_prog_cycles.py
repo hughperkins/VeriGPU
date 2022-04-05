@@ -17,7 +17,7 @@ import glob
 
 
 def run(args):
-    progs = glob.glob('examples/*.asm')
+    progs = glob.glob('examples/direct/*.asm')
     print('progs', progs)
 
     cycle_counts = []
