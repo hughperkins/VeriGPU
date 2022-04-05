@@ -47,9 +47,9 @@ for prog in ${progs}; do {
         exit 1
     } fi
 
-    cat examples/expected/direct/${prog}_expected.txt > /tmp/expected.txt
-    cat examples/expected/direct/${prog}_expected.txt >> /tmp/expected.txt
-    cat examples/expected/direct/${prog}_expected.txt >> /tmp/expected.txt
+    cat examples/direct/expected/${prog}_expected.txt > /tmp/expected.txt
+    cat examples/direct/expected/${prog}_expected.txt >> /tmp/expected.txt
+    cat examples/direct/expected/${prog}_expected.txt >> /tmp/expected.txt
 
     echo "output"
     cat build/out.txt
