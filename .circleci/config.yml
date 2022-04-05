@@ -82,7 +82,7 @@ jobs:
   check-markdown-links:
     resource_class: small
     docker:
-      - image: hughperkins/chip_design:latest
+      - image: cimg/node:17.8.0
     steps:
       - checkout
       - run:
