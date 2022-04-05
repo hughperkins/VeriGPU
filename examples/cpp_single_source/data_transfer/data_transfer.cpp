@@ -3,6 +3,10 @@ Send some integers to the gpu, receive them back, to a new buffer, check
 identical
 
 This actually runs ok. At least, transfer of data to/from a verilog placeholder is working.
+
+Note to self: need to add insructions etc for how to run this...
+
+The runtime for this by the way is at prto/verilator/prot_single_source/gpu_runtime.cpp
 */
 #include "gpu_runtime.h"
 #include <iostream>
