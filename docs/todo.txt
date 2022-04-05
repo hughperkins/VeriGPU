@@ -35,6 +35,7 @@ things I need that not thinking of implementing myself in short-term
 - DDR4 controller, to control the global GPU off-chip memory
 
 done:
+- be able to compile a simple kernel, in single source, to riscv32 assembler
 - be able to pass data backwards and forwards between c++ and hardware
 - change reset to active low?
 - run GLS using verilator
