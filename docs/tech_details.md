@@ -70,15 +70,15 @@ We use a python script [verigpu/assembler.py](/verigpu/assembler.py) to convert 
 
 ### Example assembly programs
 
-See [examples](/examples)
+See [examples/direct](/examples/direct)
 
 Some specific programs:
 
-- sum integers from 0 to 5 [examples/sum_ints.asm](/examples/sum_ints.asm)
-- factorial of integers 0 to 5 [examples/calc_factorial.asm](/examples/calc_factorial.asm)
-- prime numbers up to 31 [examples/calc_primes.asm](/examples/calc_primes.asm)
-- sieve of eratosthenes, up to 31 [examples/sieve_eratosthenes.asm](/examples/sieve_eratosthenes.asm)
-- matrix multiplication [examples/matrix_mul.asm](/examples/matrix_mul.asm)
+- sum integers from 0 to 5 [examples/direct/sum_ints.asm](/examples/direct/sum_ints.asm)
+- factorial of integers 0 to 5 [examples/direct/calc_factorial.asm](/examples/direct/calc_factorial.asm)
+- prime numbers up to 31 [examples/direct/calc_primes.asm](/examples/direct/calc_primes.asm)
+- sieve of eratosthenes, up to 31 [examples/direct/sieve_eratosthenes.asm](/examples/direct/sieve_eratosthenes.asm)
+- matrix multiplication [examples/direct/matrix_mul.asm](/examples/direct/matrix_mul.asm)
 
 ## Memory
 

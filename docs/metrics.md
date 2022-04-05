@@ -34,7 +34,7 @@ You can see the current clock cycle propagation delay by opening the most recent
     - an AND gate is 1.6 (it's a NAND followed by a NOT)
     - we assume that all cells only have a single output currently
 - the cell propagation delays are loosely based on those in https://web.engr.oregonstate.edu/~traylor/ece474/reading/SAED_Cell_Lib_Rev1_4_20_1.pdf , which is a 90nm spec sheet, but could be representative of relative timings, which are likely architecture-independent
-- you can see the relative cell times we use at [verigpu/timing.py](https://github.com/hughperkins/verigpu/blob/c4e37bdde601829f3959935e564503dbe30677fa/verigpu/timing.py#L25-L46)
+- you can see the relative cell times we use at the top of [verigpu/timing.py](/verigpu/timing.py), in the global dict `g_cell_times`
 
 ### Prerequities
 
@@ -43,7 +43,7 @@ You can see the current clock cycle propagation delay by opening the most recent
 
 ### Procedure
 
-e.g. for the module at [prot/add_one_2chunks.sv](/prot/add/add_one_2chunks.sv), run:
+e.g. for the module at [prot/int/add/add_one_2chunks.sv](/prot/int/add/add_one_2chunks.sv), run:
 
 ```
 python verigpu/timing.py --in-verilog prot/add_one_2chunks.sv
@@ -110,7 +110,7 @@ total 17584
 avg 837.3
 ```
 
-`progxx` refers to one of the example programs in [examples](/examples). These cycle counts are currently long because:
+`progxx` refers to one of the example programs in [examples/direct](/examples/direct). These cycle counts are currently long because:
 - we don't have data memory caching
 - we don't have instruction memory caching
 - we don't have parallel execution, either for memory feteches, or for maths operations such as division
@@ -129,6 +129,6 @@ python test/timing/get_prog_cycles.py
 
 ## Area
 
-We measure area by synthesizing to a gate-level netlist, using yosys, counting the number of each cell type, and converting the cell types into an approximate number of nand gate area units. For example 4 nand gate cells would be 4 nand gate units. 3 flip flops is around 18 nand gate units. The approximate nand gate area equivalent of each cell is in the variable `g_cell_areas` at the top of [verigpu/timing.py](verigpu/timing.py).
+We measure area by synthesizing to a gate-level netlist, using yosys, counting the number of each cell type, and converting the cell types into an approximate number of nand gate area units. For example 4 nand gate cells would be 4 nand gate units. 3 flip flops is around 18 nand gate units. The approximate nand gate area equivalent of each cell is in the variable `g_cell_areas` at the top of [verigpu/timing.py](/verigpu/timing.py).
 
-We use the same script as for delay propagation measurements. In order to obtain delay propagation measurements, we already need to synthesize down to a gate-level netlist, so we add some additional scripting to the end to output the nand gate area units. The script is [[verigpu/timing.py](verigpu/timing.py). See the section on propagation delay above for prerequisites and procedure.
+We use the same script as for delay propagation measurements. In order to obtain delay propagation measurements, we already need to synthesize down to a gate-level netlist, so we add some additional scripting to the end to output the nand gate area units. The script is [verigpu/timing.py](/verigpu/timing.py). See the section on propagation delay above for prerequisites and procedure.

@@ -14,5 +14,6 @@ See [examples](/examples)
 
 Some specific programs:
 
-- sum integers from 0 to 5 [examples/sum_ints.asm](/examples/sum_ints.asm)
-- factorial of integers 0 to 5 [examples/calc_factorial.asm](/examples/calc_factorial.asm)
+- sum integers from 0 to 5 [examples/direct/sum_ints.asm](/examples/direct/sum_ints.asm)
+- factorial of integers 0 to 5 [examples/direct/calc_factorial.asm](/examples/direct/calc_factorial.asm)
+- matrix multiplication [examples/direct/matrix_mul.asm](/examples/direct/matrix_mul.asm)

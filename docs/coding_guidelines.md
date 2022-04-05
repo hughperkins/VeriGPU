@@ -121,7 +121,7 @@ tick():
 
 ### Generators
 
-We use generators for creating Dadda adders, and Dadda-style adders, e.g. [verigpu/generation/mul_pipeline_cycle.py](verigpu/generation/mul_pipeline_cycle.py)
+We use generators for creating Dadda adders, and Dadda-style adders, e.g. [verigpu/generation/mul_pipeline_cycle.py](/verigpu/generation/mul_pipeline_cycle.py)
 - The generated code should be stored itself in git, in [/src/generated](/src/generated).
 - It is stored in a special directory, to keep it separate from non-generated code
 - The generated files should have a header at the top. The header should explain that the file is generated, and should not be edited by hand. The header should give the path of the code used to generate it.

@@ -32,13 +32,13 @@ We use the `iverilog` simulator to run simulation of our design at the behaviora
 bash test/behav/run_sv_tests.sh
 ```
 
-This will run various behavioral-level unit-tests at [/test/behav](test/behav). The script is [/test/behav/run_sv_tests.sh](/test/behav/run_sv_tests.sh).
+This will run various behavioral-level unit-tests at [/test/behav](/test/behav). The script is [/test/behav/run_sv_tests.sh](/test/behav/run_sv_unit_tests.sh).
 
 ```
 bash test/behav/run_examples.sh
 ```
 
-- under the hood, this will run many of the examples in [examples](/examples), and check the outputs against the expected outputs, which are in the paired files, with suffix `_expected.txt`, in the sub-folder [examples/expected](/examples/expected) folder.
+- under the hood, this will run many of the examples in [examples/direct](/examples/direct), and check the outputs against the expected outputs, which are in the paired files, with suffix `_expected.txt`, in the sub-folder [examples/direct/expected](/examples/direct/expected) folder.
 
 ## Gate-level simulation and testing
 

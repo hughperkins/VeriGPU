@@ -59,7 +59,7 @@ There are a number of ways we can try to split across clock cycles:
 | Approach | Filepath | Delay (nand units) |Area (nand units) | Clock cycles |
 |---------|-----------|---------------------|----------------|------------|
 | `*` | [/prot/int/primitives/mul.sv](/prot/int/primitives/mul.sv) |  82.8 | 5370 | 1|
-| naively sum partial products | [prot/int/mul/mul_partial_sum.sv](prot/int/mul/mul_partial_sum.sv) | 82.8 | 5372 | 1 |
+| naively sum partial products | [prot/int/mul/mul_partial_sum.sv](/prot/int/mul/mul_partial_sum.sv) | 82.8 | 5372 | 1 |
 | Dadda + chunk the final carry addition | [/verigpu/generation/dadda.py](/verigpu/generation/dadda.py) |  67.4 | 4960 | 1|
 | Sum one partial product per clock cycle |  [/prot/int/mul/mul_partial_per_cycle_task.sv](/prot/int/mul/mul_partial_per_cycle_task.sv) | 97.8 | 2103 | 32 |
 | Naively sum a single output bit per clock cycle | [/prot/int/mul/mul_partial_add_task.sv](/prot/int/mul/mul_partial_add_task.sv) | 82.8 |5372 | 32|
