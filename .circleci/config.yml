@@ -79,7 +79,7 @@ jobs:
       - store_artifacts:
           path: build/clock-cycles.txt
 
-  timing:
+  check-markdown-links:
     resource_class: small
     docker:
       - image: hughperkins/chip_design:latest
