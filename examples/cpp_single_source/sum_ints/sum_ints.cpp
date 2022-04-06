@@ -3,6 +3,10 @@ Send some integers to the gpu, launch a kernel to calculate their sum,
 receive the result back to cpu-side, check correct
 
 This is a work in progress. Stretch goal. Not working yet.
+
+To run it (once it's working), current plan is to run:
+
+examples/cpp_single_source/sum_ints/run.sh
 */
 #include "gpu_runtime.h"
 #include <iostream>
@@ -35,7 +39,7 @@ int main(int argc, char **argv, char **env)
 
     // launch the kernel :)
     // remember: single source :) Hopefully we can handle this :)
-    sum_ints((unsigned int *)ptrGpuIn, numValues, (unsigned int *)ptrGpuOut);
+    sum_ints<<<dim3(1, 1, 1), dim3(32, 1, 1)>>>((unsigned int *)ptrGpuIn, numValues, (unsigned int *)ptrGpuOut);
 
     gpuCopyFromDevice((void *)&returnValue, ptrGpuIn, 1 * sizeof(uint32_t));
     std::cout << "returned result " << returnValue << std::endl;
