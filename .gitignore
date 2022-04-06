@@ -28,3 +28,6 @@ obj_dir/
 ~launch.json
 __pycache__/
 *.egg-info/
+
+build_cmake/
+build_bash/
