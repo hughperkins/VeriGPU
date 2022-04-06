@@ -25,22 +25,19 @@ cd build_bash
 CLANGDIR=$HOME/Downloads/clang+llvm-14.0.0-x86_64-apple-darwin
 MACCLTINCLUDEDIR=/Library/Developer/CommandLineTools/SDKs/MacOSX11.0.sdk/usr/include
 
-# this was challenging...
-# probably specific to your mac version... :/
+# host-side: -.cu => -hostraw.cll
+${CLANGDIR}/bin/clang++ \
+    -std=c++11 -x cuda -nocudainc --cuda-host-only -emit-llvm \
+    -I${CLANGDIR}/include \
+    -I${CLANGDIR}/include/c++/v1 \
+    -I${MACCLTINCLUDEDIR} \
+    -I${BASEDIR}/prot/verilator/prot_single_source \
+    -S ../sum_ints.cpp \
+    -o sum_ints-hostraw.ll
 
-# TODO COMPILE FOR HOSTSIDE
-# ${CLANGDIR}/bin/clang++ \
-#     -x cuda \
-#     --cuda-device-only -emit-llvm \
-#     -nocudainc \
-#     -nocudalib \
-#     -I${CLANGDIR}/include \
-#     -I${CLANGDIR}/include/c++/v1 \
-#     -I${MACCLTINCLUDEDIR} \
-#     -I${BASEDIR}/prot/verilator/prot_single_source \
-#     -S ../sum_ints.cpp \
-#     -o sum_ints.ll
+# now we have to patch hostside...
 
+# device-side => sum_ints.ll
 ${CLANGDIR}/bin/clang++ \
     -x cuda \
     --cuda-device-only -emit-llvm \
@@ -52,8 +49,6 @@ ${CLANGDIR}/bin/clang++ \
     -I${BASEDIR}/prot/verilator/prot_single_source \
     -S ../sum_ints.cpp \
     -o sum_ints.ll
-
-    # -S prot/verilator/prot_unified_source/my_gpu_test_client.cpp \
 
 ${CLANGDIR}/bin/llc sum_ints.ll -o sum_ints.s --march=riscv32
 
