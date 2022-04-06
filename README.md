@@ -1,16 +1,24 @@
 # OpenSource GPU
 
-Build an opensource GPU, in verilog. Hopefully we can get it to run either [OpenCL™](https://www.khronos.org/opencl/) or [CUDA®](https://developer.nvidia.com/cuda-zone) (for compatibility purposes), or both, but it's early days for now :)
+Build an opensource GPU, in verilog, targeting [machine learning](https://en.wikipedia.org/wiki/Machine_learning)  ("ML"). Hopefully, can get it to work with the [PyTorch](https://pytorch.org) deep learning framework.
 
 # Vision
 
 Write a GPU, targeting ASIC tape-out. I don't actually intend to tape this out myself, but I intend to do what I can to verify somehow that tape-out would work ok, timings ok, etc.
 
-Loosely compliant with RISC-V ISA. Where RISC-V conflicts with designing for a GPU setting, we break with RISC-V.
+Intend to implement a [HIP](https://github.com/ROCm-Developer-Tools/HIP) API, that is compatible with [pytorch](https://pytorch.org). Open to provision of other APIs, such as [SYCL](https://www.khronos.org/sycl/) or [NVIDIA® CUDA™](https://developer.nvidia.com/cuda-toolkit).
+
+Internal GPU Core ISA loosely compliant with [RISC-V](https://riscv.org/technical/specifications/) ISA. Where RISC-V conflicts with designing for a GPU setting, we break with RISC-V.
+
+Intend to keep the cores very focused on ML. For example, [brain floating point](https://en.wikipedia.org/wiki/Bfloat16_floating-point_format) ("BF16") throughout, to keep core die area low. This should keep the per-core cost low. Intend to implement only few float operations critical to ML, e.g. `exp`, `log`, `tanh`, `sqrt`, to drive down per-core die area, and thus cost.
+
+# Architecture
+
+[Architecture](/docs/img/architecture.png)
 
 # Simulation
 
-![toy proc workflow](/docs/img/toy_proc_workflow.png)
+<!-- ![toy proc workflow](/docs/img/toy_proc_workflow.png) -->
 
 ![Example output](/docs/img/example_output.png)
 
