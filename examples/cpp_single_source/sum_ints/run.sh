@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# This expects 'expect' to be installed, e.g.
+# brew install expect
+# or
+# sudo apt-get install expect
+# (otherwise, delete 'unbuffer' keywords)
+
 set -ex
 set -o pipefail
 
@@ -12,9 +18,9 @@ BASEDIR=$PWD
 
 cd ${SCRIPTDIR}
 
-if [[ -d build_bash ]]; then {
-    rm -R build_bash
-} fi
+# if [[ -d build_bash ]]; then {
+    # rm -R build_bash
+# } fi
 
 if [[ ! -d build_bash ]]; then {
     mkdir build_bash
@@ -25,11 +31,12 @@ cd build_bash
 CLANGDIR=$HOME/Downloads/clang+llvm-14.0.0-x86_64-apple-darwin
 MACCLTINCLUDEDIR=/Library/Developer/CommandLineTools/SDKs/MacOSX11.0.sdk/usr/include
 
-${CLANGDIR}/bin/clang++ \
-    -std=c++11 \
+unbuffer ${CLANGDIR}/bin/clang++ \
+    -std=c++14 \
     -I${CLANGDIR}/include \
     -I${CLANGDIR}/include/c++/v1 \
     -I${MACCLTINCLUDEDIR} \
+    -I${BASEDIR}/third_party \
     -I{BASEDIR}/prot/verilator/prot_single_source \
     -c ${BASEDIR}/prot/verilator/prot_single_source/patch_hostside.cpp
 

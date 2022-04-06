@@ -61,13 +61,9 @@ namespace veriGPU
     }
 
     template <typename... ArgsTy>
-    Constant *getOrInsertFunction(Module *m, StringRef Name, Type *RetTy, ArgsTy... Args)
+    Function *getOrInsertFunction(Module *m, StringRef Name, Type *RetTy, ArgsTy... Args)
     {
-#if LLVM_VERSION_MAJOR > 4
-        return m->getOrInsertFunction(Name, RetTy, Args...);
-#else
-        return m->getOrInsertFunction(Name, RetTy, Args..., NULL);
-#endif
+        return cast<Function>(m->getOrInsertFunction(Name, RetTy, Args...).getCallee());
     }
 
     std::ostream &operator<<(std::ostream &os, const LaunchCallInfo &info)
@@ -260,7 +256,7 @@ namespace veriGPU
 
         Type *valueType = vectorPointer->getType();
         VectorType *vectorType = cast<VectorType>(cast<PointerType>(valueType)->getElementType());
-        int elementCount = vectorType->getNumElements();
+        int elementCount = vectorType->getElementCount().getFixedValue();
         Type *elementType = vectorType->getElementType();
         int elementSizeBytes = elementType->getPrimitiveSizeInBits() / 8;
         if (elementType->getPrimitiveSizeInBits() == 0)
@@ -480,7 +476,7 @@ namespace veriGPU
         //   - first operand is a value pointing to the value we want to send to the kernel
         //
         // - output of this method is
-        //    populate info with a Value holding the actual concrete value w ewant to send to the kernel
+        //    populate info with a Value holding the actual concrete value we want to send to the kernel
         //    (note a pointer to it, since we Load the pointer)
         // Notes:
         // - the first operand of inst was created as bitcast(i8*)(alloca (type-of-arg))
@@ -510,8 +506,35 @@ namespace veriGPU
         {
             alloca = bitcast;
         }
-        Instruction *load = new LoadInst(alloca, "loadCudaArg");
-        load->insertBefore(inst->getInst());
+        // Type *type = alloca->
+        // [Comment from 2022]: so, several years ago, LoadInst didnt need a first argument of Type *
+        //                    now it does. I wonder what type it needs? The type of the alloca?
+        //                    reminder, llvm code looks a little like:
+        //   %4 = alloca i32*, align 8
+        //   %5 = alloca i32, align 4
+        //   %6 = alloca i32*, align 8
+        //   store i32* %0, i32** %4, align 8
+        //   store i32 %1, i32* %5, align 4
+        //   store i32* %2, i32** %6, align 8
+        //   %7 = bitcast i32** %4 to i8*
+        //   %8 = call i32 @cudaSetupArgument(i8* %7, i64 8, i64 0)
+        //   %9 = icmp eq i32 %8, 0
+        //   br i1 %9, label %10, label %20
+
+        // 10:                                               ; preds = %3
+        //   %11 = bitcast i32* %5 to i8*
+        //   %12 = call i32 @cudaSetupArgument(i8* %11, i64 4, i64 8)
+        //   %13 = icmp eq i32 %12, 0
+        //   br i1 %13, label %14, label %20
+
+        // 14:                                               ; preds = %10
+        //   %15 = bitcast i32** %6 to i8*
+        //   %16 = call i32 @cudaSetupArgument(i8* %15, i64 8, i64 16)
+        //   %17 = icmp eq i32 %16, 0
+        //   br i1 %17, label %18, label %20
+        // [/Comment from 2022]
+        Instruction *load = new LoadInst(paramInfo->typeDevicesideFn, alloca, "loadCudaArg", inst->getInst());
+        // load->insertBefore(inst->getInst());
         paramInfo->value = load;
         paramInfo->pointer = alloca;
     }
@@ -536,7 +559,7 @@ namespace veriGPU
         // PointerType *pointerFunctionType = cast<PointerType>(hostFn->getType());
         // FunctionType *hostFnType = cast<FunctionType>(pointerFunctionType->getElementType());
 
-        info->kernelName = hostFn->getName();
+        info->kernelName = hostFn->getName().str();
 
         Function *deviceFn = MDevice->getFunction(info->kernelName);
         if (deviceFn == 0)
@@ -625,7 +648,7 @@ namespace veriGPU
         Function *kernelGo = cast<Function>(F->getParent()->getOrInsertFunction(
             "kernelGo",
             Type::getVoidTy(context),
-            static_cast<size_t>(NULL)));
+            static_cast<size_t>(NULL)).getCallee());
         CallInst *kernelGoInst = CallInst::Create(kernelGo);
         kernelGoInst->insertAfter(lastInst);
         lastInst = kernelGoInst;
@@ -679,7 +702,7 @@ namespace veriGPU
                 {
                     continue;
                 }
-                string calledFunctionName = called->getName();
+                string calledFunctionName = called->getName().str();
                 if (calledFunctionName == "cudaSetupArgument")
                 {
                     unique_ptr<ParamInfo> paramInfo(new ParamInfo());
