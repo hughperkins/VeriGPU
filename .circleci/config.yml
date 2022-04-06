@@ -113,5 +113,5 @@ workflows:
       - behavioral-verilator
       - gls
       - gls-verilator
-      = run-single-source
+      - run-single-source
       - timing
