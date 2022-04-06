@@ -27,7 +27,6 @@ verilator -sv -Wall -cc ../prot_init.sv --top-module prot_init --prefix prot_ini
     make -f prot_init.mk
 )
 
-# g++ -std=c++11 -I obj_dir -I/usr/local/share/verilator/include ../prot_init.cpp /usr/local/share/verilator/include/verilated.cpp -o prot_init
 g++ -std=c++11 -I obj_dir -I${VERILATORDIR}/include -c ../prot_init.cpp
 g++ -std=c++11 -I obj_dir -I${VERILATORDIR}/include -c ${VERILATORDIR}/include/verilated.cpp
 g++ -o prot_init prot_init.o verilated.o obj_dir/prot_init__ALL.o

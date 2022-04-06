@@ -4,9 +4,9 @@ identical
 
 This actually runs ok. At least, transfer of data to/from a verilog placeholder is working.
 
-Note to self: need to add insructions etc for how to run this...
+You can compile and run this by doing, from the repo root:
 
-The runtime for this by the way is at prto/verilator/prot_single_source/gpu_runtime.cpp
+examples/cpp_single_source/data_transfer/run.sh
 */
 #include "gpu_runtime.h"
 #include <iostream>

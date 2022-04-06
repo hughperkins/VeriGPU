@@ -1,3 +1,5 @@
+- look into running verilator without using cmake
+- look into compilng and running gpu kernel
 - check if coding guidelines talk about `n_` notation
 - check what does 'zero' mean in riscv32?
 - update coding guidelines now we are using verilator
