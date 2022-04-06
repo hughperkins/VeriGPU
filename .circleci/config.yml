@@ -79,6 +79,18 @@ jobs:
       - store_artifacts:
           path: build/clock-cycles.txt
 
+  run-single-source:
+    resource_class: small
+    docker:
+      - image: hughperkins/chip_design:latest
+    steps:
+      - checkout
+      - run:
+          name: "Run single source smoke tests"
+          command: |
+            cicd/run-single-source.sh
+          no_output_timeout: 1m
+
   check-markdown-links:
     resource_class: small
     docker:
@@ -101,4 +113,5 @@ workflows:
       - behavioral-verilator
       - gls
       - gls-verilator
+      = run-single-source
       - timing
