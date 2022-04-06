@@ -1,4 +1,3 @@
-- look into running verilator without using cmake
 - look into compilng and running gpu kernel
 - check if coding guidelines talk about `n_` notation
 - check what does 'zero' mean in riscv32?
@@ -37,6 +36,7 @@ things I need that not thinking of implementing myself in short-term
 - DDR4 controller, to control the global GPU off-chip memory
 
 done:
+- look into running verilator without using cmake
 - add CI check for broken doc links ,and fix the broken doc links
 - be able to compile a simple kernel, in single source, to riscv32 assembler
 - be able to pass data backwards and forwards between c++ and hardware
