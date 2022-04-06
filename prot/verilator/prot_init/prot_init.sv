@@ -13,8 +13,10 @@ module prot_init(
         $display("clocked rst %0d out %0d n_state=%0d state=%0d", rst, out, n_state, state);
         if(~rst) begin
             state <= '0;
+            out <= '0;
         end else begin
             // state <= '0;
+            out <= '0;
             state <= n_state;
         end
     end

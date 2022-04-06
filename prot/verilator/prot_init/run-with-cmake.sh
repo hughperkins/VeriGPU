@@ -8,11 +8,11 @@ BASENAME=$(basename $SCRIPTDIR)
 
 cd ${SCRIPTDIR}
 
-if [[ ! -d build ]]; then {
-    mkdir build
+if [[ ! -d build_cmake ]]; then {
+    mkdir build_cmake
 } fi
 
-cd build
+cd build_cmake
 
 cmake ..
 make -j $(nproc)
