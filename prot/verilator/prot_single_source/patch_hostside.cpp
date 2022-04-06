@@ -6,12 +6,12 @@ This is based on patch_hostside.cpp from https://github.com/hughperkins/coriande
 */
 // For doc, please see the corresponding include file, patch_hostside.h
 
-#include "cocl/patch_hostside.h"
+#include "patch_hostside.h"
 
 // #include "cocl/cocl_logging.h"
 // #include "cocl/llvm_dump.h"
 
-#include "cocl/mutations.h"
+#include "mutations.h"
 #include "argparsecpp/argparsecpp.h"
 // #include "EasyCL/util/easycl_stringhelper.h"
 
@@ -579,8 +579,7 @@ namespace cocl
         // This replaces the call to cudaLaunch with calls to setup the arguments, then
         // a call to kernelGo
         // We pass the informatino about the kernel first, then the arguments, then finally
-        // call kernelGo.  This is slightly different than the original NVIDIA sequence, which
-        // doenst pass the kernel function name etc until the call to cudaLaunch
+        // call kernelGo.
 
         // MDevice is just so we can see how the device-side kernel declarations look, we dont
         // modify/patch it in any way here

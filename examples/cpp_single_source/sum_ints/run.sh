@@ -25,6 +25,14 @@ cd build_bash
 CLANGDIR=$HOME/Downloads/clang+llvm-14.0.0-x86_64-apple-darwin
 MACCLTINCLUDEDIR=/Library/Developer/CommandLineTools/SDKs/MacOSX11.0.sdk/usr/include
 
+${CLANGDIR}/bin/clang++ \
+    -std=c++11 \
+    -I${CLANGDIR}/include \
+    -I${CLANGDIR}/include/c++/v1 \
+    -I${MACCLTINCLUDEDIR} \
+    -I{BASEDIR}/prot/verilator/prot_single_source \
+    -c ${BASEDIR}/prot/verilator/prot_single_source/patch_hostside.cpp
+
 # host-side: -.cu => -hostraw.cll
 ${CLANGDIR}/bin/clang++ \
     -std=c++11 -x cuda -nocudainc --cuda-host-only -emit-llvm \
