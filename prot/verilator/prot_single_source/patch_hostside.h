@@ -39,8 +39,9 @@ Ok, so the doc is mostly below, inside the class declaration, at the bottom of t
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/Instructions.h"
+#include "llvm/Analysis/LoopAccessAnalysis.h"
 
-namespace cocl
+namespace veriGPU
 {
 
     class ParamInfo
@@ -103,10 +104,10 @@ namespace cocl
         virtual llvm::Value *getOperand(int idx) = 0;
         virtual llvm::Module *getModule() = 0;
         virtual llvm::Instruction *getInst() = 0;
-        virtual void dump() = 0;
+        // virtual void dump() = 0;
     };
     std::ostream &operator<<(std::ostream &os, const LaunchCallInfo &info);
-    std::ostream &operator<<(std::ostream &os, const PointerInfo &pointerInfo);
+    std::ostream &operator<<(std::ostream &os, const llvm::RuntimePointerChecking::PointerInfo &pointerInfo);
 
     class GenericCallInst_Call : public GenericCallInst
     {
@@ -117,7 +118,7 @@ namespace cocl
         virtual llvm::Value *getOperand(int idx) override { return inst->getArgOperand(idx); }
         virtual llvm::Module *getModule() override { return inst->getModule(); }
         virtual llvm::Instruction *getInst() override { return inst; }
-        virtual void dump() override { COCL_LLVM_DUMP(inst); }
+        // virtual void dump() override { COCL_LLVM_DUMP(inst); }
     };
 
     class GenericCallInst_Invoke : public GenericCallInst
@@ -129,7 +130,7 @@ namespace cocl
         virtual llvm::Value *getOperand(int idx) override { return inst->getArgOperand(idx); }
         virtual llvm::Module *getModule() override { return inst->getModule(); }
         virtual llvm::Instruction *getInst() override { return inst; }
-        virtual void dump() override { COCL_LLVM_DUMP(inst); }
+        // virtual void dump() override { COCL_LLVM_DUMP(inst); }
     };
 
     class PatchHostside
@@ -175,8 +176,8 @@ namespace cocl
         //
         // this patch_hostside addSetKernelArgInst_byvaluestruct function is going to handle walking the struct, and sending
         // the other pointers through using additional method calls, likely to setKernelArgGpuBuffer
-        static llvm::Instruction *addSetKernelArgInst_byvaluestruct(
-            llvm::Instruction *lastInst, cocl::ParamInfo *paramInfo, llvm::Value *valueAsPointerInstr);
+        // static llvm::Instruction *addSetKernelArgInst_byvaluestruct(
+        //     llvm::Instruction *lastInst, veriGPU::ParamInfo *paramInfo, llvm::Value *valueAsPointerInstr);
 
         // this needs to do the same as addSetKernelArgInst_byvaluestruct , but it passes the struct pointer into the
         // setKernelArgGpuBuffer function, rather than the setKernelArgHostsideBuffer
@@ -185,7 +186,7 @@ namespace cocl
         // hmmmm. actually. I think we'll forbid pointers in gpuside structs for now. unless we have to
         // why? because, how are we going to get those pointers, if they're stored on the gpu :-P
         // like, how are we going to clone it, first issue.  Possible to to do, but a bunch of work, unless we have to
-        static llvm::Instruction *addSetKernelArgInst_pointerstruct(llvm::Instruction *lastInst, llvm::Value *structPointer);
+        // static llvm::Instruction *addSetKernelArgInst_pointerstruct(llvm::Instruction *lastInst, llvm::Value *structPointer);
 
         static llvm::Instruction *addSetKernelArgInst_byvaluevector(llvm::Instruction *lastInst, llvm::Value *structPointer);
 
@@ -207,4 +208,4 @@ namespace cocl
         static void patchModule(llvm::Module *M, const llvm::Module *MDevice);                      // main entry point. Scan through module M, and rewrite kernel launch commands
     };
 
-} // namespace cocl
+} // namespace veriGPU

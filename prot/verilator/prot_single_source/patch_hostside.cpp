@@ -3,6 +3,8 @@ This needs to take the -hostraw.ll file, and patch the calls to the kernel to in
 make calls to our gpu api
 
 This is based on patch_hostside.cpp from https://github.com/hughperkins/coriander
+
+We're going to comment out anything to do with structs for now, keep things simple
 */
 // For doc, please see the corresponding include file, patch_hostside.h
 
@@ -13,17 +15,18 @@ This is based on patch_hostside.cpp from https://github.com/hughperkins/coriande
 
 #include "mutations.h"
 #include "argparsecpp/argparsecpp.h"
-// #include "EasyCL/util/easycl_stringhelper.h"
+#include "stringhelper.h"
 
 #include "llvm/IR/AssemblyAnnotationWriter.h"
 #include "llvm/IRReader/IRReader.h"
 #include "llvm/IR/Verifier.h"
 #include "llvm/IR/Type.h"
-
 #include "llvm/Support/SourceMgr.h"
 #include "llvm/Support/raw_os_ostream.h"
 
 #include "llvm/Transforms/Utils/BasicBlockUtils.h"
+
+#include "llvm/Analysis/LoopAccessAnalysis.h"
 
 #include <string>
 #include <fstream>
@@ -32,18 +35,18 @@ This is based on patch_hostside.cpp from https://github.com/hughperkins/coriande
 
 using namespace llvm;
 using namespace std;
-using namespace cocl;
+using namespace veriGPU;
 
-namespace cocl
+namespace veriGPU
 {
 
     static llvm::LLVMContext context;
     static std::string devicellcode_stringname;
     static string devicellfilename;
 
-    static GlobalNames globalNames;
-    static TypeDumper typeDumper(&globalNames);
-    static StructCloner structCloner(&typeDumper, &globalNames);
+    // static GlobalNames globalNames;
+    // static TypeDumper typeDumper(&globalNames);
+    // static StructCloner structCloner(&typeDumper, &globalNames);
 
     // this should probably be more of an instance variable probably?
     static std::unique_ptr<LaunchCallInfo> launchCallInfo(new LaunchCallInfo);
@@ -97,29 +100,29 @@ namespace cocl
             {
                 my_raw_os_ostream << ", ";
             }
-            my_raw_os_ostream << typeDumper.dumpType(value->getType());
+            // my_raw_os_ostream << typeDumper.dumpType(value->getType());
             i++;
         }
         return os;
     }
 
-    std::ostream &operator<<(std::ostream &os, const PointerInfo &pointerInfo)
-    {
-        os << "PointerInfo(offset=" << pointerInfo.offset << ", type=" << typeDumper.dumpType(pointerInfo.type);
-        os << " indices=";
-        int i = 0;
-        for (auto it = pointerInfo.indices.begin(); it != pointerInfo.indices.end(); it++)
-        {
-            if (i > 0)
-            {
-                os << ",";
-            }
-            os << *it;
-            i++;
-        }
-        os << ")";
-        return os;
-    }
+    // std::ostream &operator<<(std::ostream &os, const RuntimePointerChecking::PointerInfo &pointerInfo)
+    // {
+    //     os << "PointerInfo(offset=" << pointerInfo.offset << ", type=" << typeDumper.dumpType(pointerInfo.type);
+    //     os << " indices=";
+    //     int i = 0;
+    //     for (auto it = pointerInfo.indices.begin(); it != pointerInfo.indices.end(); it++)
+    //     {
+    //         if (i > 0)
+    //         {
+    //             os << ",";
+    //         }
+    //         os << *it;
+    //         i++;
+    //     }
+    //     os << ")";
+    //     return os;
+    // }
 
     llvm::Instruction *PatchHostside::addSetKernelArgInst_int(llvm::Instruction *lastInst, llvm::Value *value, llvm::IntegerType *intType)
     {
@@ -141,7 +144,7 @@ namespace cocl
         }
         else
         {
-            throw std::runtime_error("bitlength " + easycl::toString(bitLength) + " not implemented");
+            throw std::runtime_error("bitlength " + VeriGPU::toString(bitLength) + " not implemented");
         }
 
         Function *setKernelArgInt = cast<Function>(getOrInsertFunction(
@@ -184,7 +187,7 @@ namespace cocl
 
     llvm::Instruction *PatchHostside::addSetKernelArgInst_pointer(llvm::Instruction *lastInst, llvm::Value *value)
     {
-        Indentor indentor;
+        // Indentor indentor;
         Type *valueType = value->getType();
         Module *M = lastInst->getModule();
 
@@ -219,33 +222,33 @@ namespace cocl
         return lastInst;
     }
 
-    llvm::Instruction *PatchHostside::addSetKernelArgInst_pointerstruct(llvm::Instruction *lastInst, llvm::Value *structPointer)
-    {
-        // what this will need to do is:
-        // - create a call to pass the gpu buffer, that contains the struct, to hostside_opencl_funcs, at runtime
-        // we're going to forbid gpuside buffers containing pointers, for now
+    // llvm::Instruction *PatchHostside::addSetKernelArgInst_pointerstruct(llvm::Instruction *lastInst, llvm::Value *structPointer)
+    // {
+    //     // what this will need to do is:
+    //     // - create a call to pass the gpu buffer, that contains the struct, to hostside_opencl_funcs, at runtime
+    //     // we're going to forbid gpuside buffers containing pointers, for now
 
-        // lets deal with the gpuside buffer first, that should be fairly easy-ish:
-        lastInst = addSetKernelArgInst_pointer(lastInst, structPointer);
+    //     // lets deal with the gpuside buffer first, that should be fairly easy-ish:
+    //     lastInst = addSetKernelArgInst_pointer(lastInst, structPointer);
 
-        // we'd better at least assert or something, if there are pointers in the struct
-        Module *M = lastInst->getModule();
-        Type *valueType = structPointer->getType();
-        StructType *structType = cast<StructType>(cast<PointerType>(valueType)->getElementType());
-        unique_ptr<StructInfo> structInfo(new StructInfo());
-        StructCloner::walkStructType(M, structInfo.get(), 0, 0, vector<int>(), "", structType);
-        bool structHasPointers = structInfo->pointerInfos.size() > 0;
-        if (structHasPointers)
-        {
-            cout << "ERROR: Coriander currently forbids pointers inside gpu-side structs, passed into kernels" << endl;
-            cout << "If you need this, please create an issue at https://github.com/hughperkins/Coriander/issues" << endl;
-            cout << "Note that it's pretty hard to do though" << endl;
-            COCL_LLVM_DUMP(structPointer);
-            cout << endl;
-            throw std::runtime_error("ERROR: Coriander currently forbids pointers inside gpu-side structs, passed into kernels");
-        }
-        return lastInst;
-    }
+    //     // we'd better at least assert or something, if there are pointers in the struct
+    //     Module *M = lastInst->getModule();
+    //     Type *valueType = structPointer->getType();
+    //     StructType *structType = cast<StructType>(cast<PointerType>(valueType)->getElementType());
+    //     unique_ptr<StructInfo> structInfo(new StructInfo());
+    //     StructCloner::walkStructType(M, structInfo.get(), 0, 0, vector<int>(), "", structType);
+    //     bool structHasPointers = structInfo->pointerInfos.size() > 0;
+    //     if (structHasPointers)
+    //     {
+    //         cout << "ERROR: Coriander currently forbids pointers inside gpu-side structs, passed into kernels" << endl;
+    //         cout << "If you need this, please create an issue at https://github.com/hughperkins/Coriander/issues" << endl;
+    //         cout << "Note that it's pretty hard to do though" << endl;
+    //         // COCL_LLVM_DUMP(structPointer);
+    //         cout << endl;
+    //         throw std::runtime_error("ERROR: Coriander currently forbids pointers inside gpu-side structs, passed into kernels");
+    //     }
+    //     return lastInst;
+    // }
 
     llvm::Instruction *PatchHostside::addSetKernelArgInst_byvaluevector(llvm::Instruction *lastInst, llvm::Value *vectorPointer)
     {
@@ -263,7 +266,7 @@ namespace cocl
         if (elementType->getPrimitiveSizeInBits() == 0)
         {
             cout << endl;
-            COCL_LLVM_DUMP(vectorType);
+            // COCL_LLVM_DUMP(vectorType);
             cout << endl;
             throw runtime_error("PatchHostside::addSetKernelArgInst_byvaluevector: not implemented for non-primitive types");
         }
@@ -300,109 +303,109 @@ namespace cocl
         value->setMetadata(tag, mdnode);
     }
 
-    llvm::Instruction *PatchHostside::addSetKernelArgInst_byvaluestruct(llvm::Instruction *lastInst, ParamInfo *paramInfo, llvm::Value *structPointer)
-    {
-        //
-        // what this is going to do is:
-        // - create a call to pass the hostside buffer to hostside_opencl_funcs, at runtime
-        // - if the struct contains pointers, then add appropriate calls to pass those at runtime too
-        //
+//     llvm::Instruction *PatchHostside::addSetKernelArgInst_byvaluestruct(llvm::Instruction *lastInst, ParamInfo *paramInfo, llvm::Value *structPointer)
+//     {
+//         //
+//         // what this is going to do is:
+//         // - create a call to pass the hostside buffer to hostside_opencl_funcs, at runtime
+//         // - if the struct contains pointers, then add appropriate calls to pass those at runtime too
+//         //
 
-        Module *M = lastInst->getModule();
+//         Module *M = lastInst->getModule();
 
-        Indentor indentor;
-        PointerType *structPointerType = cast<PointerType>(structPointer->getType());
-        if (!isa<StructType>(structPointerType->getElementType()))
-        {
-            BitCastInst *bitcast = new BitCastInst(structPointer, paramInfo->typeDevicesideFn);
-            bitcast->insertAfter(lastInst);
-            structPointer = bitcast;
-            lastInst = bitcast;
+//         Indentor indentor;
+//         PointerType *structPointerType = cast<PointerType>(structPointer->getType());
+//         if (!isa<StructType>(structPointerType->getElementType()))
+//         {
+//             BitCastInst *bitcast = new BitCastInst(structPointer, paramInfo->typeDevicesideFn);
+//             bitcast->insertAfter(lastInst);
+//             structPointer = bitcast;
+//             lastInst = bitcast;
 
-            structPointerType = cast<PointerType>(structPointer->getType());
-        }
+//             structPointerType = cast<PointerType>(structPointer->getType());
+//         }
 
-        StructType *structType = cast<StructType>(structPointerType->getElementType());
-        string typeName = structType->getName().str();
-        if (typeName == "struct.float4")
-        {
-            return PatchHostside::addSetKernelArgInst_pointer(lastInst, structPointer);
-        }
+//         StructType *structType = cast<StructType>(structPointerType->getElementType());
+//         string typeName = structType->getName().str();
+//         if (typeName == "struct.float4")
+//         {
+//             return PatchHostside::addSetKernelArgInst_pointer(lastInst, structPointer);
+//         }
 
-        unique_ptr<StructInfo> structInfo(new StructInfo());
-        StructCloner::walkStructType(M, structInfo.get(), 0, 0, vector<int>(), "", structType);
-        bool structHasPointers = structInfo->pointerInfos.size() > 0;
+//         unique_ptr<StructInfo> structInfo(new StructInfo());
+//         StructCloner::walkStructType(M, structInfo.get(), 0, 0, vector<int>(), "", structType);
+//         bool structHasPointers = structInfo->pointerInfos.size() > 0;
 
-        string name = globalNames.getOrCreateName(structType);
-        Type *newType = structCloner.cloneNoPointers(structType);
+//         string name = globalNames.getOrCreateName(structType);
+//         Type *newType = structCloner.cloneNoPointers(structType);
 
-        const DataLayout *dataLayout = &M->getDataLayout();
-        int allocSize = dataLayout->getTypeAllocSize(newType);
+//         const DataLayout *dataLayout = &M->getDataLayout();
+//         int allocSize = dataLayout->getTypeAllocSize(newType);
 
-        Value *sourceStruct = 0;
-        if (structHasPointers)
-        {
-#if LLVM_VERSION_MAJOR > 4
-            // Assume address space 0
-            Instruction *alloca = new AllocaInst(newType, 0, "newalloca");
-#else
-            Instruction *alloca = new AllocaInst(newType, "newalloca");
-#endif
-            alloca->insertAfter(lastInst);
-            lastInst = alloca;
+//         Value *sourceStruct = 0;
+//         if (structHasPointers)
+//         {
+// #if LLVM_VERSION_MAJOR > 4
+//             // Assume address space 0
+//             Instruction *alloca = new AllocaInst(newType, 0, "newalloca");
+// #else
+//             Instruction *alloca = new AllocaInst(newType, "newalloca");
+// #endif
+//             alloca->insertAfter(lastInst);
+//             lastInst = alloca;
 
-            lastInst = structCloner.writeHostsideIrCopyToMarshallingStruct(lastInst, structType, structPointer, alloca);
-            sourceStruct = alloca;
-        }
-        else
-        {
-            sourceStruct = structPointer;
-        }
+//             lastInst = structCloner.writeHostsideIrCopyToMarshallingStruct(lastInst, structType, structPointer, alloca);
+//             sourceStruct = alloca;
+//         }
+//         else
+//         {
+//             sourceStruct = structPointer;
+//         }
 
-        BitCastInst *bitcast = new BitCastInst(sourceStruct, PointerType::get(IntegerType::get(context, 8), 0));
-        bitcast->insertAfter(lastInst);
-        lastInst = bitcast;
+//         BitCastInst *bitcast = new BitCastInst(sourceStruct, PointerType::get(IntegerType::get(context, 8), 0));
+//         bitcast->insertAfter(lastInst);
+//         lastInst = bitcast;
 
-        Value *args[2];
-        args[0] = bitcast;
-        args[1] = createInt32Constant(&context, allocSize);
+//         Value *args[2];
+//         args[0] = bitcast;
+//         args[1] = createInt32Constant(&context, allocSize);
 
-        Function *setKernelArgHostsideBuffer = cast<Function>(getOrInsertFunction(
-            M,
-            "setKernelArgHostsideBuffer",
-            Type::getVoidTy(context),
-            PointerType::get(IntegerType::get(context, 8), 0),
-            IntegerType::get(context, 32)));
+//         Function *setKernelArgHostsideBuffer = cast<Function>(getOrInsertFunction(
+//             M,
+//             "setKernelArgHostsideBuffer",
+//             Type::getVoidTy(context),
+//             PointerType::get(IntegerType::get(context, 8), 0),
+//             IntegerType::get(context, 32)));
 
-        CallInst *call = CallInst::Create(setKernelArgHostsideBuffer, ArrayRef<Value *>(args));
-        call->insertAfter(lastInst);
-        lastInst = call;
+//         CallInst *call = CallInst::Create(setKernelArgHostsideBuffer, ArrayRef<Value *>(args));
+//         call->insertAfter(lastInst);
+//         lastInst = call;
 
-        // now we have to handle any pointers, send those through too
-        int i = 0;
-        for (auto pointerit = structInfo->pointerInfos.begin(); pointerit != structInfo->pointerInfos.end(); pointerit++)
-        {
-            PointerInfo *pointerInfo = pointerit->get();
-            vector<Value *> indices;
-            indices.push_back(createInt32Constant(&context, 0));
-            for (auto idxit = pointerInfo->indices.begin(); idxit != pointerInfo->indices.end(); idxit++)
-            {
-                int idx = *idxit;
-                indices.push_back(createInt32Constant(&context, idx));
-            }
-            GetElementPtrInst *gep = GetElementPtrInst::CreateInBounds(structType, structPointer, ArrayRef<Value *>(&indices[0], &indices[indices.size()]), "getfloatstaraddr");
-            gep->insertAfter(lastInst);
-            lastInst = gep;
+//         // now we have to handle any pointers, send those through too
+//         int i = 0;
+//         for (auto pointerit = structInfo->pointerInfos.begin(); pointerit != structInfo->pointerInfos.end(); pointerit++)
+//         {
+//             PointerInfo *pointerInfo = pointerit->get();
+//             vector<Value *> indices;
+//             indices.push_back(createInt32Constant(&context, 0));
+//             for (auto idxit = pointerInfo->indices.begin(); idxit != pointerInfo->indices.end(); idxit++)
+//             {
+//                 int idx = *idxit;
+//                 indices.push_back(createInt32Constant(&context, idx));
+//             }
+//             GetElementPtrInst *gep = GetElementPtrInst::CreateInBounds(structType, structPointer, ArrayRef<Value *>(&indices[0], &indices[indices.size()]), "getfloatstaraddr");
+//             gep->insertAfter(lastInst);
+//             lastInst = gep;
 
-            LoadInst *loadgep = new LoadInst(gep, "loadgep");
-            loadgep->insertAfter(lastInst);
-            lastInst = loadgep;
+//             LoadInst *loadgep = new LoadInst(gep, "loadgep");
+//             loadgep->insertAfter(lastInst);
+//             lastInst = loadgep;
 
-            lastInst = PatchHostside::addSetKernelArgInst_pointer(lastInst, loadgep);
-            i++;
-        }
-        return lastInst;
-    }
+//             lastInst = PatchHostside::addSetKernelArgInst_pointer(lastInst, loadgep);
+//             i++;
+//         }
+//         return lastInst;
+//     }
 
     llvm::Instruction *PatchHostside::addSetKernelArgInst(llvm::Instruction *lastInst, ParamInfo *paramInfo)
     {
@@ -413,24 +416,24 @@ namespace cocl
         Value *value = paramInfo->value;
         Value *valueAsPointerInstr = paramInfo->pointer;
 
-        Indentor indentor_;
-        Indentor indentor;
+        // Indentor indentor_;
+        // Indentor indentor;
 
         Type *devicesideType = paramInfo->typeDevicesideFn;
 
-        if (paramInfo->devicesideByVal &&
-            isa<PointerType>(devicesideType) &&
-            isa<StructType>(cast<PointerType>(devicesideType)->getElementType()))
-        {
-            // lets walk up the gep???
-            if (GetElementPtrInst *gep = dyn_cast<GetElementPtrInst>(valueAsPointerInstr))
-            {
-                Value *beforeGep = gep->getOperand(0);
-                valueAsPointerInstr = beforeGep;
-            }
-            lastInst = PatchHostside::addSetKernelArgInst_byvaluestruct(lastInst, paramInfo, valueAsPointerInstr);
-        }
-        else if (IntegerType *intType = dyn_cast<IntegerType>(value->getType()))
+        // if (paramInfo->devicesideByVal &&
+        //     isa<PointerType>(devicesideType) &&
+        //     isa<StructType>(cast<PointerType>(devicesideType)->getElementType()))
+        // {
+        //     // lets walk up the gep???
+        //     if (GetElementPtrInst *gep = dyn_cast<GetElementPtrInst>(valueAsPointerInstr))
+        //     {
+        //         Value *beforeGep = gep->getOperand(0);
+        //         valueAsPointerInstr = beforeGep;
+        //     }
+        //     lastInst = PatchHostside::addSetKernelArgInst_byvaluestruct(lastInst, paramInfo, valueAsPointerInstr);
+        // }
+        if (IntegerType *intType = dyn_cast<IntegerType>(value->getType()))
         {
             lastInst = PatchHostside::addSetKernelArgInst_int(lastInst, value, intType);
         }
@@ -441,19 +444,19 @@ namespace cocl
         else if (value->getType()->isPointerTy())
         {
             Type *elementType = dyn_cast<PointerType>(value->getType())->getElementType();
-            if (isa<StructType>(elementType))
-            {
-                lastInst = PatchHostside::addSetKernelArgInst_pointerstruct(lastInst, value);
-            }
-            else
-            {
+            // if (isa<StructType>(elementType))
+            // {
+            //     lastInst = PatchHostside::addSetKernelArgInst_pointerstruct(lastInst, value);
+            // }
+            // else
+            // {
                 lastInst = PatchHostside::addSetKernelArgInst_pointer(lastInst, value);
-            }
+            // }
         }
-        else if (isa<StructType>(value->getType()))
-        {
-            lastInst = PatchHostside::addSetKernelArgInst_byvaluestruct(lastInst, paramInfo, valueAsPointerInstr);
-        }
+        // else if (isa<StructType>(value->getType()))
+        // {
+        //     lastInst = PatchHostside::addSetKernelArgInst_byvaluestruct(lastInst, paramInfo, valueAsPointerInstr);
+        // }
         else if (isa<VectorType>(value->getType()))
         {
             // so, this is byval, thus hostside?
@@ -462,9 +465,10 @@ namespace cocl
         }
         else
         {
-            COCL_LLVM_DUMP(value);
+            // COCL_LLVM_DUMP(value);
             outs() << "\n";
-            throw std::runtime_error("kernel arg type type not implemented " + typeDumper.dumpType(value->getType()));
+            // throw std::runtime_error("kernel arg type type not implemented " + typeDumper.dumpType(value->getType()));
+            throw std::runtime_error("kernel arg type type not implemented");
         }
         return lastInst;
     }
@@ -483,17 +487,17 @@ namespace cocl
         // - the alloca instruction is inst->getOperand(0)->getOperand(0)
         // - so if we load from the alloca instruction, we should have the value we want?
         // outs() << "getLaunchArgValue " << "\n";
-        Indentor indentor;
+        // Indentor indentor;
         int size = (int)cast<ConstantInt>(inst->getOperand(1))->getZExtValue();
         paramInfo->size = size;
         if (!isa<Instruction>(inst->getOperand(0)))
         {
             outs() << "getlaunchvalue, first operatnd of inst is not an instruction..."
                    << "\n";
-            inst->dump();
-            outs() << "\n";
-            COCL_LLVM_DUMP(inst->getOperand(0));
-            outs() << "\n";
+            // inst->dump();
+            // outs() << "\n";
+            // COCL_LLVM_DUMP(inst->getOperand(0));
+            // outs() << "\n";
             throw runtime_error("getlaunchvalue, first operatnd of inst is not an instruction...");
         }
         Instruction *bitcast = cast<Instruction>(inst->getOperand(0));
@@ -522,7 +526,7 @@ namespace cocl
         // info->callTypes.clear();
         // outs() << "getLaunchTypes()\n";
 
-        Indentor indentor;
+        // Indentor indentor;
 
         // the cudaLaunch bitcasts the function to a char *:
         // so we need to walk back along that to get the original function:
@@ -558,7 +562,7 @@ namespace cocl
                 break;
             }
             {
-                Indentor indentor;
+                // Indentor indentor;
                 ParamInfo *paramInfo = info->params[i].get();
 
                 paramInfo->paramIndex = i;
@@ -644,7 +648,7 @@ namespace cocl
         IntegerType *inttype = IntegerType::get(context, 32);
         ConstantInt *constzero = ConstantInt::getSigned(inttype, 0);
         launchCallInfo->params.clear();
-        Indentor indentor;
+        // Indentor indentor;
         for (auto it = F->begin(); it != F->end(); it++)
         {
             BasicBlock *basicBlock = &*it;
