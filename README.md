@@ -14,7 +14,7 @@ Intend to keep the cores very focused on ML. For example, [brain floating point]
 
 # Architecture
 
-[Architecture](/docs/img/architecture.png)
+![Architecture](/docs/img/architecture.png)
 
 # Simulation
 
