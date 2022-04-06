@@ -10,7 +10,7 @@ Intend to implement a [HIP](https://github.com/ROCm-Developer-Tools/HIP) API, th
 
 Internal GPU Core ISA loosely compliant with [RISC-V](https://riscv.org/technical/specifications/) ISA. Where RISC-V conflicts with designing for a GPU setting, we break with RISC-V.
 
-Intend to keep the cores very focused on ML. For example, [brain floating point](https://en.wikipedia.org/wiki/Bfloat16_floating-point_format) ("BF16") throughout, to keep core die area low. This should keep the per-core cost low. Intend to implement only few float operations critical to ML, e.g. `exp`, `log`, `tanh`, `sqrt`, to drive down per-core die area, and thus cost.
+Intend to keep the cores very focused on ML. For example, [brain floating point](https://en.wikipedia.org/wiki/Bfloat16_floating-point_format) ("BF16") throughout, to keep core die area low. This should keep the per-core cost low. Similarly, Intend to implement only few float operations critical to ML, such as `exp`, `log`, `tanh`, `sqrt`.
 
 # Architecture
 
