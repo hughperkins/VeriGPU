@@ -24,6 +24,10 @@ GPU Die Architecture:
 
 ![GPU Die Architecture](/docs/img/gpu_die_arch2.png)
 
+Single Core:
+
+![Single Core](/docs/img/single_core_arch.png)
+
 # Simulation
 
 <!-- ![toy proc workflow](/docs/img/toy_proc_workflow.png) -->
