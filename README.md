@@ -16,7 +16,13 @@ Intend to keep the cores very focused on ML. For example, [brain floating point]
 
 # Architecture
 
-![Architecture](/docs/img/architecture.png)
+End-to-end Architecture, including Host-side compilation and runtime:
+
+![End-to-end Architecture](/docs/img/architecture.png)
+
+GPU die Architecture:
+
+![GPU Die Architecture](/docs/img/GPU_die_architecture.png)
 
 # Simulation
 
