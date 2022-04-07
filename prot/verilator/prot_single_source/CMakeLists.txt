@@ -103,3 +103,8 @@ target_include_directories(patch_hostside PRIVATE ${BASE}/third_party/argparsecp
 # target_include_directories(patch_hostside PRIVATE src/EasyCL)
 # target_compile_options(patch_hostside PRIVATE ${LLVM_CXXFLAGS} ${LLVM_DEFINES})
 target_link_libraries(patch_hostside "${LLVM_LIBPATHS}" ${llvm_libs})
+
+# should try running the following now:
+# patch_hostside --devicellfile ~/git/toy_proc/examples/cpp_single_source/sum_ints/build_bash/sum_ints.ll \
+#     --hostrawfile ~/git/toy_proc/examples/cpp_single_source/sum_ints/build_bash/sum_ints-hostraw.ll \
+#     --hostpatchedfile foo.ll
