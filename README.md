@@ -20,7 +20,7 @@ End-to-end Architecture, including Host-side compilation and runtime:
 
 ![End-to-end Architecture](/docs/img/architecture.png)
 
-GPU die Architecture:
+GPU Die Architecture:
 
 ![GPU Die Architecture](/docs/img/GPU_die_architecture.png)
 
