@@ -26,7 +26,7 @@ GPU Die Architecture:
 
 Single Core:
 
-![Single Core](/docs/img/single_core_arch.png)
+![Single Core](/docs/img/single_core_arch2.png)
 
 # Simulation
 
