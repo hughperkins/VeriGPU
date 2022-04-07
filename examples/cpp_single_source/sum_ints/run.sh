@@ -31,14 +31,21 @@ cd build_bash
 CLANGDIR=$HOME/Downloads/clang+llvm-14.0.0-x86_64-apple-darwin
 MACCLTINCLUDEDIR=/Library/Developer/CommandLineTools/SDKs/MacOSX11.0.sdk/usr/include
 
-unbuffer ${CLANGDIR}/bin/clang++ \
-    -std=c++14 \
-    -I${CLANGDIR}/include \
-    -I${CLANGDIR}/include/c++/v1 \
-    -I${MACCLTINCLUDEDIR} \
-    -I${BASEDIR}/third_party \
-    -I{BASEDIR}/prot/verilator/prot_single_source \
-    -c ${BASEDIR}/prot/verilator/prot_single_source/patch_hostside.cpp
+# LIBRARY_PATH=${CLANGDIR}/
+
+# building patch_hostside is being migrated into cmake script at 
+# /prot/verilator/prot_single_source/CMakeLists.txt
+
+# unbuffer ${CLANGDIR}/bin/clang++ \
+#     -std=c++14 \
+#     -I${CLANGDIR}/include \
+#     -I${CLANGDIR}/include/c++/v1 \
+#     -I${MACCLTINCLUDEDIR} \
+#     -I${BASEDIR}/third_party \
+#     -I{BASEDIR}/prot/verilator/prot_single_source \
+#     -c ${BASEDIR}/prot/verilator/prot_single_source/patch_hostside.cpp
+
+# g++ -o patch_hostside patch_hostside.o -lllvm
 
 # host-side: -.cu => -hostraw.cll
 ${CLANGDIR}/bin/clang++ \
