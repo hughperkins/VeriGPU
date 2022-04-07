@@ -1,0 +1,24 @@
+# adapted from https://cmake.org/Wiki/RecipeAddUninstallTarget
+
+IF(NOT EXISTS "@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt")
+  MESSAGE(FATAL_ERROR "Cannot find install manifest: @CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt")
+ENDIF(NOT EXISTS "@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt")
+
+FILE(STRINGS "@CMAKE_CURRENT_BINARY_DIR@/install_manifest.txt" files)
+STRING(REGEX REPLACE " " ";" files "${files}")
+FOREACH(file ${files})
+  set(FILEPATH $ENV{DESTDIR}${file})
+  MESSAGE(STATUS "Uninstalling [${FILEPATH}]")
+  IF(EXISTS ${FILEPATH})
+    EXEC_PROGRAM(
+      "@CMAKE_COMMAND@" ARGS "-E remove ${FILEPATH}"
+      OUTPUT_VARIABLE rm_out
+      RETURN_VALUE rm_retval
+      )
+    IF(NOT "${rm_retval}" STREQUAL 0)
+      MESSAGE(FATAL_ERROR "Problem when removing ${FILEPATH}")
+    ENDIF(NOT "${rm_retval}" STREQUAL 0)
+  ELSE(EXISTS ${FILEPATH})
+    MESSAGE(STATUS "File ${FILEPATH} does not exist.")
+  ENDIF(EXISTS ${FILEPATH})
+ENDFOREACH(file)

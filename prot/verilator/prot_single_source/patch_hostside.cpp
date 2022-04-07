@@ -14,7 +14,7 @@ We're going to comment out anything to do with structs for now, keep things simp
 // #include "cocl/llvm_dump.h"
 
 #include "mutations.h"
-#include "argparsecpp/argparsecpp.h"
+#include "argparsecpp.h"
 #include "stringhelper.h"
 
 #include "llvm/IR/AssemblyAnnotationWriter.h"

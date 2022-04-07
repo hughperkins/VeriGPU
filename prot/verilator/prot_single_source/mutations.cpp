@@ -34,15 +34,15 @@ void appendGlobalConstructorCall(Module *M, std::string functionName) {
     for(int i = 0; i < oldNumConstructors; i++) {
         initializers[i] = initializer->getAggregateElement((unsigned int)i);
     }
-    Constant *structValues[] = {
-        ConstantInt::get(IntegerType::get(M->getContext(), 32), 1000000),
-        M->getOrInsertFunction(
-            functionName,
-            Type::getVoidTy(M->getContext()),
-            static_cast<size_t>(NULL)),
-        ConstantPointerNull::get(PointerType::get(IntegerType::get(M->getContext(), 8), 0))
-    };
-    initializers[oldNumConstructors] = ConstantStruct::getAnon(ArrayRef<Constant *>(&structValues[0], &structValues[3]));
+    // Constant *structValues[] = {
+    //     ConstantInt::get(IntegerType::get(M->getContext(), 32), 1000000),
+    //     M->getOrInsertFunction(
+    //         functionName,
+    //         Type::getVoidTy(M->getContext()),
+    //         static_cast<size_t>(NULL)).getCallee(),
+    //     ConstantPointerNull::get(PointerType::get(IntegerType::get(M->getContext(), 8), 0))
+    // };
+    // initializers[oldNumConstructors] = ConstantStruct::getAnon(ArrayRef<Constant *>(&structValues[0], &structValues[3]));
     Constant *newinit = ConstantArray::get(initializer->getType(), ArrayRef<Constant *>(&initializers[0], &initializers[oldNumConstructors + 1]));
     ctors->setInitializer(newinit);
     delete[] initializers;
