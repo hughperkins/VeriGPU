@@ -13,6 +13,9 @@ SCRIPTDIR=$(dirname $0)
 BASENAME=$(basename $SCRIPTDIR)
 
 VERILATORDIR=/usr/local/share/verilator
+# CLANGDIR=$HOME/Downloads/clang+llvm-14.0.0-x86_64-apple-darwin
+CLANGDIR=/usr/local/opt/llvm-14.0.0
+MACCLTINCLUDEDIR=/Library/Developer/CommandLineTools/SDKs/MacOSX11.0.sdk/usr/include
 
 BASEDIR=$PWD
 
@@ -28,24 +31,10 @@ if [[ ! -d build_bash ]]; then {
 
 cd build_bash
 
-CLANGDIR=$HOME/Downloads/clang+llvm-14.0.0-x86_64-apple-darwin
-MACCLTINCLUDEDIR=/Library/Developer/CommandLineTools/SDKs/MacOSX11.0.sdk/usr/include
-
 # LIBRARY_PATH=${CLANGDIR}/
 
 # building patch_hostside is being migrated into cmake script at 
 # /prot/verilator/prot_single_source/CMakeLists.txt
-
-# unbuffer ${CLANGDIR}/bin/clang++ \
-#     -std=c++14 \
-#     -I${CLANGDIR}/include \
-#     -I${CLANGDIR}/include/c++/v1 \
-#     -I${MACCLTINCLUDEDIR} \
-#     -I${BASEDIR}/third_party \
-#     -I{BASEDIR}/prot/verilator/prot_single_source \
-#     -c ${BASEDIR}/prot/verilator/prot_single_source/patch_hostside.cpp
-
-# g++ -o patch_hostside patch_hostside.o -lllvm
 
 # host-side: -.cu => -hostraw.cll
 ${CLANGDIR}/bin/clang++ \
@@ -56,8 +45,6 @@ ${CLANGDIR}/bin/clang++ \
     -I${BASEDIR}/prot/verilator/prot_single_source \
     -S ../sum_ints.cpp \
     -o sum_ints-hostraw.ll
-
-# now we have to patch hostside...
 
 # device-side => sum_ints.ll
 ${CLANGDIR}/bin/clang++ \
@@ -70,9 +57,17 @@ ${CLANGDIR}/bin/clang++ \
     -I${MACCLTINCLUDEDIR} \
     -I${BASEDIR}/prot/verilator/prot_single_source \
     -S ../sum_ints.cpp \
-    -o sum_ints.ll
+    -o sum_ints-device.ll
 
-${CLANGDIR}/bin/llc sum_ints.ll -o sum_ints.s --march=riscv32
+# now we have to patch hostside...
+${BASEDIR}/prot/verilator/prot_single_source/build-cmake-mac/patch_hostside \
+     --devicellfile sum_ints-device.ll \
+     --hostrawfile sum_ints-hostraw.ll \
+     --hostpatchedfile sum_ints-hostpatched.ll
+echo patched hostside
+
+${CLANGDIR}/bin/llc sum_ints-device.ll -o sum_ints.s --march=riscv32
+${CLANGDIR}/bin/llc sum_ints-hostpatched.ll -o sum_ints-hostpatched.s
 
 verilator -sv -Wall -cc  ${BASEDIR}/prot/verilator/prot_single_source/controller.sv --top-module controller --prefix controller
 
@@ -81,11 +76,12 @@ verilator -sv -Wall -cc  ${BASEDIR}/prot/verilator/prot_single_source/controller
     make -f controller.mk
 )
 
-g++ -std=c++11 -I${BASEDIR}/prot/verilator/prot_single_source -c ../sum_ints.cpp
-g++ -std=c++11 -I${VERILATORDIR}/include -c ${VERILATORDIR}/include/verilated.cpp
-g++ -std=c++11 -I obj_dir -I${VERILATORDIR}/include -c ${BASEDIR}/prot/verilator/prot_single_source/gpu_runtime.cpp
+# g++ -std=c++11 -I${BASEDIR}/prot/verilator/prot_single_source -c ../sum_ints.cpp
+g++ -std=c++14 -c sum_ints-hostpatched.s
+g++ -std=c++14 -I${VERILATORDIR}/include -c ${VERILATORDIR}/include/verilated.cpp
+g++ -std=c++14 -I obj_dir -I${VERILATORDIR}/include -c ${BASEDIR}/prot/verilator/prot_single_source/gpu_runtime.cpp
 
-g++ -o sum_ints sum_ints.o gpu_runtime.o verilated.o obj_dir/controller__ALL.o
+g++ -o sum_ints sum_ints-hostpatched.o gpu_runtime.o verilated.o obj_dir/controller__ALL.o
 
 set +x
 

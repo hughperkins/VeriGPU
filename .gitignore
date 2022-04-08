@@ -32,3 +32,4 @@ __pycache__/
 build_cmake/
 build_bash/
 build-cmake/
+build-*/
