@@ -206,15 +206,14 @@ namespace veriGPU
         int allocSize = dataLayout->getTypeAllocSize(elementType);
         int32_t elementSize = allocSize;
 
-        Function *setKernelArgGpuBuffer = cast<Function>(getOrInsertFunction(
+        Function *setKernelArgPointerVoid = cast<Function>(getOrInsertFunction(
             M,
-            "setKernelArgGpuBuffer",
+            "setKernelArgPointerVoid",
             Type::getVoidTy(context),
-            PointerType::get(IntegerType::get(context, 8), 0),
-            IntegerType::get(context, 32)));
+            PointerType::get(IntegerType::get(context, 8), 0)));
 
-        Value *args[] = {bitcast, createInt32Constant(&context, elementSize)};
-        CallInst *call = CallInst::Create(setKernelArgGpuBuffer, ArrayRef<Value *>(args));
+        Value *args[] = {bitcast};
+        CallInst *call = CallInst::Create(setKernelArgPointerVoid, ArrayRef<Value *>(args));
         call->insertAfter(lastInst);
         lastInst = call;
         return lastInst;

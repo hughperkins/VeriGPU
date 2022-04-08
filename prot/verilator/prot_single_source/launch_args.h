@@ -26,8 +26,9 @@ namespace VeriGPU
             AK_Int64Arg,
             AK_FloatArg,
             AK_NullPtrArg,
-            AK_ClmemArg,
-            AK_StructArg
+            AK_PointerVoidArg,
+            // AK_ClmemArg,
+            // AK_StructArg
         };
         Arg(ArgKind kind = AK_Base) : Kind(kind) {}
         virtual ~Arg() {}
@@ -132,6 +133,21 @@ namespace VeriGPU
         static bool classof(const Arg *arg)
         {
             return arg->getKind() == AK_NullPtrArg;
+        }
+    };
+    class PointerVoidArg : public Arg {
+        // we'll just treat all pointers as pointers to void for now
+    public:
+        PointerVoidArg(void *ptr) : Arg(AK_PointerVoidArg), ptr(ptr) {}
+        // void inject(easycl::CLKernel *kernel)
+        // {
+        //     kernel->in_nullptr();
+        // }
+        virtual std::string str() { return "AK_PointerVoidArg"; }
+        void *ptr;
+        static bool classof(const Arg *arg)
+        {
+            return arg->getKind() == AK_PointerVoidArg;
         }
     };
     // class ClmemArg : public Arg

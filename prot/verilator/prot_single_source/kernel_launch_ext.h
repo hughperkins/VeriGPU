@@ -53,7 +53,7 @@ extern "C"
     void configureKernel(const char *kernelName, const char *devicellsourcecode);
     // void addClmemArg(cl_mem clmem);
     void setKernelArgHostsideBuffer(char *pCpuStruct, int structAllocateSize);
-    void setKernelArgGpuBuffer(char *memory_as_charstar, int32_t elementSize);
+    void setKernelArgPointerVoid(void *ptrVoid);
     void setKernelArgInt64(int64_t value);
     void setKernelArgInt32(int value);
     void setKernelArgInt8(char value);

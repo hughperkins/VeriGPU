@@ -400,7 +400,7 @@ void setKernelArgHostsideBuffer(char *pCpuStruct, int structAllocateSize)
     // pthread_mutex_unlock(&launchMutex);
 }
 
-void setKernelArgGpuBuffer(char *memory_as_charstar, int32_t elementSize)
+void setKernelArgPointerVoid(void *ptrVoid)
 {
     // This adds a gpu buffer to the kernel args, adding it to the list of unique clmems,
     // if not already present, and adding the offset, as a kernel parameter
@@ -409,7 +409,8 @@ void setKernelArgGpuBuffer(char *memory_as_charstar, int32_t elementSize)
     // The elementSize used to be used, but is no longer used/needed. Should probably be
     // removed from the method parameters at some point.
 
-    std::cout << "setKernelArgGpuBuffer memory_as_charstar " << (size_t)memory_as_charstar << " elementSize " << elementSize << std::endl;
+    std::cout << "setKernelArgPointerVoid ptrVoid " << (size_t)ptrVoid << std::endl;
+    launchConfiguration.args.push_back(std::unique_ptr<Arg>(new PointerVoidArg(ptrVoid)));
 
     // pthread_mutex_lock(&launchMutex);
     // std::lock_guard<std::recursive_mutex> guard(launchMutex);
@@ -554,11 +555,11 @@ void kernelGo()
         //         kernel->in((int64_t)vmemloc);
         //     }
         // }
-        // for (int i = 0; i < launchConfiguration.args.size(); i++)
-        // {
-        //     VERIGPU_PRINT("i=" << i << " " << launchConfiguration.args[i]->str());
+        for (int i = 0; i < launchConfiguration.args.size(); i++)
+        {
+            VERIGPU_PRINT("arg i=" << i << " " << launchConfiguration.args[i]->str());
         //     launchConfiguration.args[i]->inject(kernel);
-        // }
+        }
 
         size_t global[3];
         for (int i = 0; i < 3; i++)
