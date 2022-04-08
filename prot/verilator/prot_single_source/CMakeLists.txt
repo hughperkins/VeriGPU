@@ -35,7 +35,10 @@ add_library(verigpu_runtime SHARED
     ${VERILATOR_ROOT}/include/verilated.cpp
     ${CMAKE_SOURCE_DIR}/gpu_runtime.cpp
     # ${CMAKE_SOURCE_DIR}/my_gpu_test_client.cpp
+    ${CMAKE_SOURCE_DIR}/kernel_launch.cpp
+    ${CMAKE_SOURCE_DIR}/stringhelper.cpp
 )
+target_include_directories(verigpu_runtime PRIVATE ${CLANG_HOME}/include)
 verilate(verigpu_runtime
     SOURCES
         ${CMAKE_SOURCE_DIR}/controller.sv
@@ -110,5 +113,11 @@ target_link_libraries(patch_hostside "${LLVM_LIBPATHS}" ${llvm_libs})
 #     --hostrawfile ~/git/toy_proc/examples/cpp_single_source/sum_ints/build_bash/sum_ints-hostraw.ll \
 #     --hostpatchedfile foo.ll
 
+# add_library(gpu_runtime
+#     gpu_runtime.cpp
+#     kernel_launch.cpp
+#     stringhelper.cpp
+# )
+# target_include_directories(patch_hostside PRIVATE ${CLANG_HOME}/include)
 
 # --devicellfile ~/git/toy_proc/examples/cpp_single_source/sum_ints/build_bash/sum_ints.ll --hostrawfile ~/git/toy_proc/examples/cpp_single_source/sum_ints/build_bash/sum_ints-hostraw.ll --hostpatchedfile foo.ll

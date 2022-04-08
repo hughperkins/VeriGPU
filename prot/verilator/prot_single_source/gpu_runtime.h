@@ -47,7 +47,7 @@ struct dim3
 std::ostream &operator<<(std::ostream &os, const dim3 &value);
 std::ostream &operator<<(std::ostream &os, const size_t value[3]);
 
-extern "C"
-{
-    int cudaConfigureCall(const dim3 grid, const dim3 block, long long shared = 0, char *stream = 0);
-}
+// extern "C"
+// {
+//     int cudaConfigureCall(const dim3 grid, const dim3 block, long long shared = 0, char *stream = 0);
+// }
