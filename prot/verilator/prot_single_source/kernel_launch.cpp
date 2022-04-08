@@ -125,14 +125,14 @@ namespace VeriGPU
     std::string Int32Arg::str()
     {
         ostringstream oss;
-        oss << "Int32Arg=" << v;
+        oss << "Int32Arg v=" << v;
         return oss.str();
     }
 
     std::string Int64Arg::str()
     {
         ostringstream oss;
-        oss << "Int64Arg=" << v;
+        oss << "Int64Ar v=" << v;
         return oss.str();
     }
 

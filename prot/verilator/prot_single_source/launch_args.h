@@ -143,7 +143,7 @@ namespace VeriGPU
         // {
         //     kernel->in_nullptr();
         // }
-        virtual std::string str() { return "AK_PointerVoidArg"; }
+        virtual std::string str() { return "AK_PointerVoidArg ptr=" + std::to_string((size_t)(ptr)); }
         void *ptr;
         static bool classof(const Arg *arg)
         {
