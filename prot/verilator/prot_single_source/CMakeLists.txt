@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.16.3)
 
 if(APPLE)
 set(CLANG_HOME "/usr/local/opt/llvm-14.0.0" CACHE PATH "the downloaded clang+llvm-14.0.0-x86_64-apple-darwin folder, containing lib, bin etc")
@@ -7,7 +7,7 @@ elseif(WIN32)
 # set(CLANG_HOME "C:\\Program Files\\LLVM" CACHE PATH "the downloaded clang-4.0.0 folder, containing lib, bin etc")
 # set(PYTHON27_PATH "C:\\python27\\python" CACHE FILEPATH "full path of python27")
 else()
-# set(CLANG_HOME "/usr/local/opt/llvm-4.0" CACHE PATH "the downloaded clang-4.0.0 folder, containing lib, bin etc")
+set(CLANG_HOME "/usr/local/opt/llvm-14.0.0" CACHE PATH "the downloaded clang-144.0.0 folder, containing lib, bin etc")
 # set(PYTHON27_PATH "/usr/bin/python2" CACHE FILEPATH "full path of python27")
 endif()
 
@@ -42,6 +42,7 @@ verilate(verigpu_runtime
     TOP_MODULE controller
     PREFIX controller
 )
+target_compile_options(verigpu_runtime PRIVATE "-std=c++14")
 
 # some of this stuff is copied from Coriander, apr 6 2022
 
@@ -101,10 +102,13 @@ target_include_directories(patch_hostside PRIVATE ${CLANG_HOME}/include)
 # target_include_directories(patch_hostside PRIVATE include)
 target_include_directories(patch_hostside PRIVATE ${BASE}/third_party/argparsecpp)
 # target_include_directories(patch_hostside PRIVATE src/EasyCL)
-# target_compile_options(patch_hostside PRIVATE ${LLVM_CXXFLAGS} ${LLVM_DEFINES})
+target_compile_options(patch_hostside PRIVATE ${LLVM_CXXFLAGS})
 target_link_libraries(patch_hostside "${LLVM_LIBPATHS}" ${llvm_libs})
 
 # should try running the following now:
 # patch_hostside --devicellfile ~/git/toy_proc/examples/cpp_single_source/sum_ints/build_bash/sum_ints.ll \
 #     --hostrawfile ~/git/toy_proc/examples/cpp_single_source/sum_ints/build_bash/sum_ints-hostraw.ll \
 #     --hostpatchedfile foo.ll
+
+
+# --devicellfile ~/git/toy_proc/examples/cpp_single_source/sum_ints/build_bash/sum_ints.ll --hostrawfile ~/git/toy_proc/examples/cpp_single_source/sum_ints/build_bash/sum_ints-hostraw.ll --hostpatchedfile foo.ll

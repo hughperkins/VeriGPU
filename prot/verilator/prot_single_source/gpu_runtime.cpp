@@ -2,6 +2,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <fstream>
+#include <set>
 #include <verilated.h>
 #include <vector>
 #include <bitset>
