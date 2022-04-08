@@ -37,6 +37,7 @@ add_library(verigpu_runtime
     ${CMAKE_SOURCE_DIR}/gpu_runtime.cpp
     ${CMAKE_SOURCE_DIR}/kernel_launch.cpp
     ${CMAKE_SOURCE_DIR}/stringhelper.cpp
+    ${CMAKE_SOURCE_DIR}/vector_types.cpp
 )
 target_include_directories(verigpu_runtime PRIVATE ${CLANG_HOME}/include)
 verilate(verigpu_runtime

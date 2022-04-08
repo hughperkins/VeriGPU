@@ -34,6 +34,8 @@ using namespace VeriGPU;
 #undef VERIGPU_PRINT
 #endif
 
+#define VERIGPU_SPAM_KERNELLAUNCH
+
 #ifdef VERIGPU_SPAM_KERNELLAUNCH
 #define VERIGPU_PRINT(x) std::cout << "[LAUNCH] " << x << std::endl;
 #define WHEN_SPAMMING(x) x
@@ -406,6 +408,8 @@ void setKernelArgGpuBuffer(char *memory_as_charstar, int32_t elementSize)
     // The size of the buffer is not needed (though the virtual memory system knows it :-) )
     // The elementSize used to be used, but is no longer used/needed. Should probably be
     // removed from the method parameters at some point.
+
+    std::cout << "setKernelArgGpuBuffer memory_as_charstar " << (size_t)memory_as_charstar << " elementSize " << elementSize << std::endl;
 
     // pthread_mutex_lock(&launchMutex);
     // std::lock_guard<std::recursive_mutex> guard(launchMutex);
