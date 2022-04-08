@@ -11,7 +11,8 @@ We're going to comment out anything to do with structs for now, keep things simp
 #include "patch_hostside.h"
 
 // #include "cocl/cocl_logging.h"
-// #include "cocl/llvm_dump.h"
+#include "llvm_dump.h"
+#include "type_dumper.h"
 
 #include "mutations.h"
 #include "argparsecpp.h"
@@ -497,14 +498,14 @@ namespace veriGPU
             throw runtime_error("getlaunchvalue, first operatnd of inst is not an instruction...");
         }
         Instruction *bitcast = cast<Instruction>(inst->getOperand(0));
-        Value *alloca = bitcast;
+        AllocaInst *alloca = 0;
         if (isa<BitCastInst>(bitcast))
         {
-            alloca = bitcast->getOperand(0);
+            alloca = cast<AllocaInst>(bitcast->getOperand(0));
         }
         else
         {
-            alloca = bitcast;
+            alloca = cast<AllocaInst>(bitcast);
         }
         // Type *type = alloca->
         // [Comment from 2022]: so, several years ago, LoadInst didnt need a first argument of Type *
@@ -533,8 +534,9 @@ namespace veriGPU
         //   %17 = icmp eq i32 %16, 0
         //   br i1 %17, label %18, label %20
         // [/Comment from 2022]
-        Instruction *load = new LoadInst(paramInfo->typeDevicesideFn, alloca, "loadCudaArg", inst->getInst());
-        // load->insertBefore(inst->getInst());
+        std::cout << "dump type alloca get type:" << std::endl;
+        VERIGPU_LLVM_DUMP(alloca->getType());
+        Instruction *load = new LoadInst(alloca->getAllocatedType(), alloca, "loadCudaArg", inst->getInst());
         paramInfo->value = load;
         paramInfo->pointer = alloca;
     }
@@ -561,7 +563,8 @@ namespace veriGPU
 
         info->kernelName = hostFn->getName().str();
 
-        Function *deviceFn = MDevice->getFunction(info->kernelName);
+        // Function *deviceFn = MDevice->getFunction(info->kernelName);
+        Function *deviceFn = M->getFunction(info->kernelName);
         if (deviceFn == 0)
         {
             cout << "ERROR: failed to find device kernel [" << info->kernelName << "]" << endl;
@@ -774,6 +777,7 @@ int main(int argc, char *argv[])
 
     string rawhostfilename;
     string patchedhostfilename;
+
 
     parser.add_string_argument("--hostrawfile", &rawhostfilename)->required()->help("input file");
     parser.add_string_argument("--devicellfile", &::devicellfilename)->required()->help("input file");

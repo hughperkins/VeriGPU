@@ -40,7 +40,7 @@ uint32_t ReadIR::readIntConstant_uint32(ConstantInt *constant) {
 
 std::string ReadIR::getName(StructType *type) {
     if(!type->hasName()) {
-        COCL_LLVM_DUMP(type);
+        VERIGPU_LLVM_DUMP(type);
         throw runtime_error("type doesnt have name");
     }
     return type->getName().str();
@@ -57,7 +57,7 @@ std::string ReadIR::getName(Function *type) {
 
 std::string ReadIR::getName(Value *value) {
     if(!value->hasName()) {
-        COCL_LLVM_DUMP(value);
+        VERIGPU_LLVM_DUMP(value);
         throw runtime_error("value doesnt have name");
     }
     return value->getName().str();

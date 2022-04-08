@@ -9,7 +9,7 @@ using namespace std;
 
 #include "stringhelper.h"
 
-namespace easycl {
+namespace VeriGPU {
     vector<string> split(const string &str, const string &separator) {
 	    vector<string> splitstring;
 	    int start = 0;
@@ -92,4 +92,3 @@ namespace easycl {
         destination[i] = 0;
     }
 }
-

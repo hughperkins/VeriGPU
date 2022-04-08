@@ -19,11 +19,8 @@
 
 #include <llvm/Support/Debug.h>
 
-#if LLVM_VERSION_MAJOR > 4
-#define COCL_LLVM_DUMP(entity) (entity)->print(llvm::dbgs(), true)
-#else
-#define COCL_LLVM_DUMP(entity) ((entity)->dump())
-#endif
+#define VERIGPU_LLVM_DUMP(entity) \
+    (entity)->print(llvm::dbgs(), true); \
+    std::cout << std::endl;
 
 #endif
-

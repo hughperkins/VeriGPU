@@ -102,7 +102,7 @@ target_include_directories(patch_hostside PRIVATE ${CLANG_HOME}/include)
 # target_include_directories(patch_hostside PRIVATE include)
 target_include_directories(patch_hostside PRIVATE ${BASE}/third_party/argparsecpp)
 # target_include_directories(patch_hostside PRIVATE src/EasyCL)
-target_compile_options(patch_hostside PRIVATE ${LLVM_CXXFLAGS})
+target_compile_options(patch_hostside PRIVATE ${LLVM_CXXFLAGS} -g)
 target_link_libraries(patch_hostside "${LLVM_LIBPATHS}" ${llvm_libs})
 
 # should try running the following now:

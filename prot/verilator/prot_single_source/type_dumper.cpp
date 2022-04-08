@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "cocl/type_dumper.h"
+#include "type_dumper.h"
 
-#include "cocl/mutations.h"
-#include "EasyCL/util/easycl_stringhelper.h"
+#include "mutations.h"
+#include "stringhelper.h"
 
-#include "cocl/llvm_dump.h"
+#include "llvm_dump.h"
 
 #include "llvm/IR/Instructions.h"
 #include "llvm/Support/raw_ostream.h"
@@ -27,9 +27,9 @@
 
 using namespace std;
 using namespace llvm;
-using namespace cocl;
+using namespace VeriGPU;
 
-namespace cocl {
+namespace VeriGPU {
 
 // everything here assumes device-side
 // (since hostside wouldnt be using opencl, just bytecode stuff)
@@ -55,7 +55,7 @@ std::string TypeDumper::dumpAddressSpace(llvm::Type *type) {
             case 5:
                 return "__vmem__";
             default:
-                throw runtime_error("not implemented, addressspace " + easycl::toString(addressspace));
+                throw runtime_error("not implemented, addressspace " + toString(addressspace));
         }
     } else {
         return "";
@@ -155,49 +155,49 @@ std::string TypeDumper::dumpIntegerType(IntegerType *type) {
     }
 }
 
-std::string TypeDumper::addStructToGlobalNames(StructType *type) {
-    if(globalNames->hasName(type)) {
-        return globalNames->getName(type);
-    }
-    if(type->hasName()) {
-        string name = type->getName();
-        name = easycl::replaceGlobal(name, ".", "_");
-        name = easycl::replaceGlobal(name, ":", "_");
-        name = easycl::replaceGlobal(name, "<", "_");
-        name = easycl::replaceGlobal(name, ">", "_");
-        name = easycl::replaceGlobal(name, ", ", "_");
-        if(name == "struct_float4") {
-            name = "float4";
-            name = globalNames->getOrCreateName(type, name);
-            return "float4";
-        } else {
-            if(name.find("struct_") == 0 || name.find("struct ") == 0) {
-                name[6] = ' ';
-                name = globalNames->getOrCreateName(type, name);
-                structsToDefine.insert(type);
-                return name;
-            } else if(name.find("class_") != string::npos) {
-                name = "struct " + name;
-                name = globalNames->getOrCreateName(type, name);
-                structsToDefine.insert(type);
-                return name;
-            } else {
-                name = "struct " + name;
-                name = globalNames->getOrCreateName(type, name);
-                structsToDefine.insert(type);
-                return name;
-            }
-        }
-    } else {
-        COCL_LLVM_DUMP(type);
-        throw runtime_error("not implemented: anonymous struct types");
-    }
-}
+// std::string TypeDumper::addStructToGlobalNames(StructType *type) {
+//     if(globalNames->hasName(type)) {
+//         return globalNames->getName(type);
+//     }
+//     if(type->hasName()) {
+//         string name = type->getName();
+//         name = easycl::replaceGlobal(name, ".", "_");
+//         name = easycl::replaceGlobal(name, ":", "_");
+//         name = easycl::replaceGlobal(name, "<", "_");
+//         name = easycl::replaceGlobal(name, ">", "_");
+//         name = easycl::replaceGlobal(name, ", ", "_");
+//         if(name == "struct_float4") {
+//             name = "float4";
+//             name = globalNames->getOrCreateName(type, name);
+//             return "float4";
+//         } else {
+//             if(name.find("struct_") == 0 || name.find("struct ") == 0) {
+//                 name[6] = ' ';
+//                 name = globalNames->getOrCreateName(type, name);
+//                 structsToDefine.insert(type);
+//                 return name;
+//             } else if(name.find("class_") != string::npos) {
+//                 name = "struct " + name;
+//                 name = globalNames->getOrCreateName(type, name);
+//                 structsToDefine.insert(type);
+//                 return name;
+//             } else {
+//                 name = "struct " + name;
+//                 name = globalNames->getOrCreateName(type, name);
+//                 structsToDefine.insert(type);
+//                 return name;
+//             }
+//         }
+//     } else {
+//         COCL_LLVM_DUMP(type);
+//         throw runtime_error("not implemented: anonymous struct types");
+//     }
+// }
 
-std::string TypeDumper::dumpStructType(StructType *type) {
-    // std::cout << "TypeDumper::dumpStructType" << std::endl;
-    return addStructToGlobalNames(type);
-}
+// std::string TypeDumper::dumpStructType(StructType *type) {
+//     // std::cout << "TypeDumper::dumpStructType" << std::endl;
+//     return addStructToGlobalNames(type);
+// }
 
 std::string TypeDumper::dumpArrayType(ArrayType *type, bool decayArraysToPointer) {
     // std::cout << "TypeDumper::dumpArrayType" << std::endl;
@@ -208,18 +208,18 @@ std::string TypeDumper::dumpArrayType(ArrayType *type, bool decayArraysToPointer
     if(decayArraysToPointer) {
         oss << dumpType(elementType, decayArraysToPointer) + "*";
     } else {
-        oss << dumpType(elementType, decayArraysToPointer) + "[" + easycl::toString(length) + "]";
+        oss << dumpType(elementType, decayArraysToPointer) + "[" + toString(length) + "]";
     }
     return oss.str();
 }
 
 std::string TypeDumper::dumpVectorType(VectorType *vectorType, bool decayArraysToPointer) {
     // std::cout << "TypeDumper::dumpVectorType" << std::endl;
-    int elementCount = vectorType->getNumElements();
+    int elementCount = vectorType->getElementCount().getValue(0);
     Type *elementType = vectorType->getElementType();
     if(elementType->getPrimitiveSizeInBits() == 0) {
         cout << endl;
-        COCL_LLVM_DUMP(vectorType);
+        VERIGPU_LLVM_DUMP(vectorType);
         cout << endl;
         throw runtime_error("TypeDumper::dumpVectorType: not implemented for non-primitive types");
     }
@@ -261,10 +261,10 @@ std::string TypeDumper::dumpType(Type *type, bool decayArraysToPointer) {
         // case Type::UnionTyID:
         //     throw runtime_error("not implemented: union type");
 
-        case Type::StructTyID:
-            return dumpStructType(cast<StructType>(type));
+        // case Type::StructTyID:
+        //     return dumpStructType(cast<StructType>(type));
 
-        case Type::VectorTyID:
+        case Type::FixedVectorTyID:
             return dumpVectorType(cast<VectorType>(type));
 
         case Type::ArrayTyID:
@@ -288,7 +288,7 @@ std::string TypeDumper::dumpType(Type *type, bool decayArraysToPointer) {
         default:
             outs() << "type id " << typeID << "\n";
             cout << endl;
-            COCL_LLVM_DUMP(type);
+            VERIGPU_LLVM_DUMP(type);
             cout << endl;
             throw runtime_error("TypeDumper::dumpType(...): unrecognized type");
     }
@@ -302,98 +302,98 @@ int TypeDumper::getPointerDepth(Type *type) {
     return 0;
 }
 
-std::string TypeDumper::dumpStructDefinition(StructType *type, string name) {
-    // dump deviceside struct opencl
-    // this will write pointers as global pointers, probably
+// std::string TypeDumper::dumpStructDefinition(StructType *type, string name) {
+//     // dump deviceside struct opencl
+//     // this will write pointers as global pointers, probably
 
-    // std::cout << "TypeDumper::dumpStructDefinition" << std::endl;
-    ostringstream declaration;
-    declaration << name << " {\n";
-    int i = 0;
-    for(auto it=type->element_begin(); it != type->element_end(); it++) {
-        Type *elementType = *it;
-        bool isPtrPtrFunction = false;
-        if(PointerType *ptr = dyn_cast<PointerType>(elementType)) {
-            Type *ptrElementType = ptr->getElementType();
-            if(PointerType *ptrptr = dyn_cast<PointerType>(ptrElementType)) {
-                Type *ptrptrElementType = ptrptr->getElementType();
-                isPtrPtrFunction = isa<FunctionType>(ptrptrElementType);
-            }
-        }
-        if(isPtrPtrFunction) {
-            // we can ignore functions, whilst dumping structs
-            continue;
-        }
-        std::string memberName = "f" + easycl::toString(i);
-        if(ArrayType *arraytype = dyn_cast<ArrayType>(elementType)) {
-            Type *arrayelementtype = arraytype->getElementType();
-            int numElements = arraytype->getNumElements();
-            declaration << "    ";
-            // assume any pointers are global
-            // also, we'll change them into unsigned longs ... :-P. (ie virtual mem locations)
-            if(isa<PointerType>(arrayelementtype)) {
-                declaration << "__vmem__ unsigned long ";
-            } else {
-                declaration << dumpType(arrayelementtype) << " ";
-            }
-            declaration << memberName << "[" << numElements << "];\n";
-        } else {
-            declaration << "    ";
-            // if its a pointer:
-            // - level 1 => global (we'll splice it in)
-            // - level 2 => vmem array
-            if(isa<PointerType>(elementType)) {
-                int pointerDepth = getPointerDepth(elementType);
-                if(pointerDepth > 1) {
-                    declaration << "__vmem2__ unsigned long " << memberName << ";\n";
-                } else {
-                    declaration << "global " << dumpType(elementType) << " " << memberName << ";\n";
-                }
-            } else {
-                declaration << dumpType(elementType) << " " << memberName << ";\n";
-            }
-        }
-        i++;
-    }
-    declaration << "};\n";
+//     // std::cout << "TypeDumper::dumpStructDefinition" << std::endl;
+//     ostringstream declaration;
+//     declaration << name << " {\n";
+//     int i = 0;
+//     for(auto it=type->element_begin(); it != type->element_end(); it++) {
+//         Type *elementType = *it;
+//         bool isPtrPtrFunction = false;
+//         if(PointerType *ptr = dyn_cast<PointerType>(elementType)) {
+//             Type *ptrElementType = ptr->getElementType();
+//             if(PointerType *ptrptr = dyn_cast<PointerType>(ptrElementType)) {
+//                 Type *ptrptrElementType = ptrptr->getElementType();
+//                 isPtrPtrFunction = isa<FunctionType>(ptrptrElementType);
+//             }
+//         }
+//         if(isPtrPtrFunction) {
+//             // we can ignore functions, whilst dumping structs
+//             continue;
+//         }
+//         std::string memberName = "f" + easycl::toString(i);
+//         if(ArrayType *arraytype = dyn_cast<ArrayType>(elementType)) {
+//             Type *arrayelementtype = arraytype->getElementType();
+//             int numElements = arraytype->getNumElements();
+//             declaration << "    ";
+//             // assume any pointers are global
+//             // also, we'll change them into unsigned longs ... :-P. (ie virtual mem locations)
+//             if(isa<PointerType>(arrayelementtype)) {
+//                 declaration << "__vmem__ unsigned long ";
+//             } else {
+//                 declaration << dumpType(arrayelementtype) << " ";
+//             }
+//             declaration << memberName << "[" << numElements << "];\n";
+//         } else {
+//             declaration << "    ";
+//             // if its a pointer:
+//             // - level 1 => global (we'll splice it in)
+//             // - level 2 => vmem array
+//             if(isa<PointerType>(elementType)) {
+//                 int pointerDepth = getPointerDepth(elementType);
+//                 if(pointerDepth > 1) {
+//                     declaration << "__vmem2__ unsigned long " << memberName << ";\n";
+//                 } else {
+//                     declaration << "global " << dumpType(elementType) << " " << memberName << ";\n";
+//                 }
+//             } else {
+//                 declaration << dumpType(elementType) << " " << memberName << ";\n";
+//             }
+//         }
+//         i++;
+//     }
+//     declaration << "};\n";
 
-    return declaration.str();
-}
+//     return declaration.str();
+// }
 
-std::string TypeDumper::dumpStructDefinitions() {
-    string gencode = "";
-    set<StructType *>dumped;
-    while(dumped.size() < structsToDefine.size()) {
-        for(auto it=structsToDefine.begin(); it != structsToDefine.end(); it++) {
-            StructType *structType = *it;
-            if(dumped.find(structType) != dumped.end()) {
-                continue;
-            }
-            // check if we already defined its members
-            bool dumpable = true;
-            for(auto it2=structType->element_begin(); it2 != structType->element_end(); it2++) {
-                Type *subType = (*it2);
-                if(ArrayType *elementArrayType = dyn_cast<ArrayType>(subType)) {
-                    subType = elementArrayType->getElementType();
-                }
-                if(StructType *elementStructType = dyn_cast<StructType>(subType)) {
-                    if(dumped.find(elementStructType) == dumped.end()) {
-                        structsToDefine.insert(elementStructType);
-                        dumpable = false;
-                        break;
-                    } else {
-                    }
-                }
-            }
-            if(!dumpable) {
-                continue;
-            }
-            dumped.insert(structType);
-            addStructToGlobalNames(structType);
-            gencode += dumpStructDefinition(structType, globalNames->getName(structType));
-        }
-    }
-    return gencode;
-}
+// std::string TypeDumper::dumpStructDefinitions() {
+//     string gencode = "";
+//     set<StructType *>dumped;
+//     while(dumped.size() < structsToDefine.size()) {
+//         for(auto it=structsToDefine.begin(); it != structsToDefine.end(); it++) {
+//             StructType *structType = *it;
+//             if(dumped.find(structType) != dumped.end()) {
+//                 continue;
+//             }
+//             // check if we already defined its members
+//             bool dumpable = true;
+//             for(auto it2=structType->element_begin(); it2 != structType->element_end(); it2++) {
+//                 Type *subType = (*it2);
+//                 if(ArrayType *elementArrayType = dyn_cast<ArrayType>(subType)) {
+//                     subType = elementArrayType->getElementType();
+//                 }
+//                 if(StructType *elementStructType = dyn_cast<StructType>(subType)) {
+//                     if(dumped.find(elementStructType) == dumped.end()) {
+//                         structsToDefine.insert(elementStructType);
+//                         dumpable = false;
+//                         break;
+//                     } else {
+//                     }
+//                 }
+//             }
+//             if(!dumpable) {
+//                 continue;
+//             }
+//             dumped.insert(structType);
+//             addStructToGlobalNames(structType);
+//             gencode += dumpStructDefinition(structType, globalNames->getName(structType));
+//         }
+//     }
+//     return gencode;
+// }
 
-} // namespace cocl;
+} // namespace VeriGPU;
