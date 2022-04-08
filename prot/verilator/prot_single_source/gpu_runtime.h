@@ -6,6 +6,8 @@
 #include <cstdlib>
 #include <ostream>
 
+#include "kernel_compile_defs.h"
+
 class MemoryInfo
 {
 public:
@@ -32,20 +34,20 @@ void tick();
 void gpuCreateContext();
 void gpuDestroyContext();
 
-struct dim3
-{
-    dim3(unsigned int x, unsigned y, unsigned int z) : x(x), y(y), z(z) {}
-    dim3(unsigned int x, unsigned y) : x(x), y(y), z(1) {}
-    dim3(unsigned int x) : x(x), y(1), z(1) {}
-    dim3() : x(1), y(1), z(1) {}
-    // unsigned int pad;
-    unsigned int x;
-    unsigned int y;
-    unsigned int z;
-};
+// struct dim3
+// {
+//     dim3(unsigned int x, unsigned y, unsigned int z) : x(x), y(y), z(z) {}
+//     dim3(unsigned int x, unsigned y) : x(x), y(y), z(1) {}
+//     dim3(unsigned int x) : x(x), y(1), z(1) {}
+//     dim3() : x(1), y(1), z(1) {}
+//     // unsigned int pad;
+//     unsigned int x;
+//     unsigned int y;
+//     unsigned int z;
+// };
 
-std::ostream &operator<<(std::ostream &os, const dim3 &value);
-std::ostream &operator<<(std::ostream &os, const size_t value[3]);
+// std::ostream &operator<<(std::ostream &os, const dim3 &value);
+// std::ostream &operator<<(std::ostream &os, const size_t value[3]);
 
 // extern "C"
 // {

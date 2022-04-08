@@ -81,7 +81,8 @@ g++ -std=c++14 -c sum_ints-hostpatched.s
 g++ -std=c++14 -I${VERILATORDIR}/include -c ${VERILATORDIR}/include/verilated.cpp
 g++ -std=c++14 -I obj_dir -I${VERILATORDIR}/include -c ${BASEDIR}/prot/verilator/prot_single_source/gpu_runtime.cpp
 
-g++ -o sum_ints sum_ints-hostpatched.o gpu_runtime.o verilated.o obj_dir/controller__ALL.o
+# g++ -o sum_ints sum_ints-hostpatched.o gpu_runtime.o verilated.o obj_dir/controller__ALL.o
+g++ -o sum_ints sum_ints-hostpatched.o -L${BASEDIR}/prot/verilator/prot_single_source/build-cmake-mac -lverigpu_runtime
 
 set +x
 

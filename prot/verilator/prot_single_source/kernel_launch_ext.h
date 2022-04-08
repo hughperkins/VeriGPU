@@ -43,7 +43,7 @@ namespace cocl
 
 extern "C"
 {
-    int cudaConfigureCall(const dim3 grid, const dim3 block, long long shared = 0, char *stream = 0);
+    // int cudaConfigureCall(const dim3 grid, const dim3 block, long long shared = 0, char *stream = 0);
 
     void configureKernel(
         const char *kernelName, const char *llsourcecode);
