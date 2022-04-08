@@ -287,14 +287,14 @@ namespace VeriGPU
 
 } // namespace cocl
 
-void configureKernel(const char *kernelName, const char *devicellsourcecode)
+void configureKernel(const char *kernelName, const char *deviceriscvsourcecode)
 {
     // pthread_mutex_lock(&launchMutex);
     // launchMutex.lock();
     // std::lock_guard<std::recursive_mutex> guard(launchMutex);
     VERIGPU_PRINT("=========================================");
     launchConfiguration.kernelName = kernelName;
-    launchConfiguration.devicellsourcecode = devicellsourcecode;
+    launchConfiguration.deviceriscvsourcecode = deviceriscvsourcecode;
 
     std::cout << "configureKernel kernelName=" << kernelName << std::endl;
 
@@ -498,6 +498,7 @@ void kernelGo()
         // GenerateOpenCLResult res = generateOpenCL(
         //     launchConfiguration.clmems.size(), launchConfiguration.clmemIndexByClmemArgIndex, launchConfiguration.kernelName, launchConfiguration.devicellsourcecode);
         VERIGPU_PRINT("kernelGo() kernel: " << launchConfiguration.kernelName);
+        std::cout << "kernel source code " << launchConfiguration.deviceriscvsourcecode << std::endl;
         // CLKernel *kernel = compileOpenCLKernel(launchConfiguration.kernelName, res.uniqueKernelName, res.shortKernelName, res.clSourcecode);
         // VERIGPU_PRINT("kernelGo() uniqueKernelName: " << launchConfiguration.uniqueKernelName);
 

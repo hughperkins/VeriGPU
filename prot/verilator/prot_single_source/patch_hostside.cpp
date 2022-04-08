@@ -42,8 +42,9 @@ namespace veriGPU
 {
 
     static llvm::LLVMContext context;
-    static std::string devicellcode_stringname;
+    static std::string deviceriscvcode_stringname;
     static string devicellfilename;
+    static string deviceriscvfilename;
 
     // static GlobalNames globalNames;
     // static TypeDumper typeDumper(&globalNames);
@@ -618,11 +619,11 @@ namespace veriGPU
         to_replace_with_zero.push_back(inst->getInst());
 
         string kernelName = launchCallInfo->kernelName;
-        Instruction *kernelNameValue = addStringInstr(M, "s_" + ::devicellcode_stringname + "_" + kernelName, kernelName);
+        Instruction *kernelNameValue = addStringInstr(M, "s_" + ::deviceriscvcode_stringname + "_" + kernelName, kernelName);
         kernelNameValue->insertBefore(inst->getInst());
 
         // this isnt actually needed for running, but hopefully useful for debugging
-        Instruction *llSourcecodeValue = addStringInstrExistingGlobal(M, devicellcode_stringname);
+        Instruction *llSourcecodeValue = addStringInstrExistingGlobal(M, deviceriscvcode_stringname);
         llSourcecodeValue->insertBefore(inst->getInst());
 
         Function *configureKernel = cast<Function>(getOrInsertFunction(
@@ -752,13 +753,13 @@ namespace veriGPU
 
         // MDevice is only for information, so we can see the declaration of kernels on the device-side
 
-        ifstream f_inll(::devicellfilename);
-        string devicell_sourcecode(
+        ifstream f_inll(::deviceriscvfilename);
+        string deviceriscv_sourcecode(
             (std::istreambuf_iterator<char>(f_inll)),
             (std::istreambuf_iterator<char>()));
 
-        ::devicellcode_stringname = "__devicell_sourcecode" + ::devicellfilename;
-        addGlobalVariable(M, devicellcode_stringname, devicell_sourcecode);
+        ::deviceriscvcode_stringname = "__deviceriscv_sourcecode" + ::deviceriscvfilename;
+        addGlobalVariable(M, deviceriscvcode_stringname, deviceriscv_sourcecode);
 
         for (auto it = M->begin(); it != M->end(); it++)
         {
@@ -781,6 +782,7 @@ int main(int argc, char *argv[])
 
     parser.add_string_argument("--hostrawfile", &rawhostfilename)->required()->help("input file");
     parser.add_string_argument("--devicellfile", &::devicellfilename)->required()->help("input file");
+    parser.add_string_argument("--deviceriscvfile", &::deviceriscvfilename)->required()->help("input file");
     parser.add_string_argument("--hostpatchedfile", &patchedhostfilename)->required()->help("output file");
     if (!parser.parse_args(argc, argv))
     {

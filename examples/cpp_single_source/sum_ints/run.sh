@@ -59,14 +59,16 @@ ${CLANGDIR}/bin/clang++ \
     -S ../sum_ints.cpp \
     -o sum_ints-device.ll
 
+${CLANGDIR}/bin/llc sum_ints-device.ll -o sum_ints-device.s --march=riscv32
+
 # now we have to patch hostside...
 ${BASEDIR}/prot/verilator/prot_single_source/build-cmake-mac/patch_hostside \
      --devicellfile sum_ints-device.ll \
+     --deviceriscvfile sum_ints-device.s \
      --hostrawfile sum_ints-hostraw.ll \
      --hostpatchedfile sum_ints-hostpatched.ll
 echo patched hostside
 
-${CLANGDIR}/bin/llc sum_ints-device.ll -o sum_ints.s --march=riscv32
 ${CLANGDIR}/bin/llc sum_ints-hostpatched.ll -o sum_ints-hostpatched.s
 
 verilator -sv -Wall -cc  ${BASEDIR}/prot/verilator/prot_single_source/controller.sv --top-module controller --prefix controller

@@ -35,7 +35,6 @@ message(STATUS "BASE ${BASE}")
 add_library(verigpu_runtime
     ${VERILATOR_ROOT}/include/verilated.cpp
     ${CMAKE_SOURCE_DIR}/gpu_runtime.cpp
-    # ${CMAKE_SOURCE_DIR}/my_gpu_test_client.cpp
     ${CMAKE_SOURCE_DIR}/kernel_launch.cpp
     ${CMAKE_SOURCE_DIR}/stringhelper.cpp
 )

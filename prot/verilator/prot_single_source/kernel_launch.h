@@ -62,6 +62,6 @@ namespace VeriGPU
         std::string kernelName = "";
         std::string uniqueKernelName = "";
         std::string shortKernelName = "";
-        std::string devicellsourcecode = "";
+        std::string deviceriscvsourcecode = "";
     };
 }
