@@ -2,6 +2,8 @@
 
 #include <ostream>
 
+#pragma once
+
 struct dim3
 {
     dim3(unsigned int x, unsigned y, unsigned int z) : x(x), y(y), z(z) {}

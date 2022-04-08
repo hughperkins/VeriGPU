@@ -5,6 +5,7 @@
 #include "llvm/Support/Casting.h" // for llvm rtti
 
 #include <string>
+#include <sstream>
 
 namespace VeriGPU
 {
@@ -33,6 +34,7 @@ namespace VeriGPU
         Arg(ArgKind kind = AK_Base) : Kind(kind) {}
         virtual ~Arg() {}
         // virtual void inject(easycl::CLKernel *kernel) = 0;
+        virtual void appendToAsmSStream(std::ostringstream &oss, int argIndex) = 0;
         virtual std::string str() = 0;
 
     private:
@@ -46,21 +48,21 @@ namespace VeriGPU
             return arg->getKind() == AK_Base;
         }
     };
-    class Int8Arg : public Arg
-    {
-    public:
-        Int8Arg(char v) : Arg(AK_Int8Arg), v(v) {}
-        // void inject(easycl::CLKernel *kernel)
-        // {
-        //     kernel->in_char(v);
-        // }
-        virtual std::string str() { return "Int8Arg"; }
-        char v;
-        static bool classof(const Arg *arg)
-        {
-            return arg->getKind() == AK_Int8Arg;
-        }
-    };
+    // class Int8Arg : public Arg
+    // {
+    // public:
+    //     Int8Arg(char v) : Arg(AK_Int8Arg), v(v) {}
+    //     // void inject(easycl::CLKernel *kernel)
+    //     // {
+    //     //     kernel->in_char(v);
+    //     // }
+    //     virtual std::string str() { return "Int8Arg"; }
+    //     char v;
+    //     static bool classof(const Arg *arg)
+    //     {
+    //         return arg->getKind() == AK_Int8Arg;
+    //     }
+    // };
     class Int32Arg : public Arg
     {
     public:
@@ -69,6 +71,10 @@ namespace VeriGPU
         // {
         //     kernel->in_int32(v);
         // }
+        virtual void appendToAsmSStream(std::ostringstream &oss, int argIndex)
+        {
+            oss << "li a" << argIndex << ", " << v << std::endl;
+        }
         virtual std::string str();
         int v;
         static bool classof(const Arg *arg)
@@ -86,26 +92,30 @@ namespace VeriGPU
         // }
         virtual std::string str() { return "UInt32Arg"; }
         uint32_t v;
+        virtual void appendToAsmSStream(std::ostringstream &oss, int argIndex)
+        {
+            oss << "li a" << argIndex << ", " << v << std::endl;
+        }
         static bool classof(const Arg *arg)
         {
             return arg->getKind() == AK_UInt32Arg;
         }
     };
-    class Int64Arg : public Arg
-    {
-    public:
-        Int64Arg(int64_t v) : Arg(AK_Int64Arg), v(v) {}
-        // void inject(easycl::CLKernel *kernel)
-        // {
-        //     kernel->in_int64(v);
-        // }
-        virtual std::string str();
-        int64_t v;
-        static bool classof(const Arg *arg)
-        {
-            return arg->getKind() == AK_Int64Arg;
-        }
-    };
+    // class Int64Arg : public Arg
+    // {
+    // public:
+    //     Int64Arg(int64_t v) : Arg(AK_Int64Arg), v(v) {}
+    //     // void inject(easycl::CLKernel *kernel)
+    //     // {
+    //     //     kernel->in_int64(v);
+    //     // }
+    //     virtual std::string str();
+    //     int64_t v;
+    //     static bool classof(const Arg *arg)
+    //     {
+    //         return arg->getKind() == AK_Int64Arg;
+    //     }
+    // };
     class FloatArg : public Arg
     {
     public:
@@ -116,6 +126,10 @@ namespace VeriGPU
         // }
         virtual std::string str() { return "FloatArg"; }
         float v;
+        virtual void appendToAsmSStream(std::ostringstream &oss, int argIndex)
+        {
+            oss << "li a" << argIndex << ", " << v << std::endl;
+        }
         static bool classof(const Arg *arg)
         {
             return arg->getKind() == AK_FloatArg;
@@ -130,6 +144,10 @@ namespace VeriGPU
         //     kernel->in_nullptr();
         // }
         virtual std::string str() { return "NullPtrArg"; }
+        virtual void appendToAsmSStream(std::ostringstream &oss, int argIndex)
+        {
+            oss << "li a" << argIndex << ", 0" << std::endl;
+        }
         static bool classof(const Arg *arg)
         {
             return arg->getKind() == AK_NullPtrArg;
@@ -145,6 +163,10 @@ namespace VeriGPU
         // }
         virtual std::string str() { return "AK_PointerVoidArg ptr=" + std::to_string((size_t)(ptr)); }
         void *ptr;
+        virtual void appendToAsmSStream(std::ostringstream &oss, int argIndex)
+        {
+            oss << "li a" << argIndex << ", " << (size_t)ptr << std::endl;
+        }
         static bool classof(const Arg *arg)
         {
             return arg->getKind() == AK_PointerVoidArg;

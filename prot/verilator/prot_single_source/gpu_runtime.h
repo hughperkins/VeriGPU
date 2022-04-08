@@ -1,3 +1,5 @@
+#pragma once
+
 #define __global__ __attribute__((global))
 #define __device__ __attribute__((device))
 #define __host__ __attribute__((host))

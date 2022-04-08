@@ -58,7 +58,8 @@ void gpuCreateContext()
     dut->rst = 1;
     tick();
 
-    MemoryInfo *p_memInfo = new MemoryInfo(0, totalMemoryBytes);
+    // we skip the first 32 words, so that we can have void pointers
+    MemoryInfo *p_memInfo = new MemoryInfo(128, totalMemoryBytes - 128);
     freeSpaces.insert(p_memInfo);
 }
 

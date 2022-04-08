@@ -14,9 +14,12 @@
 #include <set>
 #include <cstdlib>
 #include <mutex>
+#include <sstream>
+#include <fstream>
 
 // #include "EasyCL/EasyCL.h"
 #include "stringhelper.h"
+#include "gpu_runtime.h"
 
 // #include "cocl/cocl.h"
 // #include "cocl/VERIGPU_memory.h"
@@ -129,12 +132,12 @@ namespace VeriGPU
         return oss.str();
     }
 
-    std::string Int64Arg::str()
-    {
-        ostringstream oss;
-        oss << "Int64Ar v=" << v;
-        return oss.str();
-    }
+    // std::string Int64Arg::str()
+    // {
+    //     ostringstream oss;
+    //     oss << "Int64Ar v=" << v;
+    //     return oss.str();
+    // }
 
     // int32_t getNumCachedKernels()
     // {
@@ -145,149 +148,7 @@ namespace VeriGPU
     // {
     //     return getThreadVars()->getContext()->numKernelCalls;
     // }
-
-    // CLKernel *compileOpenCLKernel(string originalKernelName, string clSourcecode)
-    // {
-    //     return compileOpenCLKernel(originalKernelName, originalKernelName, originalKernelName, clSourcecode);
-    // }
-
-    // CLKernel *compileOpenCLKernel(string originalKernelName, string uniqueKernelName, string shortKernelName, string clSourcecode)
-    // {
-    //     // returns already-built kernel if available, based on the name
-    //     // otherwise builds passed-in clsourcecode, caches that, and returns resulting kernel
-    //     // (opencl generation has already happened prior to this function)
-
-    //     ThreadVars *v = getThreadVars();
-    //     EasyCL *cl = v->getContext()->getCl();
-    //     ofstream f;
-    //     v->getContext()->numKernelCalls++;
-    //     if (v->getContext()->kernelCache.find(uniqueKernelName) != v->getContext()->kernelCache.end())
-    //     {
-    //         return v->getContext()->kernelCache[uniqueKernelName];
-    //     }
-    //     // compile the kernel.  we are still locking the mutex, but I cnat think of a better
-    //     // way right now...
-
-    //     string filename = "/tmp/" + easycl::toString(v->getContext()->kernelCache.size()) + ".cl";
-    //     if (getenv("VERIGPU_LOAD_CL") != 0)
-    //     {
-    //         cout << "loading cl sourcecode from " << filename << endl;
-    //         ifstream f;
-    //         f.open(filename, ios_base::in);
-    //         clSourcecode = "";
-    //         string line = "";
-    //         while (getline(f, line))
-    //         {
-    //             clSourcecode += line + "\n";
-    //         }
-    //         f.close();
-    //     }
-    //     else if (getenv("VERIGPU_DUMP_CL") != 0)
-    //     {
-    //         cout << "saving cl sourcecode to " << filename << endl;
-    //         ofstream f;
-    //         f.open(filename, ios_base::out);
-    //         f << clSourcecode << endl;
-    //         f.close();
-    //     }
-
-    //     CLKernel *kernel = 0;
-    //     try
-    //     {
-    //         kernel = cl->buildKernelFromString(clSourcecode, shortKernelName, "", "__internal__", true);
-    //         if (getenv("VERIGPU_DUMP_BUILD_LOGS") != 0)
-    //         {
-    //             if (kernel->buildLog != "")
-    //             {
-    //                 std::cout << kernel->buildLog << std::endl;
-    //             }
-    //         }
-    //     }
-    //     catch (runtime_error &e)
-    //     {
-    //         cout << "compileOpenCLKernel failed to compile opencl sourcecode" << endl;
-    //         cout << "unique kernel name " << uniqueKernelName << endl;
-    //         cout << "short kernel name " << shortKernelName << endl;
-    //         cout << "writing ll to /tmp/failed-kernel.ll" << endl;
-
-    //         cout << "writing cl to /tmp/failed-kernel.cl" << endl;
-    //         f.open("/tmp/failed-kernel.cl", ios_base::out);
-    //         f << clSourcecode << endl;
-    //         f.close();
-
-    //         throw e;
-    //     }
-    //     v->getContext()->kernelCache[uniqueKernelName] = kernel;
-    //     cl->storeKernel(uniqueKernelName, kernel, true); // this will cause the kernel to be deleted with cl.  Not clean yet, but a start
-    //     return kernel;
-    // }
-
-    // GenerateOpenCLResult generateOpenCL(
-    //     int uniqueClmemCount, std::vector<int> &clmemIndexByClmemArgIndex, string origKernelName, string devicellsourcecode)
-    // {
-    //     // generates OpenCL source-code, based on passed-in bytecode
-    //     // returns cached source-code if available
-
-    //     ThreadVars *v = getThreadVars();
-
-    //     ofstream f;
-    //     launchConfiguration.shortKernelName = origKernelName.substr(0, 20);
-
-    //     std::ostringstream uniqueKernelName_ss;
-    //     uniqueKernelName_ss << origKernelName;
-    //     for (int i = 0; i < clmemIndexByClmemArgIndex.size(); i++)
-    //     {
-    //         uniqueKernelName_ss << "_" << clmemIndexByClmemArgIndex[i];
-    //     }
-    //     launchConfiguration.uniqueKernelName = uniqueKernelName_ss.str();
-    //     if (v->getContext()->clSourceCodeCache.find(launchConfiguration.uniqueKernelName) != v->getContext()->clSourceCodeCache.end())
-    //     {
-    //         std::string clSourcecode = v->getContext()->clSourceCodeCache[launchConfiguration.uniqueKernelName];
-    //         return GenerateOpenCLResult{clSourcecode, origKernelName, launchConfiguration.shortKernelName, launchConfiguration.uniqueKernelName};
-    //     }
-
-    //     // convert to opencl first... based on the kernel name required
-    //     try
-    //     {
-    //         string filename = "/tmp/" + easycl::toString(v->getContext()->clSourceCodeCache.size()) + "-device.ll";
-    //         if (getenv("VERIGPU_DUMP_BYTECODE") != 0)
-    //         {
-    //             cout << "saving deviceside bytecode to " << filename << endl;
-    //             ofstream f;
-    //             f.open(filename, ios_base::out);
-    //             f << devicellsourcecode << endl;
-    //             f.close();
-    //         }
-    //         ModuleClRes res = convertLlStringToCl(
-    //             uniqueClmemCount, clmemIndexByClmemArgIndex, devicellsourcecode, origKernelName, launchConfiguration.shortKernelName, v->offsets_32bit);
-    //         std::string clSourcecode = res.clSourcecode;
-    //         KernelInfo kernelInfo;
-    //         kernelInfo.usesVmem = res.usesVmem;
-    //         kernelInfo.usesScratch = res.usesScratch;
-    //         clSourcecode = "// origKernelName: " + origKernelName + "\n" +
-    //                        "// uniqueKernelName: " + launchConfiguration.uniqueKernelName + "\n" +
-    //                        "// shortKernelName: " + launchConfiguration.shortKernelName + "\n" +
-    //                        "\n" +
-    //                        clSourcecode;
-    //         v->getContext()->clSourceCodeCache[launchConfiguration.uniqueKernelName] = clSourcecode;
-    //         v->getContext()->kernelInfoByUniqueName[launchConfiguration.uniqueKernelName] = kernelInfo;
-    //         return GenerateOpenCLResult{clSourcecode, origKernelName, launchConfiguration.shortKernelName, launchConfiguration.uniqueKernelName};
-    //     }
-    //     catch (runtime_error &e)
-    //     {
-    //         cout << "generateOpenCL failed to generate opencl sourcecode" << endl;
-    //         cout << "kernel name orig=" << origKernelName << endl;
-    //         cout << "kernel name short=" << launchConfiguration.shortKernelName << endl;
-    //         cout << "kernel name unique=" << launchConfiguration.uniqueKernelName << endl;
-    //         cout << "writing ll to /tmp/failed-kernel.ll" << endl;
-    //         f.open("/tmp/failed-kernel.ll", ios_base::out);
-    //         f << devicellsourcecode << endl;
-    //         f.close();
-    //         throw e;
-    //     }
-    // }
-
-} // namespace cocl
+} // namespace VeriGPU
 
 void configureKernel(const char *kernelName, const char *deviceriscvsourcecode)
 {
@@ -320,22 +181,6 @@ void configureKernel(const char *kernelName, const char *deviceriscvsourcecode)
 
     // pthread_mutex_unlock(&launchMutex);
 }
-
-// void addClmemArg(cl_mem clmem)
-// {
-//     int clmemIndex = 0;
-//     if (launchConfiguration.clmemIndexByClmem.find(clmem) == launchConfiguration.clmemIndexByClmem.end())
-//     {
-//         clmemIndex = launchConfiguration.clmems.size();
-//         launchConfiguration.clmems.push_back(clmem);
-//         launchConfiguration.clmemIndexByClmem[clmem] = clmemIndex;
-//     }
-//     else
-//     {
-//         clmemIndex = launchConfiguration.clmemIndexByClmem.find(clmem)->second;
-//     }
-//     launchConfiguration.clmemIndexByClmemArgIndex.push_back(clmemIndex);
-// }
 
 void setKernelArgHostsideBuffer(char *pCpuStruct, int structAllocateSize)
 {
@@ -411,57 +256,17 @@ void setKernelArgPointerVoid(void *ptrVoid)
 
     std::cout << "setKernelArgPointerVoid ptrVoid " << (size_t)ptrVoid << std::endl;
     launchConfiguration.args.push_back(std::unique_ptr<Arg>(new PointerVoidArg(ptrVoid)));
-
-    // pthread_mutex_lock(&launchMutex);
-    // std::lock_guard<std::recursive_mutex> guard(launchMutex);
-    // ThreadVars *v = getThreadVars();
-
-    // Memory *memory = findMemory(memory_as_charstar);
-    // if (memory == 0)
-    // {
-    //     VERIGPU_PRINT("setKernelArgGpuBuffer nullptr");
-    //     addClmemArg(0);
-    //     if (v->offsets_32bit)
-    //     {
-    //         launchConfiguration.args.push_back(std::unique_ptr<Arg>(new UInt32Arg(0)));
-    //     }
-    //     else
-    //     {
-    //         launchConfiguration.args.push_back(std::unique_ptr<Arg>(new Int64Arg(0)));
-    //     }
-    // }
-    // else
-    // {
-    //     size_t offset = memory->getOffset(memory_as_charstar);
-    //     cl_mem clmem = memory->clmem;
-    //     // std::cout << " clmem=" << clmem << std::endl;
-
-    //     size_t offsetElements = offset;
-
-    //     VERIGPU_PRINT("setKernelArgGpuBuffer offset=" << offset);
-
-    //     addClmemArg(clmem);
-
-    //     if (v->offsets_32bit)
-    //     {
-    //         launchConfiguration.args.push_back(std::unique_ptr<Arg>(new UInt32Arg((uint32_t)offsetElements)));
-    //     }
-    //     else
-    //     {
-    //         launchConfiguration.args.push_back(std::unique_ptr<Arg>(new Int64Arg((int64_t)offsetElements)));
-    //     }
-    // }
     // pthread_mutex_unlock(&launchMutex);
 }
 
-void setKernelArgInt64(int64_t value)
-{
-    // std::lock_guard<std::recursive_mutex> guard(launchMutex);
-    // pthread_mutex_lock(&launchMutex);
-    launchConfiguration.args.push_back(std::unique_ptr<Arg>(new Int64Arg(value)));
-    VERIGPU_PRINT("setKernelArgInt64 " << value);
-    // pthread_mutex_unlock(&launchMutex);
-}
+// void setKernelArgInt64(int64_t value)
+// {
+//     // std::lock_guard<std::recursive_mutex> guard(launchMutex);
+//     // pthread_mutex_lock(&launchMutex);
+//     launchConfiguration.args.push_back(std::unique_ptr<Arg>(new Int64Arg(value)));
+//     VERIGPU_PRINT("setKernelArgInt64 " << value);
+//     // pthread_mutex_unlock(&launchMutex);
+// }
 
 void setKernelArgInt32(int value)
 {
@@ -472,14 +277,14 @@ void setKernelArgInt32(int value)
     // pthread_mutex_unlock(&launchMutex);
 }
 
-void setKernelArgInt8(char value)
-{
-    // std::lock_guard<std::recursive_mutex> guard(launchMutex);
-    // pthread_mutex_lock(&launchMutex);
-    launchConfiguration.args.push_back(std::unique_ptr<Arg>(new Int8Arg(value)));
-    VERIGPU_PRINT("setKernelArgInt8 " << value);
-    // pthread_mutex_unlock(&launchMutex);
-}
+// void setKernelArgInt8(char value)
+// {
+//     // std::lock_guard<std::recursive_mutex> guard(launchMutex);
+//     // pthread_mutex_lock(&launchMutex);
+//     launchConfiguration.args.push_back(std::unique_ptr<Arg>(new Int8Arg(value)));
+//     VERIGPU_PRINT("setKernelArgInt8 " << value);
+//     // pthread_mutex_unlock(&launchMutex);
+// }
 
 void setKernelArgFloat(float value)
 {
@@ -496,70 +301,72 @@ void kernelGo()
     {
         // launchMutex.lock();
         // pthread_mutex_lock(&launchMutex);
-        // VERIGPU_PRINT("kernelGo queue=" << (void *)launchConfiguration.queue);
-
-        // ThreadVars *v = getThreadVars();
-
-        // GenerateOpenCLResult res = generateOpenCL(
-        //     launchConfiguration.clmems.size(), launchConfiguration.clmemIndexByClmemArgIndex, launchConfiguration.kernelName, launchConfiguration.devicellsourcecode);
         VERIGPU_PRINT("kernelGo() kernel: " << launchConfiguration.kernelName);
         std::cout << "kernel source code " << launchConfiguration.deviceriscvsourcecode << std::endl;
-        // CLKernel *kernel = compileOpenCLKernel(launchConfiguration.kernelName, res.uniqueKernelName, res.shortKernelName, res.clSourcecode);
-        // VERIGPU_PRINT("kernelGo() uniqueKernelName: " << launchConfiguration.uniqueKernelName);
 
-        // KernelInfo kernelInfo = v->getContext()->kernelInfoByUniqueName[launchConfiguration.uniqueKernelName];
-        // VERIGPU_PRINT("kernel uses vmem?: " << kernelInfo.usesVmem);
-        // VERIGPU_PRINT("kernel uses scratch?: " << kernelInfo.usesScratch);
-        // if (kernelInfo.usesVmem)
-        // {
-        //     if (v->getContext()->memories.size() > 1)
-        //     {
-        //         std::cout << std::endl;
-        //         std::cout << "Error: you are trying to use a kernel that uses double-indirected pointers ('float **' et al)" << std::endl;
-        //         std::cout << "whilst you have allocated multiple gpu buffers" << std::endl;
-        //         std::cout << std::endl;
-        //         std::cout << "This is currently not supported by Coriander" << std::endl;
-        //         std::cout << std::endl;
-        //         std::cout << "Your options are:" << std::endl;
-        //         std::cout << "- update your GPU kernel, to not use double-indirected pointers" << std::endl;
-        //         std::cout << "- allocate one single huge GPU memory buffer, instead of many smaller ones" << std::endl;
-        //         std::cout << std::endl;
-        //         throw std::runtime_error("Error: using vmem with multiple allocations");
-        //     }
-        //     else
-        //     {
-        //         WHEN_SPAMMING(Memory *memory = *v->getContext()->memories.begin());
-        //         VERIGPU_PRINT("Memory allocation ok: one single allocation at vmem=" << memory->fakePos << " sizeByes=" << memory->bytes);
-        //     }
-        // }
+        // things we have to do:
+        // - allocate memory for stack
+        // - add header to assmebly which:
+        //    - populates stack pointer
+        //    - populates a0, a1 etc with function parameters
+        //    - calls the function
+        //    - halts
+        // - compile assembly, to get size
+        // - allocate gpu buffer for our assembly
+        // - recompile assembly with correct offset :P (ideally we could combine the 1st adn third steps somehow)
+        // - copy assembly to the gpu
+        // - trigger kernel launch
+        // - (for now) wait for kernel to finish (later on, kernel launch will be asynchronous)
 
-        // ThreadVars *v = getThreadVars();
-        // for (int i = 0; i < launchConfiguration.clmems.size(); i++)
-        // {
-        //     VERIGPU_PRINT("clmem" << i);
-        //     kernel->inout(&launchConfiguration.clmems[i]);
-        //     // we also need to write out the offset of this clmem, in our virtual memory system
-        //     cl_mem clmem = launchConfiguration.clmems[i];
-        //     Memory *memory = findMemoryByClmem(clmem);
-        //     uint64_t vmemloc = 0;
-        //     if (memory != 0)
-        //     { // hostsidegpu buffers will be 0
-        //         vmemloc = memory->fakePos;
-        //     }
-        //     if (v->offsets_32bit)
-        //     {
-        //         kernel->in((uint32_t)vmemloc);
-        //     }
-        //     else
-        //     {
-        //         kernel->in((int64_t)vmemloc);
-        //     }
-        // }
+        void *stack = gpuMalloc(stackSize);
+        std::cout << "allocated stack pos=" << (size_t)(stack) << std::endl;
+/*
+Example of header for assembly:
+li sp, 1000
+addi sp, sp, -64
+li a0, 5
+sw a0, 60(sp)
+li a0, 12
+sw a0, 56(sp)
+li a0, 9
+sw a0, 52(sp)
+addi a0, sp, 52
+li a1, 3
+addi a2, sp, 48
+
+jal x1, _Z8sum_intsPjjS_
+
+halt
+*/
+
+        std::ostringstream asmHeader;
+        asmHeader << "li sp, " << ((size_t)(stack) + stackSize) << std::endl;
         for (int i = 0; i < launchConfiguration.args.size(); i++)
         {
             VERIGPU_PRINT("arg i=" << i << " " << launchConfiguration.args[i]->str());
-        //     launchConfiguration.args[i]->inject(kernel);
+            //     launchConfiguration.args[i]->inject(kernel);
+            launchConfiguration.args[i]->appendToAsmSStream(asmHeader, i);
         }
+        asmHeader << "jal x1, " << launchConfiguration.kernelName << std::endl;
+        asmHeader << "halt" << std::endl;
+        std::cout << "asmHeader:" << std::endl;
+        std::cout << asmHeader.str() << std::endl;
+
+        std::string fullAssembly = asmHeader.str() + launchConfiguration.deviceriscvsourcecode;
+        std::cout << std::endl;
+        std::cout << "fullAssembly" << std::endl;
+        std::cout << fullAssembly << std::endl;
+
+        // now we have to assemble it...
+        // perhaps we can just use clang to assemble it???
+        // anyway for now, first try using assembler.py
+        // first we should write the assembler somewhere
+        std::ofstream of;
+        of.open("build/prog.asm");
+        of << fullAssembly << std::endl;
+        of.close();
+        int ret = system("python verigpu/assembler.py --in-asm build/prog.asm --out-hex build/prog.hex");
+        assert (ret == 0);
 
         size_t global[3];
         for (int i = 0; i < 3; i++)
@@ -570,47 +377,6 @@ void kernelGo()
                             << " global: " << global);
         int workgroupSize = launchConfiguration.block[0] * launchConfiguration.block[1] * launchConfiguration.block[2];
         VERIGPU_PRINT("workgroupSize=" << workgroupSize);
-        // kernel->localInts(max(4, workgroupSize));
-
-        // try
-        // {
-        //     kernel->run(launchConfiguration.queue, 3, global, launchConfiguration.block);
-        // }
-        // catch (runtime_error &e)
-        // {
-        //     if (kernel->buildLog != "")
-        //     {
-        //         std::cout << kernel->buildLog << std::endl;
-        //     }
-        //     cout << "kernel failed to run" << endl;
-        //     cout << "kernel name: [" << launchConfiguration.kernelName << "]" << endl;
-        //     launchMutex.unlock();
-        //     launchMutex.unlock();
-        //     // pthread_mutex_unlock(&launchMutex);
-        //     // pthread_mutex_unlock(&launchMutex);
-        //     throw e;
-        // }
-        // VERIGPU_PRINT(".. kernel queued");
-        // cl_int err;
-        // err = clFinish(launchConfiguration.queue->queue);
-        // EasyCL::checkError(err);
-        // debugDumper.maybeDump();
-
-        // for (auto it = launchConfiguration.kernelArgsToBeReleased.begin(); it != launchConfiguration.kernelArgsToBeReleased.end(); it++)
-        // {
-        //     cl_mem memObject = *it;
-        //     err = clReleaseMemObject(memObject);
-        //     EasyCL::checkError(err);
-        // }
-        // launchConfiguration.kernelArgsToBeReleased.clear();
-        // launchConfiguration.args.clear();
-
-        // launchConfiguration.clmemIndexByClmem.clear();
-        // launchConfiguration.clmems.clear();
-        // launchConfiguration.clmemIndexByClmemArgIndex.clear();
-
-        // err = clFinish(launchConfiguration.queue->queue);
-        // EasyCL::checkError(err);
 
         // launchMutex.unlock();
         // launchMutex.unlock();

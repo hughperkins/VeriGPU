@@ -23,6 +23,8 @@
 #include "kernel_launch_ext.h"
 #include "launch_args.h"
 
+long stackSize = 128;
+
 // namespace VeriGPU
 // {
 //     class CLKernel;
