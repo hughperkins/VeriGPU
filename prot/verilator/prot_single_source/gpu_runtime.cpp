@@ -7,7 +7,7 @@
 #include <vector>
 #include <bitset>
 #include <verilated_vcd_c.h>
-#include "controller.h"
+#include "gpu_card.h"
 
 #include "gpu_runtime.h"
 
@@ -21,7 +21,7 @@ double sc_time_stamp()
 
 uint32_t totalMemoryBytes = 1024; // yes we need to move to 64-bits soonish...
 
-static controller *dut = 0;
+static gpu_card *dut = 0;
 
 // std::vector<MemoryInfo *> freeSpaces;
 static std::set<MemoryInfo *> freeSpaces;
@@ -47,11 +47,11 @@ void tick()
 
 void gpuCreateContext()
 {
-    dut = new controller;
+    dut = new gpu_card;
     dut->rst = 0;
     // dut->oob_wen = 0;
     // dut->ena = 0;
-    dut->recv_instr = NOP;
+    dut->cpu_recv_instr = NOP;
 
     tick();
 
@@ -118,22 +118,22 @@ void *gpuMalloc(uint32_t requestedBytes)
 void gpuCopyToDevice(void *gpuMemPtr, void *srcData, size_t numBytes)
 {
     std::cout << "gpuCopyToDevice our addr " << srcData << " theirs " << gpuMemPtr << " numBytes " << numBytes << std::endl;
-    dut->recv_instr = COPY_TO_GPU;
+    dut->cpu_recv_instr = COPY_TO_GPU;
     tick();
 
-    dut->in_data = (uint32_t)(size_t)gpuMemPtr;
+    dut->cpu_in_data = (uint32_t)(size_t)gpuMemPtr;
     tick();
 
-    dut->in_data = (uint32_t)numBytes;
+    dut->cpu_in_data = (uint32_t)numBytes;
     tick();
 
-    dut->recv_instr = NOP;
+    dut->cpu_recv_instr = NOP;
     uint32_t *srcDataWords = (uint32_t *)srcData;
     long numWords = numBytes >> 2;
     for (long i = 0; i < numWords; i++)
     {
         std::cout << "sending word " << i << " which is " << srcDataWords[i] << std::endl;
-        dut->in_data = srcDataWords[i];
+        dut->cpu_in_data = srcDataWords[i];
         tick();
     }
     std::cout << "hopefully copied data to GPU" << std::endl;
@@ -142,22 +142,22 @@ void gpuCopyToDevice(void *gpuMemPtr, void *srcData, size_t numBytes)
 void gpuCopyFromDevice(void *destData, void *gpuMemPtr, size_t numBytes)
 {
     std::cout << "gpuCopyFromDevice our addr " << destData << " theirs " << gpuMemPtr << " numBytes " << numBytes << std::endl;
-    dut->recv_instr = COPY_FROM_GPU;
+    dut->cpu_recv_instr = COPY_FROM_GPU;
     tick();
 
-    dut->in_data = (uint32_t)(size_t)gpuMemPtr;
+    dut->cpu_in_data = (uint32_t)(size_t)gpuMemPtr;
     tick();
 
-    dut->in_data = (uint32_t)numBytes;
+    dut->cpu_in_data = (uint32_t)numBytes;
     tick();
 
-    dut->recv_instr = NOP;
+    dut->cpu_recv_instr = NOP;
     uint32_t *destDataWords = (uint32_t *)destData;
     long numWords = numBytes >> 2;
     for (long i = 0; i < numWords; i++)
     {
         tick();
-        destDataWords[i] = dut->out_data;
+        destDataWords[i] = dut->cpu_out_data;
         std::cout << "received word " << i << " which is " << destDataWords[i] << std::endl;
     }
     std::cout << "hopefully received data from GPU" << std::endl;

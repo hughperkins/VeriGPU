@@ -101,8 +101,8 @@ module gpu_die(
         .cpu_in_data(cpu_in_data),
         .cpu_out_data(cpu_out_data),
 
-        .mem_wren(contr_mem_wren),
-        .mem_rden(contr_mem_rden),
+        .mem_wr_en(contr_mem_wr_en),
+        .mem_rd_en(contr_mem_rd_en),
         .mem_wr_addr(contr_mem_wr_addr),
         .mem_wr_data(contr_mem_wr_data),
         .mem_rd_addr(contr_mem_rd_addr),

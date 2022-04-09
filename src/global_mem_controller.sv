@@ -23,9 +23,11 @@ module global_mem_controller (
 
     // for use by comp_driver.sv; might migrate to use contr_ in the future, perhaps
     // no simulated delay added
+    /*
     input                    oob_wr_en,
     input [addr_width - 1:0] oob_wr_addr,
     input [data_width - 1:0] oob_wr_data,
+    */
 
     // for use by controller.sv
     // we'll probalby add siulated delay to this
@@ -148,11 +150,13 @@ module global_mem_controller (
             received_wr_req <= 0;
         end else begin
             // $display("mem_delayed.clk non reset");
+            /*
             `assert_known(oob_wr_en);
             if(oob_wr_en) begin
                 // $display("oob_wen mem[%0d] = %0d", oob_wr_addr, oob_wr_data);
                 mem[oob_wr_addr >> 2] <= oob_wr_data;
             end
+            */
 
             if(contr_wr_en) begin
                 mem[contr_wr_addr >> 2] <= contr_wr_data;

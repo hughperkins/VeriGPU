@@ -18,6 +18,7 @@ CLANGDIR=/usr/local/opt/llvm-14.0.0
 MACCLTINCLUDEDIR=/Library/Developer/CommandLineTools/SDKs/MacOSX11.0.sdk/usr/include
 
 BASEDIR=$PWD
+SRC=${BASEDIR}/src
 
 export VERIGPUDIR=${BASEDIR}
 
@@ -73,17 +74,27 @@ echo patched hostside
 
 ${CLANGDIR}/bin/llc sum_ints-hostpatched.ll -o sum_ints-hostpatched.s
 
-verilator -sv -Wall -cc  ${BASEDIR}/prot/verilator/prot_single_source/controller.sv --top-module controller --prefix controller
+# verilator -sv -Wall -cc \
+#     ${SRC}/const.sv \
+#     ${SRC}/op_const.sv \
+#     ${SRC}/assert.sv \
+#     ${SRC}/core.sv \
+#     ${SRC}/global_mem_controller.sv \
+#     ${SRC}/gpu_controller.sv \
+#     ${SRC}/gpu_die.sv \
+#     ${SRC}/gpu_card.sv \
+#     --top-module gpu_card \
+#     --prefix gpu_card
 
-(
-    cd obj_dir
-    make -f controller.mk
-)
+# (
+#     cd obj_dir
+#     make -f gpu_card.mk
+# )
 
 # g++ -std=c++11 -I${BASEDIR}/prot/verilator/prot_single_source -c ../sum_ints.cpp
 g++ -std=c++14 -c sum_ints-hostpatched.s
 g++ -std=c++14 -I${VERILATORDIR}/include -c ${VERILATORDIR}/include/verilated.cpp
-g++ -std=c++14 -I obj_dir -I${VERILATORDIR}/include -c ${BASEDIR}/prot/verilator/prot_single_source/gpu_runtime.cpp
+# g++ -std=c++14 -I obj_dir -I${VERILATORDIR}/include -c ${BASEDIR}/prot/verilator/prot_single_source/gpu_runtime.cpp
 
 # g++ -o sum_ints sum_ints-hostpatched.o gpu_runtime.o verilated.o obj_dir/controller__ALL.o
 g++ -o sum_ints sum_ints-hostpatched.o -L${BASEDIR}/prot/verilator/prot_single_source/build-cmake-mac -lverigpu_runtime

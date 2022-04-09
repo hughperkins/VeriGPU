@@ -48,8 +48,8 @@ module gpu_controller(
     output reg [31:0] cpu_out_data,
 
     // we also need to be able to read/write memory
-    output mem_wren,
-    output mem_rden,
+    output reg mem_wr_en,
+    output reg mem_rd_en,
     output reg [addr_width - 1:0] mem_wr_addr,
     output reg [data_width - 1:0] mem_wr_data,
     output reg [addr_width - 1:0] mem_rd_addr,
@@ -82,6 +82,12 @@ module gpu_controller(
     // reg [31:0] mem_wr_data;
     // reg [31:0] mem_rd_data;
 
+    reg n_mem_wr_en;
+    reg n_mem_rd_en;
+    reg [addr_width - 1:0] n_mem_wr_addr;
+    reg [data_width - 1:0] n_mem_wr_data;
+    reg [addr_width - 1:0] n_mem_rd_addr;
+
     reg [5:0] n_state;
     reg [31:0] n_instr;
     reg [$clog2(MAX_PARAMS) - 1:0] n_param_pos;
@@ -91,11 +97,14 @@ module gpu_controller(
     reg [31:0] n_last_data_addr_excl;
     // reg [31:0] n_data_cnt;
 
-    reg n_mem_wr_req;
-    reg n_mem_rd_req;
-    reg [31:0] n_mem_wr_addr;
-    reg [31:0] n_mem_rd_addr;
-    reg [31:0] n_mem_wr_data;
+    reg mem_read_sent;
+    reg n_mem_read_sent;
+
+    // reg n_mem_wr_req;
+    // reg n_mem_rd_req;
+    // reg [31:0] n_mem_wr_addr;
+    // reg [31:0] n_mem_rd_addr;
+    // reg [31:0] n_mem_wr_data;
     // reg [31:0] n_mem_rd_data;
 
     reg [31:0] n_out_data;
@@ -124,11 +133,19 @@ module gpu_controller(
         n_last_data_addr_excl = last_data_addr_excl;
         n_data_addr = data_addr;
 
-        n_mem_rd_req = 0;
-        n_mem_wr_req = 0;
-        n_mem_rd_addr = '0;
+        // n_mem_rd_req = 0;
+        // n_mem_wr_req = 0;
+        // n_mem_rd_addr = '0;
+        // n_mem_wr_addr = '0;
+        // n_mem_wr_data = '0;
+
+        n_mem_read_sent = mem_read_sent;
+
+        n_mem_wr_en = 0;
+        n_mem_rd_en = 0;
         n_mem_wr_addr = '0;
         n_mem_wr_data = '0;
+        n_mem_rd_addr = '0;
 
         for(int i = 0; i < MAX_PARAMS; i++) begin
             n_params[i] = '0; 
@@ -181,8 +198,11 @@ module gpu_controller(
                                 n_last_data_addr_excl = params[0] + n_params[1];
                                 $display("RECV_PARAMS COPY_FROM_GPU addr %0d count %0d final_addr_excl %0d", params[0], n_params[1], n_last_data_addr_excl);
                                 n_state = SEND_DATA;
+                                // n_mem_rd_addr = params[0];
+                                n_mem_rd_en = 1;
                                 n_mem_rd_addr = params[0];
-                                n_mem_rd_req = 1;
+                                n_mem_read_sent = 1;
+                                // n_mem_rd_req =? 1;
                             end
                             default: begin
                                 $display("recv params case instr hit default");
@@ -194,10 +214,16 @@ module gpu_controller(
                     $display("RECEIVE_DATA");
                     $display("receive data addr %0d val %0d", data_addr, cpu_in_data);
                     // mem[data_addr] = in_data;
-                    n_data_addr = data_addr + 4;
-                    n_mem_wr_req = 1;
+                    // n_mem_wr_en = 1;
+                    // n_mem_wr_addr = data_addr;
+                    // n_mem_wr_data = cpu_in_data;
+
+                    n_mem_wr_en = 1;
                     n_mem_wr_addr = data_addr;
                     n_mem_wr_data = cpu_in_data;
+
+                    n_data_addr = data_addr + 4;
+
                     if(n_data_addr >= last_data_addr_excl) begin
                         $display("finished data receive");
                         n_state = IDLE;
@@ -207,15 +233,27 @@ module gpu_controller(
                     $display("SEND_DATA");
                     $display("send data addr %0d val %0d", data_addr, mem_rd_data);
                     n_data_addr = data_addr + 4;
-                    // n_out_data = mem[data_addr];
-                    n_out_data = mem_rd_data;
-                    if(n_data_addr >= last_data_addr_excl) begin
+
+                    if(mem_read_sent) begin
+                        n_out_data = mem_rd_data;
+                        n_mem_read_sent = 0;
+                    end
+
+                    if(n_data_addr < last_data_addr_excl) begin
+                        n_mem_rd_en = 1;
+                        n_mem_rd_addr = data_addr;
+                        n_mem_read_sent = 1;
+                        // n_out_data = mem[data_addr];
+                        // n_out_data = mem_rd_data;
+                    end else begin
                         $display("finished data send");
                         n_state = IDLE;
-                    end else begin
-                        n_mem_rd_req = 1;
-                        n_mem_rd_addr = n_data_addr;
                     end
+                    // if(n_data_addr >= last_data_addr_excl) begin
+                    // end else begin
+                    //     n_mem_rd_req = 1;
+                    //     n_mem_rd_addr = n_data_addr;
+                    // end
                 end
                 default: begin
                     $display("case state hit default");
@@ -239,6 +277,19 @@ module gpu_controller(
             data_addr <= '0;
             last_data_addr_excl <= '0;
 
+            mem_wr_en <= 0;
+            mem_rd_en <= 0;
+            mem_wr_addr <= '0;
+            mem_wr_data <= '0;
+            mem_rd_addr <= '0;
+
+            mem_read_sent <= 0;
+
+            core_en <= 0;
+            core_clr <= 0;
+            core_set_pc_req <= 0;
+            core_set_pc_addr <= '0;
+
             // mem_rd_data <= '0;
         end else begin
             cpu_out_data <= n_out_data;
@@ -253,6 +304,14 @@ module gpu_controller(
 
             data_addr <= n_data_addr;
             last_data_addr_excl <= n_last_data_addr_excl;
+
+            mem_wr_en <= n_mem_wr_en;
+            mem_rd_en <= n_mem_rd_en;
+            mem_wr_addr <= n_mem_wr_addr;
+            mem_wr_data <= n_mem_wr_data;
+            mem_rd_addr <= n_mem_rd_addr;
+
+            mem_read_sent <= n_mem_read_sent;
 
             // if(n_mem_wr_req) begin
             //     $display("ff write mem addr=%0d data=%0d", n_mem_wr_addr, n_mem_wr_data);

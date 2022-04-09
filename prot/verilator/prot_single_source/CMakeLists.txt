@@ -42,9 +42,26 @@ add_library(verigpu_runtime
 target_include_directories(verigpu_runtime PRIVATE ${CLANG_HOME}/include)
 verilate(verigpu_runtime
     SOURCES
-        ${CMAKE_SOURCE_DIR}/controller.sv
-    TOP_MODULE controller
-    PREFIX controller
+        ${SRC}/const.sv
+        ${SRC}/op_const.sv
+        ${SRC}/assert.sv
+        ${SRC}/core.sv
+        ${SRC}/mem_large.sv
+        ${SRC}/float/float_params.sv
+        ${SRC}/float/float_add_pipeline.sv
+        ${SRC}/int/chunked_add_task.sv
+        ${SRC}/int/chunked_sub_task.sv
+        ${SRC}/generated/mul_pipeline_cycle_32bit_2bpc.sv
+        ${SRC}/generated/mul_pipeline_cycle_24bit_2bpc.sv
+        ${SRC}/float/float_mul_pipeline.sv
+        ${SRC}/int/int_div_regfile.sv
+        ${SRC}/int/mul_pipeline_32bit.sv
+        ${SRC}/global_mem_controller.sv
+        ${SRC}/gpu_controller.sv
+        ${SRC}/gpu_die.sv
+        ${SRC}/gpu_card.sv
+    TOP_MODULE gpu_card
+    PREFIX gpu_card
 )
 target_compile_options(verigpu_runtime PRIVATE "-std=c++14")
 
