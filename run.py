@@ -48,6 +48,8 @@ def run(args):
             output_l = ['out 0 ' + out.strip() for out in output.split('out 0 ') if out.strip() != '']
         else:
             output_l = ['out.s 0 ' + out.strip() for out in output.split('out.s 0 ') if out.strip() != '']
+        if len(expected) > 0:
+            assert len(output_l) > 0
         for i, output in enumerate(output_l):
             print('run', i)
             print('output')

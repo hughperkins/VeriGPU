@@ -6,7 +6,7 @@
 ; then run the sieve
 ; then write out the results
 
-li x1, 200  ; base for our memory
+li x1, working_area  ; base for our memory
 li x2, 31   ; max prime
 
 ; initialize memory
@@ -55,3 +55,5 @@ write_loop:
 end:
 
 halt
+
+working_area:
