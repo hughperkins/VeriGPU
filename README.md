@@ -76,3 +76,9 @@ In the case of GPUs, simulation is relatively straightforward. CMOS circuitry is
 I feel that being able to work on projects in the absence of being able to 'just try things out' for real is plausibly a useful and valuable skill.
 
 (to do: I need to write some instructions on how to quickly get stuck into running the simulations :) )
+
+# Why not target/test on FPGA?
+
+In my previous experience on OpenCL, i.e. [DeepCL](https://github.com/hughperkins/DeepCL), [coriander](https://github.com/hughperkins/coriander), where ironically I only had access to an NVIDIA® GPU to run them :P, I found that everything I did became optimized in various subtle ways for NVIDIA® GPUs, and when I finally got a brief access to an AMD® GPU, performance was terrible. The difference between an FPGA and an ASIC is considerable. For example, FPGAs contain their own built-in routing architecture, flip-flops work slightly differently, resets work slightly differently, FPGAs can have 'initial' blocks, and memory is laid out differnetly in an FPGA. I feel that even touching an FPGA will 'taint' the design in various subtle ways, that will be hard to detect. In machine learning parlance, I feel we will 'over-fit' against the FPGA, and fail to generalize correctly to ASIC.
+
+So, simulation is the way forward I feel. And we need to make sure the simulations are as solid, accurate, and complete as possible.
