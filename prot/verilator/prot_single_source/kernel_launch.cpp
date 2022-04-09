@@ -12,6 +12,7 @@
 #include <memory>
 #include <vector>
 #include <map>
+#include <stdexcept>
 #include <set>
 #include <cstdlib>
 #include <mutex>
@@ -61,13 +62,6 @@ void kernel_launch_assure_initialized(void)
 
 static std::string makePreferred(std::string path) {
     return std::experimental::filesystem::path(path).make_preferred();
-}
-
-size_t get_file_size(std::string filename)
-{
-    struct stat stat_buf;
-    int rc = stat(filename.c_str(), &stat_buf);
-    return rc == 0 ? stat_buf.st_size : -1;
 }
 
 namespace VeriGPU
@@ -138,6 +132,54 @@ int cudaConfigureCall(
 
 namespace VeriGPU
 {
+    size_t assemble(uint32_t offset, std::string assembly, vector<unsigned int> &codeWords) {
+        // now we have to assemble it...
+        // perhaps we can just use clang to assemble it???
+        // anyway for now, first try using assembler.py
+        // first we should write the assembler somewhere
+        char *pString = std::getenv("VERIGPUDIR");
+        if (pString == 0)
+        {
+            std::cout << "ERROR: You need to define VERIGPUDIR" << std::endl;
+            throw std::runtime_error("ERROR: You need to define VERIGPUDIR");
+        }
+        std::string verigpuDir = pString;
+        std::cout << "VERIGPUDIR=" << verigpuDir << std::endl;
+
+        std::ofstream of;
+        std::string asmPath = makePreferred(verigpuDir + "/build/prog.asm");
+        std::cout << "asmPath " << asmPath << std::endl;
+        of.open(asmPath);
+        of << assembly << std::endl;
+        of.close();
+        int ret = system(("python " + makePreferred(verigpuDir + "/verigpu/assembler.py") +
+                          " --in-asm " + makePreferred(verigpuDir + "/build/prog.asm") +
+                          " --out-hex " + makePreferred(verigpuDir + "/build/prog.hex") +
+                          " --offset " + std::to_string(offset)
+        ).c_str());
+        assert(ret == 0);
+
+        // now get size of file
+        std::ifstream fin;
+        fin.open(makePreferred(verigpuDir + "/build/prog.hex"));
+        int numLines = 0;
+        // std::string _;
+        unsigned int codeWord;
+        codeWords.clear();
+        // std::vector<unsigned int> codeWords;
+        // while(std::getline(fin, _)) {
+        while (fin >> hex >> codeWord)
+        {
+            numLines++;
+            codeWords.push_back(codeWord);
+        }
+        fin.close();
+        std::cout << numLines << " lines in hex file" << std::endl;
+        size_t kernelCodeSpaceNeeded = numLines << 2;
+        std::cout << "kernelCodeSpaceNeeded=" << kernelCodeSpaceNeeded << " bytes" << std::endl;
+        std::cout << "len(codeWords)" << codeWords.size() << std::endl;
+        return kernelCodeSpaceNeeded;
+    }
 
     std::string Int32Arg::str()
     {
@@ -371,53 +413,14 @@ halt
         std::cout << "fullAssembly" << std::endl;
         std::cout << fullAssembly << std::endl;
 
-        // now we have to assemble it...
-        // perhaps we can just use clang to assemble it???
-        // anyway for now, first try using assembler.py
-        // first we should write the assembler somewhere
-        // std::string sep = std::string(std::experimental::filesystem::path::mak preferred_separator);
-        char *pString = std::getenv("VERIGPUDIR");
-        if(pString == 0) {
-            std::cout << "ERROR: You need to define VERIGPUDIR" << std::endl;
-            return;
-        }
-        std::string verigpuDir = pString;
-        std::cout << "VERIGPUDIR=" << verigpuDir << std::endl;
-
-        std::ofstream of;
-        std::string asmPath = makePreferred(verigpuDir + "/build/prog.asm");
-        std::cout << "asmPath " << asmPath << std::endl;
-        of.open(asmPath);
-        of << fullAssembly << std::endl;
-        of.close();
-        int ret = system(("python " + makePreferred(verigpuDir + "/verigpu/assembler.py") +
-                         " --in-asm " + makePreferred(verigpuDir + "/build/prog.asm") +
-                         " --out-hex " + makePreferred(verigpuDir + "/build/prog.hex")).c_str());
-        assert (ret == 0);
-
-        // now get size of file
-        // size_t hexSize = get_file_size(makePreferred(verigpuDir + "/build/prog.hex"));
-        // std::cout << "hexSize:" << hexSize << std::endl;
-        // long numWords = hexSize / 9  // hmmm this wont work on windows...
-        std::ifstream fin;
-        fin.open(makePreferred(verigpuDir + "/build/prog.hex"));
-        int numLines = 0;
-        // std::string _;
-        unsigned int codeWord;
-        std::vector<unsigned int> codeWords;
-        // while(std::getline(fin, _)) {
-        while (fin >> hex >> codeWord) {
-            numLines++;
-            codeWords.push_back(codeWord);
-        }
-        std::cout << numLines << " lines in hex file" << std::endl;
-        int kernelCodeSpaceNeeded = numLines << 2;
-        std::cout << "kernelCodeSpaceNeeded=" << kernelCodeSpaceNeeded << " bytes" << std::endl;
-        std::cout << "len(codeWords)" << codeWords.size() << std::endl;
+        vector<unsigned int> codeWords;
+            size_t kernelCodeSpaceNeeded = assemble(0, fullAssembly, codeWords);
 
         void *gpuKernelSpace = gpuMalloc(kernelCodeSpaceNeeded);
 
         // now we need to reassemble, with offset at this new position
+        assemble((size_t)gpuKernelSpace, fullAssembly, codeWords);
+        std::cout << "reassembler at offset " << (size_t)gpuKernelSpace << std::endl;
 
         gpuCopyToDevice(gpuKernelSpace, &codeWords[0], codeWords.size() << 2);
         std::cout << "copied kernel to device" << std::endl;
