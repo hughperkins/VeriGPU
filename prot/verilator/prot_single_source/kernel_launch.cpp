@@ -373,6 +373,11 @@ void kernelGo()
         // - allocate gpu buffer for our assembly
         // - recompile assembly with correct offset :P (ideally we could combine the 1st adn third steps somehow)
         // - copy assembly to the gpu
+        // - modify comp.sv / proc.sv to have a way of controlling it
+        //    - a way to change PC
+        //    - a way to enable/disable
+        //    - a way to reset (but with a new pc)
+        // - modify controller.sv to integrate with comp.sv
         // - trigger kernel launch
         // - (for now) wait for kernel to finish (later on, kernel launch will be asynchronous)
 
