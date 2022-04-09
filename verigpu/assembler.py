@@ -535,11 +535,11 @@ def run(args):
     print('')
     print('cmds after expanding pseudocommands:')
     for i, line in enumerate(new_asm_cmds):
-        print(i * 4, ':', line)
+        print(i * 4 + args.offset, ':', line)
     print('')
     with open('build/after_expand.asm', 'w') as f:
         for i, line in enumerate(new_asm_cmds):
-            f.write(str(i * 4) + ':' + line + '\n')
+            f.write(str(i * 4 + args.offset) + ':' + line + '\n')
 
     print('label pos by name:')
     for label, pos in label_pos_by_name.items():
@@ -827,10 +827,10 @@ def run(args):
                 assert p1.endswith(':')
                 loc_int = int_str_to_int(p1[:-1])
                 location = loc_int // 4
-                if len(hex_lines) + args.offset > location:
-                    print("len(hex_lines)", len(hex_lines), "loc_int//4", location)
-                assert len(hex_lines) + args.offset <= location
-                while len(hex_lines) + args.offset < location:
+                if len(hex_lines) + args.offset // 4 > location:
+                    print("len(hex_lines) + offset // 4", len(hex_lines) + args.offset // 4, "loc_int//4", location)
+                assert len(hex_lines) + args.offset // 4 <= location
+                while len(hex_lines) + args.offset // 4 < location:
                     hex_lines.append('00000000')
             elif cmd.startswith('.'):
                 # ignore

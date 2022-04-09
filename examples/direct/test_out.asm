@@ -1,6 +1,6 @@
 # test writing to 1000 as stdout
 
-addi x31, x0, 1000
+li x31, 1000000
 
 li x1, 123
 sw x1, 0(x31)
@@ -22,14 +22,14 @@ out 60
 
 ; test outloc
 
-outloc 300; 240
-outloc 304
-outloc 300
-outloc 304
-outloc 356
-outloc 360
-outloc 364
-outloc 368
+outloc 600; 240
+outloc 604
+outloc 600
+outloc 604
+outloc 656
+outloc 660
+outloc 664
+outloc 668
 
 halt
 
@@ -39,11 +39,11 @@ out 70
 out 80
 
 
-location 300:
+location 600:
 word 0x0000dead
 word 0x0000beef
 
-location 356:
+location 656:
 word 0x00001111
 word 0x00002222
 word 15
