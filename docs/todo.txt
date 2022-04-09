@@ -1,5 +1,10 @@
 - look into compilng and running gpu kernel
-- check if coding guidelines talk about `n_` notation
+- fix single source runtime, so we only assemble each kernel once, and then have some way of passing parameters in which
+  doesnt require a brand-new assembly :)
+    - or at least assemble the calling header block only, and using c/c++, eg using llvm library.
+    - ideally though, probably controller.sv can receive a certain number of parameters at runtime,
+      and automatically populate the appropriate an registers, somehow, and then start the kernel
+- check if my coding guidelines talk about `n_` notation
 - check what does 'zero' mean in riscv32?
 - update coding guidelines now we are using verilator
 - update timings for generated 32bit mul, in int mul .md

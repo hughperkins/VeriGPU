@@ -367,6 +367,8 @@ void kernelGo()
         //    - populates a0, a1 etc with function parameters
         //    - calls the function
         //    - halts
+        // - note: in reality, we should not be assembling for every kernel launch
+        //   TODO: fix this :)
         // - compile assembly, to get size
         // - allocate gpu buffer for our assembly
         // - recompile assembly with correct offset :P (ideally we could combine the 1st adn third steps somehow)
