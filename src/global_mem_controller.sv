@@ -36,7 +36,8 @@ module global_mem_controller (
     input [addr_width - 1:0] contr_wr_addr,
     input [data_width - 1:0] contr_wr_data,
     input [addr_width - 1:0] contr_rd_addr,
-    output reg [data_width - 1:0] contr_rd_data
+    output reg [data_width - 1:0] contr_rd_data,
+    output reg contr_rd_ack
 );
     reg [data_width - 1:0] mem[memory_size];
 
@@ -59,6 +60,8 @@ module global_mem_controller (
 
     reg                    n_read_now;
     reg                    n_write_now;
+
+    // reg n_contr_rd_ack;
 
     reg [data_width - 1:0] n_rd_data;
 
@@ -84,6 +87,8 @@ module global_mem_controller (
         n_read_now = 0;
 
         n_clks_to_wait = 0;
+
+        // n_contr_rd_ack = 0;
 
         // $display("rst %0d received_rd_req=%0d", rst, received_rd_req);
         `assert_known(received_rd_req);
@@ -148,6 +153,8 @@ module global_mem_controller (
 
             received_rd_req <= 0;
             received_wr_req <= 0;
+
+            contr_rd_ack <= 0;
         end else begin
             // $display("mem_delayed.clk non reset");
             /*
@@ -158,12 +165,17 @@ module global_mem_controller (
             end
             */
 
+            contr_rd_ack <= 0;
+
             if(contr_wr_en) begin
+                $display("mem controller contr wr en writing %0d to addr %0d", contr_wr_data, contr_wr_addr);
                 mem[contr_wr_addr >> 2] <= contr_wr_data;
             end
 
             if(contr_rd_en) begin
+                $display("mem controller contr rd en reading %0d from addr %0d", mem[contr_rd_addr >> 2], contr_rd_addr);
                 contr_rd_data <= mem[contr_rd_addr >> 2];
+                contr_rd_ack <= 1;
             end
 
             // if(ena) begin

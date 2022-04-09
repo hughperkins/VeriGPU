@@ -17,6 +17,7 @@ module gpu_die(
     // with PoV this module, or PoV calling module
     input [31:0] cpu_in_data,
     output reg [31:0] cpu_out_data,
+    output reg cpu_out_ack,
 
     output reg halt,
     output reg outflen,
@@ -39,6 +40,7 @@ module gpu_die(
     wire [data_width - 1:0] contr_mem_wr_data;
     wire [addr_width - 1:0] contr_mem_rd_addr;
     wire [data_width - 1:0] contr_mem_rd_data;
+    wire contr_mem_rd_ack;
 
     wire contr_core_en;
     wire contr_core_clr;
@@ -65,7 +67,8 @@ module gpu_die(
         .contr_wr_addr(contr_mem_wr_addr),
         .contr_wr_data(contr_mem_wr_data),
         .contr_rd_addr(contr_mem_rd_addr),
-        .contr_rd_data(contr_mem_rd_data)
+        .contr_rd_data(contr_mem_rd_data),
+        .contr_rd_ack(contr_mem_rd_ack)
 
         // .oob_wr_addr(oob_wr_addr), .oob_wr_data(oob_wr_data),
         // .oob_wen(oob_wen)
@@ -100,6 +103,7 @@ module gpu_die(
         .cpu_recv_instr(cpu_recv_instr),
         .cpu_in_data(cpu_in_data),
         .cpu_out_data(cpu_out_data),
+        .cpu_out_ack(cpu_out_ack),
 
         .mem_wr_en(contr_mem_wr_en),
         .mem_rd_en(contr_mem_rd_en),
@@ -107,6 +111,7 @@ module gpu_die(
         .mem_wr_data(contr_mem_wr_data),
         .mem_rd_addr(contr_mem_rd_addr),
         .mem_rd_data(contr_mem_rd_data),
+        .mem_rd_ack(contr_mem_rd_ack),
 
         .core_en(contr_core_en),
         .core_clr(contr_core_clr),

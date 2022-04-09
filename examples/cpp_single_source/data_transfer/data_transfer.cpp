@@ -32,7 +32,7 @@ int main(int argc, char **argv, char **env)
 
     gpuCopyFromDevice((void *)valuesBack, ptrMemory, numValues * sizeof(uint32_t));
     for(int i = 0; i < numValues; i++) {
-        std::cout << "c++ received data from gpu i=" << i << " val=" << valuesBack[i] << std::endl;
+        std::cout << "data_transfer.cpp received data from gpu i=" << i << " val=" << valuesBack[i] << std::endl;
     }
     for(int i = 0; i < numValues; i++) {
         assert(valuesBack[i] == values[i]);

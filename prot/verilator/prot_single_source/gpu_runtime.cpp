@@ -12,6 +12,7 @@
 #include "gpu_runtime.h"
 
 #define MAX_SIM_TIME 5000000
+// #define MAX_SIM_TIME 250
 vluint64_t sim_time = 0;
 
 double sc_time_stamp()
@@ -154,11 +155,22 @@ void gpuCopyFromDevice(void *destData, void *gpuMemPtr, size_t numBytes)
     dut->cpu_recv_instr = NOP;
     uint32_t *destDataWords = (uint32_t *)destData;
     long numWords = numBytes >> 2;
-    for (long i = 0; i < numWords; i++)
-    {
+    std::cout << "gpuCopyFromDevice numWords=" << numWords << " sim_time=" << sim_time << std::endl;
+    long i = 0;
+    while(i < numWords && sim_time < MAX_SIM_TIME) {
+        std::cout << "gpuCopyFromDevice i=" << i << " sim_time=" << sim_time << std::endl;
+        if (dut->cpu_out_ack) {
+            destDataWords[i] = dut->cpu_out_data;
+            std::cout << "gpuCopyFromDevice received word " << i << " which is " << destDataWords[i] << std::endl;
+            i++;
+        }
         tick();
-        destDataWords[i] = dut->cpu_out_data;
-        std::cout << "received word " << i << " which is " << destDataWords[i] << std::endl;
     }
+    // for (long i = 0; i < numWords; i++)
+    // {
+    //     tick();
+    //     destDataWords[i] = dut->cpu_out_data;
+    //     std::cout << "received word " << i << " which is " << destDataWords[i] << std::endl;
+    // }
     std::cout << "hopefully received data from GPU" << std::endl;
 }

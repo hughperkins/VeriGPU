@@ -11,7 +11,8 @@ module gpu_card(
 
     input [31:0] cpu_recv_instr,  
     input [31:0] cpu_in_data,
-    output reg [31:0] cpu_out_data
+    output reg [31:0] cpu_out_data,
+    output reg cpu_out_ack
 );
     gpu_die gpu_die_(
         .clk(clk),
@@ -20,6 +21,7 @@ module gpu_card(
         .cpu_recv_instr(cpu_recv_instr),
         .cpu_in_data(cpu_in_data),
         .cpu_out_data(cpu_out_data),
+        .cpu_out_ack(cpu_out_ack),
 
         .outflen(outflen),
         .outen(outen),

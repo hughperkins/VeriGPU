@@ -46,6 +46,7 @@ module gpu_controller(
     // with PoV this module, or PoV calling module
     input [31:0] cpu_in_data,
     output reg [31:0] cpu_out_data,
+    output reg cpu_out_ack,  // high each time we are outputing data
 
     // we also need to be able to read/write memory
     output reg mem_wr_en,
@@ -54,6 +55,7 @@ module gpu_controller(
     output reg [data_width - 1:0] mem_wr_data,
     output reg [addr_width - 1:0] mem_rd_addr,
     input [data_width - 1:0] mem_rd_data,
+    input mem_rd_ack,
 
     // and core (later: cores)
     output reg core_en,
@@ -68,11 +70,13 @@ module gpu_controller(
     reg [$clog2(MAX_PARAMS) - 1:0] param_pos;
     reg [$clog2(MAX_PARAMS) - 1:0] num_params;
     reg [31:0] params [MAX_PARAMS];
-    reg [31:0] data_addr;
+    // used to track which data to read/write next
+    reg [31:0] internal_data_addr;
     // we read or write data until data_addr equals last_data_addr_excl
     // this means we dont have to decrement a counter, as well as incrementing
     // data_addr
-    reg [31:0] last_data_addr_excl;
+    // used to store one past the end address to read/write
+    reg [31:0] internal_end_data_addr_excl;
     // reg [31:0] data_cnt;
 
     // reg mem_wr_req;
@@ -93,12 +97,16 @@ module gpu_controller(
     reg [$clog2(MAX_PARAMS) - 1:0] n_param_pos;
     reg [$clog2(MAX_PARAMS) - 1:0] n_num_params;
     reg [31:0] n_params [MAX_PARAMS];
-    reg [31:0] n_data_addr;
-    reg [31:0] n_last_data_addr_excl;
+
+    reg [31:0] n_internal_data_addr;
+    reg [31:0] n_internal_end_data_addr_excl;
     // reg [31:0] n_data_cnt;
 
-    reg mem_read_sent;
-    reg n_mem_read_sent;
+    reg internal_mem_read_sent;
+    reg n_internal_mem_read_sent;
+    // reg [31:0] internal_last_mem_read_addr;
+    // reg [31:0] n_internal_last_mem_read_addr;
+    // reg mem_read
 
     // reg n_mem_wr_req;
     // reg n_mem_rd_req;
@@ -108,6 +116,7 @@ module gpu_controller(
     // reg [31:0] n_mem_rd_data;
 
     reg [31:0] n_out_data;
+    reg n_cpu_out_ack;
 
     typedef enum bit[5:0] {
         IDLE,
@@ -130,8 +139,8 @@ module gpu_controller(
         n_instr = instr;
         n_param_pos = '0;
         n_out_data = '0;
-        n_last_data_addr_excl = last_data_addr_excl;
-        n_data_addr = data_addr;
+        n_internal_end_data_addr_excl = internal_end_data_addr_excl;
+        n_internal_data_addr = internal_data_addr;
 
         // n_mem_rd_req = 0;
         // n_mem_wr_req = 0;
@@ -139,13 +148,14 @@ module gpu_controller(
         // n_mem_wr_addr = '0;
         // n_mem_wr_data = '0;
 
-        n_mem_read_sent = mem_read_sent;
+        n_internal_mem_read_sent = internal_mem_read_sent;
 
         n_mem_wr_en = 0;
         n_mem_rd_en = 0;
         n_mem_wr_addr = '0;
         n_mem_wr_data = '0;
         n_mem_rd_addr = '0;
+        n_cpu_out_ack = 0;
 
         for(int i = 0; i < MAX_PARAMS; i++) begin
             n_params[i] = '0; 
@@ -159,11 +169,11 @@ module gpu_controller(
                     n_instr = cpu_recv_instr;
                     case(cpu_recv_instr)
                         COPY_TO_GPU: begin
-                            $display("COPY_TO_GPU");
+                            $display("gpucontroller COPY_TO_GPU");
                             n_num_params = 2;
                         end
                         COPY_FROM_GPU: begin
-                            $display("COPY_FROM_GPU");
+                            $display("gpucontroller COPY_FROM_GPU");
                             n_num_params = 2;
                         end
                         NOP: begin
@@ -172,12 +182,12 @@ module gpu_controller(
                             // do nothing...
                         end
                         default: begin
-                            $display("case recv_instr hit default");
+                            $display("gpucontroller case recv_instr hit default");
                         end
                     endcase
                 end
                 RECV_PARAMS: begin
-                    $display("RECV_PARAMS param_pos=%0d in_data=%0d", param_pos, cpu_in_data);
+                    $display("gpucontroller RECV_PARAMS param_pos=%0d in_data=%0d", param_pos, cpu_in_data);
                     // we use in_data to receive because
                     // means we can give more control to recv_instr, eg it could
                     // send RESET in the middle of sending a new instruction, and we wouldn't
@@ -188,20 +198,21 @@ module gpu_controller(
                     if(n_param_pos == num_params) begin
                         case(instr)
                             COPY_TO_GPU: begin
-                                n_data_addr = params[0];
-                                n_last_data_addr_excl = params[0] + n_params[1];
-                                $display("RECV_PARAMS COPY_TO_GPU addr %0d count %0d final_addr_excl %0d", params[0], n_params[1], n_last_data_addr_excl);
+                                n_internal_data_addr = params[0];
+                                n_internal_end_data_addr_excl = params[0] + n_params[1];
+                                $display("gpucontroller RECV_PARAMS COPY_TO_GPU addr %0d count %0d final_addr_excl %0d", params[0], n_params[1], n_internal_end_data_addr_excl);
                                 n_state = RECEIVE_DATA;
                             end
                             COPY_FROM_GPU: begin
-                                n_data_addr = params[0];
-                                n_last_data_addr_excl = params[0] + n_params[1];
-                                $display("RECV_PARAMS COPY_FROM_GPU addr %0d count %0d final_addr_excl %0d", params[0], n_params[1], n_last_data_addr_excl);
+                                n_internal_end_data_addr_excl = params[0] + n_params[1];
+                                $display("gpucontroller RECV_PARAMS COPY_FROM_GPU addr %0d count %0d final_addr_excl %0d", params[0], n_params[1], n_internal_end_data_addr_excl);
                                 n_state = SEND_DATA;
                                 // n_mem_rd_addr = params[0];
                                 n_mem_rd_en = 1;
                                 n_mem_rd_addr = params[0];
-                                n_mem_read_sent = 1;
+                                // n_internal_last_mem_read_addr = params[0];
+                                n_internal_mem_read_sent = 1;
+                                n_internal_data_addr = params[0] + 4;
                                 // n_mem_rd_req =? 1;
                             end
                             default: begin
@@ -211,42 +222,44 @@ module gpu_controller(
                     end
                 end
                 RECEIVE_DATA: begin
-                    $display("RECEIVE_DATA");
-                    $display("receive data addr %0d val %0d", data_addr, cpu_in_data);
+                    $display("gpucontroller RECEIVE_DATA");
+                    $display("gpucontroller receive data addr %0d val %0d", internal_data_addr, cpu_in_data);
                     // mem[data_addr] = in_data;
                     // n_mem_wr_en = 1;
                     // n_mem_wr_addr = data_addr;
                     // n_mem_wr_data = cpu_in_data;
 
                     n_mem_wr_en = 1;
-                    n_mem_wr_addr = data_addr;
+                    n_mem_wr_addr = internal_data_addr;
                     n_mem_wr_data = cpu_in_data;
 
-                    n_data_addr = data_addr + 4;
+                    n_internal_data_addr = internal_data_addr + 4;
 
-                    if(n_data_addr >= last_data_addr_excl) begin
-                        $display("finished data receive");
+                    if(n_internal_data_addr >= internal_end_data_addr_excl) begin
+                        $display("gpucontroller finished data receive");
                         n_state = IDLE;
                     end
                 end
                 SEND_DATA: begin
-                    $display("SEND_DATA");
-                    $display("send data addr %0d val %0d", data_addr, mem_rd_data);
-                    n_data_addr = data_addr + 4;
-
-                    if(mem_read_sent) begin
+                    $display("gpucontroller SEND_DATA");
+                    if(internal_mem_read_sent && mem_rd_ack) begin
                         n_out_data = mem_rd_data;
-                        n_mem_read_sent = 0;
+                        n_internal_mem_read_sent = 0;
+                        $display("gpucontroller send data %0d", mem_rd_data);
+                        n_cpu_out_ack = 1;
+                        if(n_internal_data_addr < internal_end_data_addr_excl) begin
+                            n_mem_rd_en = 1;
+                            n_mem_rd_addr = internal_data_addr;
+                            n_internal_mem_read_sent = 1;
+                            n_internal_data_addr = internal_data_addr + 4;
+                            // n_internal_last_mem_read_addr = data_addr;
+                            // n_out_data = mem[data_addr];
+                            // n_out_data = mem_rd_data;
+                        end
                     end
 
-                    if(n_data_addr < last_data_addr_excl) begin
-                        n_mem_rd_en = 1;
-                        n_mem_rd_addr = data_addr;
-                        n_mem_read_sent = 1;
-                        // n_out_data = mem[data_addr];
-                        // n_out_data = mem_rd_data;
-                    end else begin
-                        $display("finished data send");
+                    if(mem_rd_ack && ~n_internal_mem_read_sent) begin
+                        $display("gpucontroller finished data send => IDLE");
                         n_state = IDLE;
                     end
                     // if(n_data_addr >= last_data_addr_excl) begin
@@ -256,7 +269,7 @@ module gpu_controller(
                     // end
                 end
                 default: begin
-                    $display("case state hit default");
+                    $display("gpucontroller case state hit default");
                 end
             endcase
         end
@@ -274,8 +287,8 @@ module gpu_controller(
                params[i] <= '0; 
             end
 
-            data_addr <= '0;
-            last_data_addr_excl <= '0;
+            internal_data_addr <= '0;
+            internal_end_data_addr_excl <= '0;
 
             mem_wr_en <= 0;
             mem_rd_en <= 0;
@@ -283,12 +296,14 @@ module gpu_controller(
             mem_wr_data <= '0;
             mem_rd_addr <= '0;
 
-            mem_read_sent <= 0;
+            internal_mem_read_sent <= 0;
 
             core_en <= 0;
             core_clr <= 0;
             core_set_pc_req <= 0;
             core_set_pc_addr <= '0;
+
+            cpu_out_ack = 0;
 
             // mem_rd_data <= '0;
         end else begin
@@ -302,8 +317,8 @@ module gpu_controller(
                params[i] <= n_params[i]; 
             end
 
-            data_addr <= n_data_addr;
-            last_data_addr_excl <= n_last_data_addr_excl;
+            internal_data_addr <= n_internal_data_addr;
+            internal_end_data_addr_excl <= n_internal_end_data_addr_excl;
 
             mem_wr_en <= n_mem_wr_en;
             mem_rd_en <= n_mem_rd_en;
@@ -311,7 +326,9 @@ module gpu_controller(
             mem_wr_data <= n_mem_wr_data;
             mem_rd_addr <= n_mem_rd_addr;
 
-            mem_read_sent <= n_mem_read_sent;
+            internal_mem_read_sent <= n_internal_mem_read_sent;
+
+            cpu_out_ack = n_cpu_out_ack;
 
             // if(n_mem_wr_req) begin
             //     $display("ff write mem addr=%0d data=%0d", n_mem_wr_addr, n_mem_wr_data);
