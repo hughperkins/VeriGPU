@@ -57,3 +57,22 @@ If we want to tape-out, we need solid verification. Read more at:
 we want the GPU to run quickly, and to use minimal die area. Read how we measure timings and area at:
 
 - [docs/metrics.md](docs/metrics.md)
+
+# Why work on something that we might never be able to make for real?
+
+Well, it's not certain that it can never be built. If we actually create a plausibly verified and working GPU design, there is a bunch of VC around to tape it out.
+
+But, in the mean-time... there are a number of things that are hard or extremely expensive to run for real, such as:
+- plasmas (in a fusion reactor for example)
+- rockets
+- nuclear warheads
+- mars landers
+- ... and also VLSI ASICs, such as GPUs
+
+In all cases, one of the main approaches to the problem is to create high-quality simulations. In the case of plasmas for fusion reactors, this is pretty challenging, since we cannot even 'see' into the plasma. Light is just another particle, and it interacts with the plasma. Ultimately we just see how much energy is created etc.
+
+In the case of GPUs, simulation is relatively straightforward. CMOS circuitry is relatively deterministic, at least at the cell level, and there are a number of high quality simulators available, such as [iverilog](http://iverilog.icarus.com/) and [verilator](https://www.veripool.org/verilator/). We can run the GPU in these simulators, and tweak things to our heart's content. Want a GPU with only BF16? Tweak the code. Actually I intend to make it pure FP16 anyway, but it's just an example. Want to change the number of cores per multiprocessor, or the trade-off between clock frequency and instruction latency? Tweak the code :)
+
+I feel that being able to work on projects in the absence of being able to 'just try things out' for real is plausibly a useful and valuable skill.
+
+(to do: I need to write some instructions on how to quickly get stuck into running the simulations :) )
