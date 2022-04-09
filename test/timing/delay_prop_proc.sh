@@ -10,4 +10,4 @@ python verigpu/timing.py --in-verilog src/assert_ignore.sv src/const.sv src/op_c
     src/generated/mul_pipeline_cycle_24bit_2bpc.sv src/float/float_mul_pipeline.sv \
     src/generated/mul_pipeline_cycle_32bit_2bpc.sv src/int/mul_pipeline_32bit.sv \
     src/assert_ignore.sv src/int/int_div_regfile.sv \
-    src/proc.sv --top-module proc
+    src/core.sv --top-module core
