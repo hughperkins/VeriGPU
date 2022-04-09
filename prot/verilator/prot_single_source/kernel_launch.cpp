@@ -7,6 +7,7 @@
 // #include "cocl/VERIGPU_streams.h"
 // #include "cocl/VERIGPU_funcs.h"
 
+#include <sys/stat.h>
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -16,6 +17,7 @@
 #include <mutex>
 #include <sstream>
 #include <fstream>
+#include <cassert>
 #include <experimental/filesystem>
 
 // #include "EasyCL/EasyCL.h"
@@ -59,6 +61,13 @@ void kernel_launch_assure_initialized(void)
 
 static std::string makePreferred(std::string path) {
     return std::experimental::filesystem::path(path).make_preferred();
+}
+
+size_t get_file_size(std::string filename)
+{
+    struct stat stat_buf;
+    int rc = stat(filename.c_str(), &stat_buf);
+    return rc == 0 ? stat_buf.st_size : -1;
 }
 
 namespace VeriGPU
@@ -385,6 +394,33 @@ halt
                          " --in-asm " + makePreferred(verigpuDir + "/build/prog.asm") +
                          " --out-hex " + makePreferred(verigpuDir + "/build/prog.hex")).c_str());
         assert (ret == 0);
+
+        // now get size of file
+        // size_t hexSize = get_file_size(makePreferred(verigpuDir + "/build/prog.hex"));
+        // std::cout << "hexSize:" << hexSize << std::endl;
+        // long numWords = hexSize / 9  // hmmm this wont work on windows...
+        std::ifstream fin;
+        fin.open(makePreferred(verigpuDir + "/build/prog.hex"));
+        int numLines = 0;
+        // std::string _;
+        unsigned int codeWord;
+        std::vector<unsigned int> codeWords;
+        // while(std::getline(fin, _)) {
+        while (fin >> hex >> codeWord) {
+            numLines++;
+            codeWords.push_back(codeWord);
+        }
+        std::cout << numLines << " lines in hex file" << std::endl;
+        int kernelCodeSpaceNeeded = numLines << 2;
+        std::cout << "kernelCodeSpaceNeeded=" << kernelCodeSpaceNeeded << " bytes" << std::endl;
+        std::cout << "len(codeWords)" << codeWords.size() << std::endl;
+
+        void *gpuKernelSpace = gpuMalloc(kernelCodeSpaceNeeded);
+
+        // now we need to reassemble, with offset at this new position
+
+        gpuCopyToDevice(gpuKernelSpace, &codeWords[0], codeWords.size() << 2);
+        std::cout << "copied kernel to device" << std::endl;
 
         size_t global[3];
         for (int i = 0; i < 3; i++)

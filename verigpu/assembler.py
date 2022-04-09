@@ -756,7 +756,7 @@ def run(args):
                 instr_bits = f'{l_bits_20}{l_bits_10_1}{l_bits_11}{l_bits_19_12}{rd_bits}{opcode_bits}'
                 # print('instr_bits', instr_bits)
                 assert len(instr_bits) == 32
-                hex_lines.append(bits_to_hex(instr_bits, 32))
+                hex_lines.append(bits_to_hex(instr_bits))
 
             elif cmd in ['jalr']:
                 # eg
