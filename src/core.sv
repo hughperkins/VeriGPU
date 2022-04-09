@@ -11,9 +11,7 @@ module core(
     output reg outen,
     output reg outflen,
 
-    output reg [data_width - 1:0] x1,
-    output reg [addr_width - 1:0] pc,
-    output reg [4:0] state,
+    output reg halt,
 
     output reg [addr_width - 1:0] mem_addr,
     input [data_width - 1:0]      mem_rd_data,
@@ -21,10 +19,12 @@ module core(
     output reg                    mem_wr_req,
     output reg                    mem_rd_req,
     input                         mem_ack,
-    input                         mem_busy,
-
-    output reg halt
+    input                         mem_busy
 );
+    // reg [data_width - 1:0] x1;
+    reg [addr_width - 1:0] pc;
+    reg [4:0] state;
+
     reg [addr_width - 1:0] next_pc;
     reg [4:0]              next_state;
 
@@ -729,7 +729,7 @@ module core(
         c1_branch_offset = {{20{c1_instr[31]}}, c1_instr[31], c1_instr[7], c1_instr[30:25], c1_instr[11:8]};
         c1_op_funct = {c1_instr[31:25], c1_instr[14:12]};
 
-        x1 = regs[1];
+        // x1 = regs[1];
 
         c2_op = c2_instr[6:0];
         c2_op_funct = {c2_instr[31:25], c2_instr[14:12]};

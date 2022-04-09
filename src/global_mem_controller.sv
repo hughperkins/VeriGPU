@@ -1,26 +1,40 @@
+// represents GPU global memory
+// we add in simulated delay
+
 // `timescale 1ns/10ps
 
-module mem_delayed (
+module global_mem_controller (
     input clk,
     input rst,
-    input ena,  // enables incoming requests to be processed. whilst this is low, incoming requests are stored
+    // input ena,  // enables incoming requests to be processed. whilst this is low, incoming requests are stored
                 // (only a single request can be stored), and once this goes high, it will be processed
                 // this lets us turn off reset, load in our program into memory, then turn on enable
                 // and the processor starts running
 
-    input rd_req,
-    input wr_req,
+    input core1_rd_req,
+    input core1_wr_req,
 
-    input [addr_width - 1:0]      addr,
-    output reg [data_width - 1:0] rd_data,
-    input [data_width - 1:0]      wr_data,
+    input [addr_width - 1:0]      core1_addr,
+    output reg [data_width - 1:0] core1_rd_data,
+    input [data_width - 1:0]      core1_wr_data,
 
-    output reg busy,
-    output reg ack,
+    output reg core1_busy,
+    output reg core1_ack,
 
-    input                    oob_wen,
+    // for use by comp_driver.sv; might migrate to use contr_ in the future, perhaps
+    // no simulated delay added
+    input                    oob_wr_en,
     input [addr_width - 1:0] oob_wr_addr,
-    input [data_width - 1:0] oob_wr_data
+    input [data_width - 1:0] oob_wr_data,
+
+    // for use by controller.sv
+    // we'll probalby add siulated delay to this
+    input                    contr_wr_en,
+    input                    contr_rd_en,
+    input [addr_width - 1:0] contr_wr_addr,
+    input [data_width - 1:0] contr_wr_data,
+    input [addr_width - 1:0] contr_rd_addr,
+    output reg [data_width - 1:0] contr_rd_data
 );
     reg [data_width - 1:0] mem[memory_size];
 
@@ -72,10 +86,10 @@ module mem_delayed (
         // $display("rst %0d received_rd_req=%0d", rst, received_rd_req);
         `assert_known(received_rd_req);
         `assert_known(received_wr_req);
-        `assert_known(wr_req);
-        `assert_known(rd_req);
-        `assert_known(ena);
-        if (received_rd_req & ena) begin
+        `assert_known(core1_wr_req);
+        `assert_known(core1_rd_req);
+        // `assert_known(ena);
+        if (received_rd_req) begin
             `assert_known(clks_to_wait);
             if (clks_to_wait == 0) begin
                 n_ack = 1;
@@ -88,7 +102,7 @@ module mem_delayed (
                 n_clks_to_wait = clks_to_wait - 1;
                 n_busy = 1;
             end
-        end else if(received_wr_req & ena) begin
+        end else if(received_wr_req) begin
             `assert_known(clks_to_wait);
             if (clks_to_wait == 0) begin
                 n_ack = 1;
@@ -100,19 +114,19 @@ module mem_delayed (
                 n_clks_to_wait = clks_to_wait - 1;
                 n_busy = 1;
             end
-        end else if (wr_req) begin
+        end else if (core1_wr_req) begin
             n_received_wr_req = 1;
             n_clks_to_wait = mem_simulated_delay - 1;
             // $display("writing addr=%0d", addr);
-            n_received_addr = addr;
-            n_received_data = wr_data;
+            n_received_addr = core1_addr;
+            n_received_data = core1_wr_data;
             n_ack = 0;
             n_busy = 1;
-        end else if (rd_req) begin
+        end else if (core1_rd_req) begin
             n_received_rd_req = 1;
             n_clks_to_wait = mem_simulated_delay - 1;
             // $display("reading addr=%0d", addr);
-            n_received_addr = addr;
+            n_received_addr = core1_addr;
             n_ack = 0;
             n_busy = 1;
         end
@@ -123,9 +137,9 @@ module mem_delayed (
         if(~rst) begin
             $display("mem_delayed.rst");
             clks_to_wait <= 0;
-            busy <= 0;
-            ack <= 0;
-            rd_data <= '0;
+            core1_busy <= 0;
+            core1_ack <= 0;
+            core1_rd_data <= '0;
 
             received_addr <= 0;
             received_data <= 0;
@@ -134,27 +148,35 @@ module mem_delayed (
             received_wr_req <= 0;
         end else begin
             // $display("mem_delayed.clk non reset");
-            `assert_known(oob_wen);
-            if(oob_wen) begin
+            `assert_known(oob_wr_en);
+            if(oob_wr_en) begin
                 // $display("oob_wen mem[%0d] = %0d", oob_wr_addr, oob_wr_data);
                 mem[oob_wr_addr >> 2] <= oob_wr_data;
             end
+
+            if(contr_wr_en) begin
+                mem[contr_wr_addr >> 2] <= contr_wr_data;
+            end
+
+            if(contr_rd_en) begin
+                contr_rd_data <= mem[contr_rd_addr >> 2];
+            end
+
             // if(ena) begin
             //     $display(
             //         "t=%0d mem_delayed.ff n_clks=%0d n_received_rd_req=%0d n_received_wr_req=%0d n_ack=%0d n_busy=%0d n_received_addr=%0d n_read_now=%0d mem[n_received_addr]=%0d",
             //         $time, n_clks_to_wait, n_received_rd_req, n_received_wr_req, n_ack, n_busy, n_received_addr, n_read_now, mem[n_received_addr]);
             // end
             clks_to_wait <= n_clks_to_wait;
-            busy <= n_busy;
-            ack <= n_ack;
-            rd_data <= '0;
+            core1_busy <= n_busy;
+            core1_ack <= n_ack;
+            core1_rd_data <= '0;
 
             received_addr <= n_received_addr;
             received_data <= n_received_data;
 
             received_rd_req <= n_received_rd_req;
             received_wr_req <= n_received_wr_req;
-
 
             `assert_known(n_write_now);
             if(n_write_now) begin
@@ -167,7 +189,7 @@ module mem_delayed (
                 // $display(
                 //     "reading rd data n_received_addr=%0d mem[ {2'b0, n_received_addr[31:2]} ]=%0d",
                 //     n_received_addr, mem[ {2'b0, n_received_addr[31:2]} ]);
-                rd_data <= mem[ {2'b0, n_received_addr[31:2]} ];
+                core1_rd_data <= mem[ {2'b0, n_received_addr[31:2]} ];
             end
         end
     end

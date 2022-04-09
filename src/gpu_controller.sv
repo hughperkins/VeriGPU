@@ -36,18 +36,30 @@ things we need to handle:
 We can be pretty wasteful of resources in the controller, since there's only one of them on the die.
 (cf thousands of cores...)
 */
-module controller(
+module gpu_controller(
     input clk,
     input rst,
-    input [31:0] recv_instr,  
-    // input reg rd_req,
-    // input [31:0] rd_addr,
-    // I use in/out, because less ambigous than rd/wr I feel, i.e. invariant
+
+    // comms with mainboard cpu
+    input [31:0] cpu_recv_instr,  
+    // I'm using in/out, because less ambigous than rd/wr I feel, i.e. invariant
     // with PoV this module, or PoV calling module
-    input [31:0] in_data,
-    // input reg wr_req,
-    // input [31:0] wr_addr,
-    output reg [31:0] out_data
+    input [31:0] cpu_in_data,
+    output reg [31:0] cpu_out_data,
+
+    // we also need to be able to read/write memory
+    output mem_wren,
+    output mem_rden,
+    output reg [addr_width - 1:0] mem_wr_addr,
+    output reg [data_width - 1:0] mem_wr_data,
+    output reg [addr_width - 1:0] mem_rd_addr,
+    input [data_width - 1:0] mem_rd_data,
+
+    // and core (later: cores)
+    output reg core_en,
+    output reg core_clr,
+    output reg core_set_pc_req,
+    output reg [data_width - 1:0] core_set_pc_addr
 );
     parameter MAX_PARAMS = 4;
 
@@ -68,7 +80,7 @@ module controller(
     // reg [31:0] mem_wr_addr;
     // reg [31:0] mem_rd_addr;
     // reg [31:0] mem_wr_data;
-    reg [31:0] mem_rd_data;
+    // reg [31:0] mem_rd_data;
 
     reg [5:0] n_state;
     reg [31:0] n_instr;
@@ -102,7 +114,7 @@ module controller(
         KERNEL_LAUNCH = 3
     } e_instr;
 
-    reg [31:0] mem [512];  // put here for now, use comp's in a bit
+    // reg [31:0] mem [512];  // put here for now, use comp's in a bit
 
     always @(*) begin
         n_state = state;
@@ -127,8 +139,8 @@ module controller(
                 IDLE: begin
                     n_state = RECV_PARAMS;
                     n_param_pos = 0;
-                    n_instr = recv_instr;
-                    case(recv_instr)
+                    n_instr = cpu_recv_instr;
+                    case(cpu_recv_instr)
                         COPY_TO_GPU: begin
                             $display("COPY_TO_GPU");
                             n_num_params = 2;
@@ -148,13 +160,13 @@ module controller(
                     endcase
                 end
                 RECV_PARAMS: begin
-                    $display("RECV_PARAMS param_pos=%0d in_data=%0d", param_pos, in_data);
+                    $display("RECV_PARAMS param_pos=%0d in_data=%0d", param_pos, cpu_in_data);
                     // we use in_data to receive because
                     // means we can give more control to recv_instr, eg it could
                     // send RESET in the middle of sending a new instruction, and we wouldn't
                     // have issues with going 'out of sync': interpreting params as instruction
                     // (cf sending parmetres via recv_instr wires)
-                    n_params[param_pos] = in_data;
+                    n_params[param_pos] = cpu_in_data;
                     n_param_pos = param_pos + 1;
                     if(n_param_pos == num_params) begin
                         case(instr)
@@ -180,12 +192,12 @@ module controller(
                 end
                 RECEIVE_DATA: begin
                     $display("RECEIVE_DATA");
-                    $display("receive data addr %0d val %0d", data_addr, in_data);
+                    $display("receive data addr %0d val %0d", data_addr, cpu_in_data);
                     // mem[data_addr] = in_data;
                     n_data_addr = data_addr + 4;
                     n_mem_wr_req = 1;
                     n_mem_wr_addr = data_addr;
-                    n_mem_wr_data = in_data;
+                    n_mem_wr_data = cpu_in_data;
                     if(n_data_addr >= last_data_addr_excl) begin
                         $display("finished data receive");
                         n_state = IDLE;
@@ -214,7 +226,7 @@ module controller(
     always @(posedge clk, negedge rst) begin
         // $display("controller.ff");
         if(~rst) begin
-            out_data <= '0;
+            cpu_out_data <= '0;
             state <= IDLE;
             param_pos <= '0;
             instr <= '0;
@@ -227,9 +239,9 @@ module controller(
             data_addr <= '0;
             last_data_addr_excl <= '0;
 
-            mem_rd_data <= '0;
+            // mem_rd_data <= '0;
         end else begin
-            out_data <= n_out_data;
+            cpu_out_data <= n_out_data;
             state <= n_state;
             instr <= n_instr;
             param_pos <= n_param_pos;
@@ -242,14 +254,14 @@ module controller(
             data_addr <= n_data_addr;
             last_data_addr_excl <= n_last_data_addr_excl;
 
-            if(n_mem_wr_req) begin
-                $display("ff write mem addr=%0d data=%0d", n_mem_wr_addr, n_mem_wr_data);
-                mem[n_mem_wr_addr] <= n_mem_wr_data;
-            end
-            if(n_mem_rd_req) begin
-                $display("ff read mem addr=%0d data=%0d", n_mem_rd_addr, mem[n_mem_rd_addr]);
-                mem_rd_data <= mem[n_mem_rd_addr];
-            end
+            // if(n_mem_wr_req) begin
+            //     $display("ff write mem addr=%0d data=%0d", n_mem_wr_addr, n_mem_wr_data);
+            //     mem[n_mem_wr_addr] <= n_mem_wr_data;
+            // end
+            // if(n_mem_rd_req) begin
+            //     $display("ff read mem addr=%0d data=%0d", n_mem_rd_addr, mem[n_mem_rd_addr]);
+            //     mem_rd_data <= mem[n_mem_rd_addr];
+            // end
         end
     end
-endmodule;
+endmodule
