@@ -379,7 +379,7 @@ def run(args):
                 # need to push store in first, since we are pushing in reverse order
                 asm_cmds.appendleft('sw x30, 0(x31)')
                 asm_cmds.appendleft(f'addi x30, x0, {p1}')
-                asm_cmds.appendleft('addi x31, x0, 1000')
+                asm_cmds.appendleft('li x31, 1000000')
                 continue
             elif cmd == 'outr':
                 # virtual instruction. map to storing to location 1000
@@ -388,7 +388,7 @@ def run(args):
                 # need to push store in first, since we are pushing in reverse order
 
                 asm_cmds.appendleft(f'sw {p1}, 0(x31)')
-                asm_cmds.appendleft('addi x31, x0, 1000')
+                asm_cmds.appendleft('li x31, 1000000')
                 continue
             elif cmd == 'outr.s':
                 # virtual instruction. map to storing to location 1008
@@ -397,13 +397,13 @@ def run(args):
                 # need to push store in first, since we are pushing in reverse order
 
                 asm_cmds.appendleft(f'sw {p1}, 0(x31)')
-                asm_cmds.appendleft('addi x31, x0, 1008')
+                asm_cmds.appendleft('li x31, 1000008')
                 continue
             elif cmd == 'outloc':
                 # e.g. outloc 0x20
                 # virtual command, maps to li followed by sw to location 1000
                 asm_cmds.appendleft('sw x30, 0(x31)')
-                asm_cmds.appendleft('addi x31, x0, 1000')
+                asm_cmds.appendleft('li x31, 1000000')
                 asm_cmds.appendleft('lw x30, 0(x31)')
                 asm_cmds.appendleft(f'li x31, {p1}')
                 continue
@@ -479,7 +479,7 @@ def run(args):
                 # virtual instruction
                 # write to location 1001 instead
                 asm_cmds.appendleft('sw x30, 0(x31)')
-                asm_cmds.appendleft('addi x31, x0, 1004')
+                asm_cmds.appendleft('li x31 1000004')
                 continue
             elif cmd == 'j':
                 # eg
@@ -855,5 +855,6 @@ if __name__ == '__main__':
     parser.add_argument('--in-asm', type=str, default='prog6.asm')
     parser.add_argument('--out-hex', type=str, default='build/prog6.hex')
     parser.add_argument('--dump-hex', action='store_true')
+    parser.add_argument('--offset', type=int, default=0, help='at what address will this be located?')
     args = parser.parse_args()
     run(args)

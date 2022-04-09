@@ -515,18 +515,18 @@ module proc(
         $display("%0d STORE addr %0d <= %0d", pc, _addr, c1_rs2_data);
         `assert_known(_addr);
         case (_addr)
-            1000: begin
+            1000000: begin
                 // write_out(regs[c1_rs2]);
                 write_out(c1_rs2_data);
                 $display("OUT %0d", c1_rs2_data);
                 // immediately jump to next instruction, since not a real store...
                 read_next_instr(pc + 4);
             end
-            1004: begin
-                $display("%0d 1004: HALT", pc);
+            1000004: begin
+                $display("%0d 1000004: HALT", pc);
                 halt = 1;
             end
-            1008: begin
+            1000008: begin
                 write_float(c1_rs2_data);
                 $display("OUTR %0f", c1_rs2_data);
                 read_next_instr(pc + 4);
