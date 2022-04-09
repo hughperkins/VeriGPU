@@ -18,6 +18,8 @@ double sc_time_stamp() {
     return sim_time;
 }
 
+const int kernel_offset = 128;
+
 int main(int argc, char **argv, char **env)
 {
     Verilated::commandArgs(argc, argv);
@@ -57,7 +59,7 @@ int main(int argc, char **argv, char **env)
     std::fstream infile;
     infile.open("../../../build/prog.hex", std::fstream::in);
     unsigned int a;
-    unsigned int addr = 0;
+    unsigned int addr = kernel_offset;
     while(infile >> std::hex >> a) {
         dut->oob_wen = 1;
         dut->oob_wr_addr = addr;

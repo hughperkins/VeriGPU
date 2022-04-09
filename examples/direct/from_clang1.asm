@@ -21,7 +21,7 @@
 ; - ignore things starting wtih .
 ; some way of deciding which function name to jump to
 
-li sp, 800
+li sp, 1000
 
 addi sp, sp, -16
 
