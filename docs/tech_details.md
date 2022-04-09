@@ -101,6 +101,6 @@ There are 31 registers, x1 to x31, along with x0, which is always 0s. Use the sa
 
 ## I/O
 
-- any word written to location 1000 will be considered to have been sent to a memory-mapped i/o device, which will write this value out, in our case to stdout, via the test bench code.
-- writing any word to location 1004 halts the simulation.
-- writing a word to location 1008 outputs it as as a 32-bit float
+- any word written to location 1000000 will be considered to have been sent to a memory-mapped i/o device, which will write this value out, in our case to stdout, via the test bench code.
+- writing any word to location 1000004 halts the simulation.
+- writing a word to location 1000008 outputs it as as a 32-bit float
