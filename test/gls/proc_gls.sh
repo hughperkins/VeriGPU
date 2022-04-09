@@ -27,8 +27,8 @@ python verigpu/run_yosys.py --in-verilog src/assert_ignore.sv src/op_const.sv sr
     src/int/chunked_add_task.sv src/int/chunked_sub_task.sv \
     src/generated/mul_pipeline_cycle_24bit_2bpc.sv src/float/float_mul_pipeline.sv \
     src/generated/mul_pipeline_cycle_32bit_2bpc.sv src/int/mul_pipeline_32bit.sv \
-    src/int/int_div_regfile.sv src/proc.sv \
-    --top-module proc >/dev/null
+    src/int/int_div_regfile.sv src/core.sv \
+    --top-module core >/dev/null
 
 for prog in ${progs}; do {
     python verigpu/assembler.py --offset 128 --in-asm examples/direct/${prog}.asm --out-hex build/prog.hex

@@ -5,7 +5,7 @@ As of mar 28 2022:
 Max propagation delay: 82.8 nand units
 Area:                  30956.0 nand units
  */
-module proc(
+module core(
     input rst, clk,
     output reg [data_width - 1:0] out,
     output reg outen,

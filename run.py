@@ -24,7 +24,7 @@ def run(args):
             ' src/int/chunked_add_task.sv src/int/chunked_sub_task.sv '
             ' src/generated/mul_pipeline_cycle_24bit_2bpc.sv src/float/float_mul_pipeline.sv'
             ' src/generated/mul_pipeline_cycle_32bit_2bpc.sv src/int/mul_pipeline_32bit.sv'
-            ' src/proc.sv src/comp.sv'
+            ' src/core.sv src/comp.sv'
             ' src/mem_delayed_large.sv src/mem_delayed.sv build/comp_driver.sv') == 0
         os.system('./a.out | tee /tmp/out.txt')
     with open('/tmp/out.txt') as f:

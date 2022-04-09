@@ -13,7 +13,7 @@ verilate(comp SOURCES ${BASE}/assert.sv ${BASE}/const.sv ${BASE}/op_const.sv
     ${BASE}/generated/mul_pipeline_cycle_24bit_2bpc.sv
     ${BASE}/generated/mul_pipeline_cycle_32bit_2bpc.sv
     ${BASE}/int/int_div_regfile.sv
-    ${BASE}/proc.sv
+    ${BASE}/core.sv
     ${BASE}/mem_delayed_large.sv ${BASE}/mem_delayed.sv
     ${BASE}/comp.sv
     TOP_MODULE comp

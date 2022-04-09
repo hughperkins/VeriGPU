@@ -42,7 +42,7 @@ module comp(
         .oob_wen(oob_wen)
     );
 
-    proc proc1(
+    core core1(
         .rst(rst), .clk(clk), .out(out),
         // .c2_op(op), .c2_imm1(imm1),
         .pc(pc),
