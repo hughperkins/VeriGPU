@@ -16,6 +16,7 @@
 #include <mutex>
 #include <sstream>
 #include <fstream>
+#include <experimental/filesystem>
 
 // #include "EasyCL/EasyCL.h"
 #include "stringhelper.h"
@@ -54,6 +55,10 @@ extern "C"
 
 void kernel_launch_assure_initialized(void)
 {
+}
+
+static std::string makePreferred(std::string path) {
+    return std::experimental::filesystem::path(path).make_preferred();
 }
 
 namespace VeriGPU
@@ -361,11 +366,24 @@ halt
         // perhaps we can just use clang to assemble it???
         // anyway for now, first try using assembler.py
         // first we should write the assembler somewhere
+        // std::string sep = std::string(std::experimental::filesystem::path::mak preferred_separator);
+        char *pString = std::getenv("VERIGPUDIR");
+        if(pString == 0) {
+            std::cout << "ERROR: You need to define VERIGPUDIR" << std::endl;
+            return;
+        }
+        std::string verigpuDir = pString;
+        std::cout << "VERIGPUDIR=" << verigpuDir << std::endl;
+
         std::ofstream of;
-        of.open("build/prog.asm");
+        std::string asmPath = makePreferred(verigpuDir + "/build/prog.asm");
+        std::cout << "asmPath " << asmPath << std::endl;
+        of.open(asmPath);
         of << fullAssembly << std::endl;
         of.close();
-        int ret = system("python verigpu/assembler.py --in-asm build/prog.asm --out-hex build/prog.hex");
+        int ret = system(("python " + makePreferred(verigpuDir + "/verigpu/assembler.py") +
+                         " --in-asm " + makePreferred(verigpuDir + "/build/prog.asm") +
+                         " --out-hex " + makePreferred(verigpuDir + "/build/prog.hex")).c_str());
         assert (ret == 0);
 
         size_t global[3];

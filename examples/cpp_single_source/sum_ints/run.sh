@@ -19,6 +19,8 @@ MACCLTINCLUDEDIR=/Library/Developer/CommandLineTools/SDKs/MacOSX11.0.sdk/usr/inc
 
 BASEDIR=$PWD
 
+export VERIGPUDIR=${BASEDIR}
+
 cd ${SCRIPTDIR}
 
 # if [[ -d build_bash ]]; then {

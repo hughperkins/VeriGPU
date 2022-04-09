@@ -74,6 +74,7 @@ namespace veriGPU
         LaunchCallInfo(const LaunchCallInfo &) = delete;
         LaunchCallInfo &operator=(const LaunchCallInfo &) = delete;
 
+        std::string stubKernelName = "";
         std::string kernelName = "";
 
         // this only contains non-readnone args. readnone (devicesdie) are ignored, not stored in this (since hostside wont call them,

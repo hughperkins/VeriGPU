@@ -33,6 +33,7 @@ We're going to comment out anything to do with structs for now, keep things simp
 #include <fstream>
 #include <sstream>
 #include <memory>
+#include <regex>
 
 using namespace llvm;
 using namespace std;
@@ -45,6 +46,21 @@ namespace veriGPU
     static std::string deviceriscvcode_stringname;
     static string devicellfilename;
     static string deviceriscvfilename;
+
+        std::string nameRemoveDeviceStub(std::string deviceStubName)
+        {
+            // e.g deviceStubName _Z23__device_stub__sum_intsPjjS_
+            // returned name _Z8sum_intsPjjS_
+            // we remove __device_stub__, and change the
+            // count at the start of the name
+            static const std::regex re("(_[^0-9]+)([0-9]+)__device_stub__(.*)");
+            std::smatch matches;
+            int ret = std::regex_search(deviceStubName, matches, re);
+            int nameLen = std::stoi(matches[2]);
+            int newLen = nameLen - strlen("__device_stub__");
+            std::string newName = matches.str(1) + std::to_string(newLen) + matches.str(3);
+            return newName;
+        }
 
     // static GlobalNames globalNames;
     // static TypeDumper typeDumper(&globalNames);
@@ -561,10 +577,14 @@ namespace veriGPU
         // PointerType *pointerFunctionType = cast<PointerType>(hostFn->getType());
         // FunctionType *hostFnType = cast<FunctionType>(pointerFunctionType->getElementType());
 
-        info->kernelName = hostFn->getName().str();
+        info->stubKernelName = hostFn->getName().str();
+        // info->kernelName = info->stubKernelName;
+        // size_t pos = info->kernelName.find("__device_stub__", 0);
+        // info->kernelName.replace(pos, strlen("__device_stub__"), "_");
+        info->kernelName = nameRemoveDeviceStub(info->stubKernelName);
 
         // Function *deviceFn = MDevice->getFunction(info->kernelName);
-        Function *deviceFn = M->getFunction(info->kernelName);
+        Function *deviceFn = M->getFunction(info->stubKernelName);
         if (deviceFn == 0)
         {
             cout << "ERROR: failed to find device kernel [" << info->kernelName << "]" << endl;
