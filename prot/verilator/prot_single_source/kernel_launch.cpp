@@ -361,7 +361,7 @@ void kernelGo()
         std::cout << "kernel source code " << launchConfiguration.deviceriscvsourcecode << std::endl;
 
         // things we have to do:
-        // - allocate memory for stack
+        // - allocate memory for stack (note: we should probably just keep this memory around between calls :) )
         // - add header to assmebly which:
         //    - populates stack pointer
         //    - populates a0, a1 etc with function parameters
@@ -369,7 +369,8 @@ void kernelGo()
         //    - halts
         // - note: in reality, we should not be assembling for every kernel launch
         //   TODO: fix this :)
-        // - compile assembly, to get size
+        // - compile assembly, to get size (might want to pass in offset > 2048, to ensure large enough,
+        //   since LI becomes one instruction for < 2048, and two instructions otherwise)
         // - allocate gpu buffer for our assembly
         // - recompile assembly with correct offset :P (ideally we could combine the 1st adn third steps somehow)
         // - copy assembly to the gpu
@@ -377,9 +378,28 @@ void kernelGo()
         //    - a way to change PC
         //    - a way to enable/disable
         //    - a way to reset (but with a new pc)
+        // - modify memory so that both proc and controller can read/write to it
+        //   - but for now, we could just have the controller disable proc whilst copying data into memory :)
+        //   - still needs a way for them both to interface with memory controller though...
+        //   - maybe need to change protocol to talk with memory controller?
+        //        - send req=1
+        //        - mem controller responds busy=1 or ack=1
+        //        - if ack, can send data, once per clock cycle, until put req back to 0
+        //        - for receiving,
+        //        - hmmm, let's use AXI for that, eg https://developer.arm.com/documentation/102202/0200/Channel-transfers-and-transactions
+        //        - but lets use something simpler for now, to get single source compilation and launch working
+        //        - so for now we'll just have two write ports on memory, one for controller, and one for proc...
+        //          (fix this later)
         // - modify controller.sv to integrate with comp.sv
         // - trigger kernel launch
         // - (for now) wait for kernel to finish (later on, kernel launch will be asynchronous)
+
+        // for comp.sv/proc.sv, so we can have:
+        // - enable/disable
+        // - add synchronous clear (and, do we even need async reset for the cores?
+        //   whats the worst they can do? write to global memory?
+        //   probalby need async reset on the controller though I guess?)
+        // - whilst disabled, can have something like req_set_pc, and pc_value
 
         void *stack = gpuMalloc(stackSize);
         std::cout << "allocated stack pos=" << (size_t)(stack) << std::endl;
