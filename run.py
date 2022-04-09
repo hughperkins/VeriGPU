@@ -6,14 +6,14 @@ import sys
 def run(args):
     args.name = args.name.replace('.asm', '').replace('examples/direct/', '')
     assert os.system(
-        f'{sys.executable} verigpu/assembler.py --in-asm examples/direct/{args.name}.asm'
+        f'{sys.executable} verigpu/assembler.py --in-asm examples/direct/{args.name}.asm --offset 128'
         f' --out-hex build/prog.hex') == 0
     with open('src/comp_driver.sv') as f:
         comp_driver = f.read()
     comp_driver = comp_driver.replace('{PROG}', 'prog')
     with open('build/comp_driver.sv', 'w') as f:
         f.write(comp_driver)
-    os.system(f'cat examples/{args.name}.asm')
+    os.system(f'cat examples/direct/{args.name}.asm')
     if args.verilator:
         os.system('src/verilator/run.sh | tee /tmp/out.txt')
     else:

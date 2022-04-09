@@ -787,7 +787,7 @@ module proc(
         // assert(~$isunknown(rst));
         if (~rst) begin
             // $display("proc.rst state=%0d n_state=%0d pc=%0d n_pc=%0d", state, next_state, pc, next_pc);
-            pc <= 0;
+            pc <= 128;
             state <= C0;
             regs[0] <= '0;
 

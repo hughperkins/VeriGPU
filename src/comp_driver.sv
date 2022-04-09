@@ -74,7 +74,7 @@ module comp_driver();
 
         for(int i = 0; i < 255; i++) begin
             oob_wen <= 1;
-            oob_wr_addr <= i << 2;
+            oob_wr_addr <= (i << 2) + 128;
             oob_wr_data <= mem_load[i];
             #10;
         end

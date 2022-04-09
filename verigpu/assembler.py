@@ -519,7 +519,7 @@ def run(args):
                 label = line.strip().replace(':', '')
                 if label in label_pos_by_name:
                     raise Exception('label ', label, 'already defined at ', label_pos_by_name[label])
-                label_pos_by_name[label] = len(new_asm_cmds) * 4
+                label_pos_by_name[label] = len(new_asm_cmds) * 4 + args.offset
             elif cmd.startswith('.'):
                 # ignore
                 continue
@@ -596,7 +596,7 @@ def run(args):
                     label = p1
                     print(cmd, p1)
                     label_pos = label_pos_by_name[label]
-                    pc = len(new_asm_cmds) * 4
+                    pc = len(new_asm_cmds) * 4 + args.offset
                     label_offset = label_pos - pc
                     print('label_offset', label_offset)
                     auipc_offset, jalr_offset = offset_to_auipc_jalr_offset(label_offset)
@@ -735,7 +735,7 @@ def run(args):
                 rd_bits = reg_str_to_bits(p1)
                 label = p2
                 label_pos = label_pos_by_name[label]
-                pc = len(hex_lines) * 4
+                pc = len(hex_lines) * 4 + args.offset
                 # print('jal pc', pc)
                 label_offset = label_pos - pc
                 print('jal label_offset', label_offset)
@@ -768,7 +768,7 @@ def run(args):
                 opcode_bits = op_bits_by_op['JALR']
                 rd_bits = reg_str_to_bits(p1)
                 # label = p2
-                pc = len(hex_lines) * 4
+                pc = len(hex_lines) * 4 + args.offset
                 imm_val = imm_to_val(label_pos_by_name=label_pos_by_name, imm_str=p2, offset_start=pc)
                 print('jalr imm val', imm_val)
                 rs1_bits = reg_str_to_bits(p3)
@@ -793,7 +793,7 @@ def run(args):
                 rs2_bits = reg_str_to_bits(p2)
                 label = p3
                 label_pos = label_pos_by_name[label]
-                pc = len(hex_lines) * 4
+                pc = len(hex_lines) * 4 + args.offset
                 label_offset = label_pos - pc
                 label_offset_bits = int_to_bits(label_offset // 2, 12)
                 l_bits_12 = label_offset_bits[-12]
@@ -827,10 +827,10 @@ def run(args):
                 assert p1.endswith(':')
                 loc_int = int_str_to_int(p1[:-1])
                 location = loc_int // 4
-                if len(hex_lines) > location:
+                if len(hex_lines) + args.offset > location:
                     print("len(hex_lines)", len(hex_lines), "loc_int//4", location)
-                assert len(hex_lines) <= location
-                while len(hex_lines) < location:
+                assert len(hex_lines) + args.offset <= location
+                while len(hex_lines) + args.offset < location:
                     hex_lines.append('00000000')
             elif cmd.startswith('.'):
                 # ignore
