@@ -32,7 +32,7 @@ python verigpu/run_yosys.py --in-verilog src/assert_ignore.sv src/op_const.sv sr
 
 for prog in ${progs}; do {
     python verigpu/assembler.py --offset 128 --in-asm examples/direct/${prog}.asm --out-hex build/prog.hex
-    cat src/comp_driver.sv | sed -e "s/{PROG}/prog/g" > build/comp_driver.sv
+    cat test/behav/single_core_mounted_driver.sv | sed -e "s/{PROG}/prog/g" > build/single_core_mounted_driver.sv
 
     iverilog -g2012 tech/osu018/osu018_stdcells.v build/netlist/6.v src/assert_ignore.sv src/const.sv \
         src/float/float_params.sv src/float/float_add_pipeline.sv \
@@ -40,7 +40,7 @@ for prog in ${progs}; do {
         src/generated/mul_pipeline_cycle_24bit_2bpc.sv src/float/float_mul_pipeline.sv \
         src/generated/mul_pipeline_cycle_32bit_2bpc.sv src/int/mul_pipeline_32bit.sv \
         src/mem_large.sv src/global_mem_controller.sv \
-        test/single_core_mounted.sv test/single_core_mounted_driver.sv
+        test/behav/single_core_mounted.sv build/single_core_mounted_driver.sv
     ./a.out | tee build/out.txt
     if  ! cat build/out.txt | grep '^out[ \.]' > build/out_only.txt; then {
         echo "grep failed"
