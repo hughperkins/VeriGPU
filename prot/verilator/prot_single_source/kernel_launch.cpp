@@ -1,11 +1,7 @@
-// copied from https://github.com/hughperkins/coriander, 8 april 2022
+// forked from https://github.com/hughperkins/coriander, 8 april 2022
 
 #include "kernel_launch_ext.h"
 #include "kernel_launch.h"
-// #include "cocl/VERIGPU_memory.h"
-// #include "cocl/VERIGPU_clsources.h"
-// #include "cocl/VERIGPU_streams.h"
-// #include "cocl/VERIGPU_funcs.h"
 
 #include <sys/stat.h>
 #include <iostream>
@@ -19,22 +15,15 @@
 #include <sstream>
 #include <fstream>
 #include <cassert>
+#include <bitset>
 #include <experimental/filesystem>
 
-// #include "EasyCL/EasyCL.h"
 #include "stringhelper.h"
 #include "gpu_runtime.h"
-
-// #include "cocl/cocl.h"
-// #include "cocl/VERIGPU_memory.h"
-
-// #include "cocl/ir-to-opencl.h"
-// #include "cocl/ir-to-opencl-common.h"
 
 // #include "cocl/DebugDumper.h"
 
 using namespace std;
-// using namespace easycl;
 using namespace VeriGPU;
 
 #ifdef VERIGPU_PRINT
@@ -119,8 +108,6 @@ int cudaConfigureCall(
 
     VERIGPU_PRINT("cudaConfigureCall(grid=" << grid << ",block=" << block << ",sharedMem=" << sharedMem << ",queue=" << (uint64_t)queue_as_voidstar << ")")
 
-    // launchConfiguration.queue = clqueue;
-    // launchConfiguration.coclStream = coclStream;
     launchConfiguration.grid[0] = grid_x;
     launchConfiguration.grid[1] = grid_y;
     launchConfiguration.grid[2] = grid_z;
@@ -165,7 +152,7 @@ namespace VeriGPU
         int numLines = 0;
         // std::string _;
         unsigned int codeWord;
-        codeWords.clear();
+        // codeWords.clear();
         // std::vector<unsigned int> codeWords;
         // while(std::getline(fin, _)) {
         while (fin >> hex >> codeWord)
@@ -179,6 +166,37 @@ namespace VeriGPU
         std::cout << "kernelCodeSpaceNeeded=" << kernelCodeSpaceNeeded << " bytes" << std::endl;
         std::cout << "len(codeWords)" << codeWords.size() << std::endl;
         return kernelCodeSpaceNeeded;
+    }
+
+    uint32_t upper(uint32_t val)
+    {
+        uint32_t bit11 = ((val >> 11) % 2);
+        uint32_t u = (val >> 12) + bit11;
+        std::bitset<32> ub(u);
+        std::cout << "upper " << ub << std::endl;
+        return u;
+    }
+
+    uint32_t lower(uint32_t val)
+    {
+        // the return number will be signeed, in terms of bits, just stored in unsigned type
+        uint32_t l = val % (1 << 12);
+        std::bitset<32> lb(l);
+        std::cout << "lower " << lb << std::endl;
+        return l;
+    }
+
+    void uint32_to_li(uint32_t a_reg_num, uint32_t val, vector<uint32_t> &code) {
+        // two RISC-V instructions will be created, and pushed onto code vector
+        // we'll always use two instructions, for consistency
+        // a_reg_num, is for eg a0, a1, a2; and means x10-x17
+        uint32_t val_upper = upper(val);
+        int32_t val_lower = lower(val);
+        uint32_t x_reg_num = a_reg_num + 10;
+        uint32_t lui = (val_upper << 12) | (x_reg_num << 7) | 0b0110111;
+        uint32_t addi = (val_lower << 20) | (x_reg_num << 15) | (0b000 << 12) | (x_reg_num << 7) | 0b0010011;
+        code.push_back(lui);
+        code.push_back(addi);
     }
 
     std::string Int32Arg::str()
@@ -258,45 +276,6 @@ void setKernelArgHostsideBuffer(char *pCpuStruct, int structAllocateSize)
     // - we wont add the clmem to the virtualmem table, so we wont delegate
     //   anything to the setKernelArgGpuBuffer method (which expects an incoming
     //   pointer to be a virtual pointer, not a cl_mem)
-
-    // std::lock_guard<std::recursive_mutex> guard(launchMutex);
-    // pthread_mutex_lock(&launchMutex);
-    // ThreadVars *v = getThreadVars();
-    // EasyCL *cl = v->getContext()->getCl();
-    // cl_context *ctx = cl->context;
-    // we're going to:
-    // allocate a cl_mem for the struct
-    // copy the cpu struct to the cl_mem
-    // pass the cl_mem into the kernel
-
-    // we should also:
-    // deallocate the cl_mem after calling the kernel
-    // (we assume hte struct is passed by-value, so we dont have to actually copy it back afterwards)
-    // VERIGPU_PRINT("setKernelArgHostsideBuffer size=" << structAllocateSize);
-    // if (structAllocateSize < 4)
-    // {
-    //     structAllocateSize = 4;
-    // }
-    // cl_int err;
-    // cl_mem gpu_struct = clCreateBuffer(*ctx, CL_MEM_READ_WRITE, structAllocateSize,
-    //                                    NULL, &err);
-    // EasyCL::checkError(err);
-    // err = clEnqueueWriteBuffer(launchConfiguration.queue->queue, gpu_struct, CL_TRUE, 0,
-    //                            structAllocateSize, pCpuStruct, 0, NULL, NULL);
-    // EasyCL::checkError(err);
-    // launchConfiguration.kernelArgsToBeReleased.push_back(gpu_struct);
-
-    // addClmemArg(gpu_struct);
-
-    // int offsetElements = 0;
-    // if (v->offsets_32bit)
-    // {
-    //     launchConfiguration.args.push_back(std::unique_ptr<Arg>(new UInt32Arg((uint32_t)offsetElements)));
-    // }
-    // else
-    // {
-    //     launchConfiguration.args.push_back(std::unique_ptr<Arg>(new Int64Arg((int64_t)offsetElements)));
-    // }
 
     // pthread_mutex_unlock(&launchMutex);
 }
@@ -423,13 +402,15 @@ halt
 */
 
         std::ostringstream asmHeader;
-        asmHeader << "li sp, " << ((size_t)(stack) + stackSize) << std::endl;
+        vector<uint32_t> paramsCode;  // hold LI code for parameters
         for (int i = 0; i < launchConfiguration.args.size(); i++)
         {
             VERIGPU_PRINT("arg i=" << i << " " << launchConfiguration.args[i]->str());
-            //     launchConfiguration.args[i]->inject(kernel);
-            launchConfiguration.args[i]->appendToAsmSStream(asmHeader, i);
+            uint32_t arg_as_int = launchConfiguration.args[i]->asUInt32();
+            uint32_to_li(i, arg_as_int, paramsCode);
         }
+        // we should probably make the li for sp also dynamic
+        asmHeader << "li sp, " << ((size_t)(stack) + stackSize) << std::endl;
         asmHeader << "jal x1, " << launchConfiguration.kernelName << std::endl;
         asmHeader << "halt" << std::endl;
         std::cout << "asmHeader:" << std::endl;
@@ -441,15 +422,25 @@ halt
         std::cout << fullAssembly << std::endl;
 
         vector<unsigned int> codeWords;
-            size_t kernelCodeSpaceNeeded = assemble(0, fullAssembly, codeWords);
+        size_t mainSize = assemble(0, fullAssembly, codeWords);
+        size_t kernelCodeSpaceNeeded = mainSize + (paramsCode.size() << 2);
 
         void *gpuKernelSpace = gpuMalloc(kernelCodeSpaceNeeded);
+        std::cout << "gpuKernelSpace=" << (size_t)gpuKernelSpace << std::endl;
 
         // now we need to reassemble, with offset at this new position
-        assemble((size_t)gpuKernelSpace, fullAssembly, codeWords);
-        std::cout << "reassembler at offset " << (size_t)gpuKernelSpace << std::endl;
+        // we also need to add to the offset, for the parmeter LI instructions
+        codeWords.clear();
+        uint32_t reassemble_offset = (size_t)gpuKernelSpace + (paramsCode.size() << 2);
+        assemble(reassemble_offset, fullAssembly, codeWords);
+        std::cout << "reassemble at offset " << reassemble_offset << std::endl;
 
-        gpuCopyToDevice(gpuKernelSpace, &codeWords[0], codeWords.size() << 2);
+        vector<uint32_t> combinedCode;
+        combinedCode.reserve(kernelCodeSpaceNeeded >> 2);
+        combinedCode.insert(combinedCode.end(), paramsCode.begin(), paramsCode.end());
+        combinedCode.insert(combinedCode.end(), codeWords.begin(), codeWords.end());
+
+        gpuCopyToDevice(gpuKernelSpace, &combinedCode[0], combinedCode.size() << 2);
         std::cout << "copied kernel to device" << std::endl;
 
         size_t global[3];

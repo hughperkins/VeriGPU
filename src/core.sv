@@ -602,7 +602,7 @@ module core(
                 op_jalr(c1_instr, c1_rd_sel, c1_rs1_data);
             end
             default: begin
-                $display("default: HALT c1_op %b", c1_op);
+                $display("default: HALT c1_op %b instr %b", c1_op, c1_instr);
                 halt = 1;
             end
         endcase
