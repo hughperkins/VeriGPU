@@ -32,7 +32,7 @@ verilate(single_core_netlist SOURCES ${SRC}/assert.sv ${SRC}/const.sv ${SRC}/op_
     ${SRC}/mem_large.sv ${SRC}/global_mem_controller.sv
     ${BEHAV}/single_core_mounted.sv
     TOP_MODULE single_core_mounted
-    PREFIX single_core_netlist
+    PREFIX single_core_mounted
     VERILATOR_ARGS +1800-2017ext+sv --x-initial unique --x-assign unique
 )
 endif()
