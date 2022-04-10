@@ -1,9 +1,8 @@
-- look into compilng and running gpu kernel
-- fix single source runtime, so we only assemble each kernel once, and then have some way of passing parameters in which
-  doesnt require a brand-new assembly :)
-    - or at least assemble the calling header block only, and using c/c++, eg using llvm library.
-    - ideally though, probably controller.sv can receive a certain number of parameters at runtime,
-      and automatically populate the appropriate an registers, somehow, and then start the kernel
+- fix single source runtime, so we only assemble each kernel once, and then cache that
+- split `global_mem_controller.sv` into `global_mem_controller.sv` and `global_mem.sv`
+- rename 'gpu_runtime' to 'gpu_runtime_and_simulator'
+- update diagrams with new file names
+- add simulated latency to global_mem_controller for calls from gpu_controller
 - check if my coding guidelines talk about `n_` notation
 - check what does 'zero' mean in riscv32?
 - update coding guidelines now we are using verilator
@@ -13,7 +12,6 @@
 - parallel instruction execution
 - floats:  div, modulus, sub, beq, glt
 - add piccie for gate level simulation to readme/docs
-- simplify workflow piccie, just to have 'verilog' rather than filenames
 - create register file
 - fuse LUI and ADDI
 - fuse LUI and JALR
@@ -39,8 +37,11 @@ things I need that not thinking of implementing myself in short-term
 (i.e. opportunity to implement yourself if you are interested :) )
 - PCIe4 interface, to receive commands from computer's CPU
 - DDR4 controller, to control the global GPU off-chip memory
+- Network on a chip (NoC)
 
 done:
+- make launch_kernel.cpp able to create li an, [number] code
+- look into compilng and running gpu kernel
 - look into running verilator without using cmake
 - add CI check for broken doc links ,and fix the broken doc links
 - be able to compile a simple kernel, in single source, to riscv32 assembler
