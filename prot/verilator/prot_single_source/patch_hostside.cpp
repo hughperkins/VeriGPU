@@ -550,8 +550,8 @@ namespace veriGPU
         //   %17 = icmp eq i32 %16, 0
         //   br i1 %17, label %18, label %20
         // [/Comment from 2022]
-        std::cout << "dump type alloca get type:" << std::endl;
-        VERIGPU_LLVM_DUMP(alloca->getType());
+        // std::cout << "dump type alloca get type:" << std::endl;
+        // VERIGPU_LLVM_DUMP(alloca->getType());
         Instruction *load = new LoadInst(alloca->getAllocatedType(), alloca, "loadCudaArg", inst->getInst());
         paramInfo->value = load;
         paramInfo->pointer = alloca;

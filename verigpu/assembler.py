@@ -532,18 +532,20 @@ def run(args):
             print('cmd:', line)
             raise e
 
-    print('')
-    print('cmds after expanding pseudocommands:')
-    for i, line in enumerate(new_asm_cmds):
-        print(i * 4 + args.offset, ':', line)
-    print('')
+    if not args.quiet:
+        print('')
+        print('cmds after expanding pseudocommands:')
+        for i, line in enumerate(new_asm_cmds):
+            print(i * 4 + args.offset, ':', line)
+        print('')
     with open('build/after_expand.asm', 'w') as f:
         for i, line in enumerate(new_asm_cmds):
             f.write(str(i * 4 + args.offset) + ':' + line + '\n')
 
-    print('label pos by name:')
-    for label, pos in label_pos_by_name.items():
-        print('    ', label, pos)
+    if not args.quiet:
+        print('label pos by name:')
+        for label, pos in label_pos_by_name.items():
+            print('    ', label, pos)
     asm_cmds = new_asm_cmds
 
     # instnatiate any new virutal instructions we need to handle, such as call
@@ -594,15 +596,15 @@ def run(args):
                         'tail': 'x0'
                     }[cmd]
                     label = p1
-                    print(cmd, p1)
+                    # print(cmd, p1)
                     label_pos = label_pos_by_name[label]
                     pc = len(new_asm_cmds) * 4 + args.offset
                     label_offset = label_pos - pc
-                    print('label_offset', label_offset)
+                    # print('label_offset', label_offset)
                     auipc_offset, jalr_offset = offset_to_auipc_jalr_offset(label_offset)
 
-                    print('auipc_offset', auipc_offset)
-                    print('jalr offset', jalr_offset)
+                    # print('auipc_offset', auipc_offset)
+                    # print('jalr offset', jalr_offset)
 
                     new_asm_cmds.append(f'auipc {pivot_reg1}, {auipc_offset}')
                     new_asm_cmds.append(f'jalr {pivot_reg2}, {jalr_offset}({pivot_reg1})')
@@ -668,7 +670,7 @@ def run(args):
                 assert cmd != 'srai'  # not supported yet
                 op_bits = op_bits_by_op['OPIMM']  # "0010011"
                 imm_bits = int_str_to_bits(p3, 5)
-                print('addi imm_bits', imm_bits)
+                # print('addi imm_bits', imm_bits)
                 rd_bits = reg_str_to_bits(p1)
                 rs1_bits = reg_str_to_bits(p2)
                 funct_bits = funct_bits_opimm[cmd.upper()]
@@ -715,7 +717,7 @@ def run(args):
                 rd_bits = reg_str_to_bits(p1)
                 imm_bits = int_str_to_bits(p2, 20)
                 instr_bits = f'{imm_bits}{rd_bits}{op_bits}'
-                print('lui', imm_bits)
+                # print('lui', imm_bits)
                 assert len(instr_bits) == 32
                 hex_lines.append(bits_to_hex(instr_bits))
 
@@ -731,14 +733,14 @@ def run(args):
                 # jal rd, label
                 #     p1  p2
                 # stores pc + 4 into rd, and jumps to label
-                print('jal', p1, p2)
+                # print('jal', p1, p2)
                 rd_bits = reg_str_to_bits(p1)
                 label = p2
                 label_pos = label_pos_by_name[label]
                 pc = len(hex_lines) * 4 + args.offset
                 # print('jal pc', pc)
                 label_offset = label_pos - pc
-                print('jal label_offset', label_offset)
+                # print('jal label_offset', label_offset)
                 label_offset_bits = int_to_bits(label_offset, 21)
                 assert label_offset_bits[-1] == '0'
                 # print('jal label_offset_bits', label_offset_bits)
@@ -764,13 +766,13 @@ def run(args):
                 #      p1  p2  p3
                 # stores next pc in rd, and jumps to rs1 + imm
                 # p2 can be a number; doesnt have to be a label
-                print('JALR', p1, p2, p3)
+                # print('JALR', p1, p2, p3)
                 opcode_bits = op_bits_by_op['JALR']
                 rd_bits = reg_str_to_bits(p1)
                 # label = p2
                 pc = len(hex_lines) * 4 + args.offset
                 imm_val = imm_to_val(label_pos_by_name=label_pos_by_name, imm_str=p2, offset_start=pc)
-                print('jalr imm val', imm_val)
+                # print('jalr imm val', imm_val)
                 rs1_bits = reg_str_to_bits(p3)
                 # label_pos = label_pos_by_name[label]
                 # label_offset = label_pos - pc
@@ -800,10 +802,10 @@ def run(args):
                 l_bits_11 = label_offset_bits[-11]
                 l_bits_10_5 = label_offset_bits[-10:-4]
                 l_bits_4_1 = label_offset_bits[-4:]
-                print('rs1_bits', rs1_bits, 'rs2_bits', rs2_bits, 'label', label, 'label_offset', label_offset)
-                print('label_offset_bits', label_offset_bits)
+                # print('rs1_bits', rs1_bits, 'rs2_bits', rs2_bits, 'label', label, 'label_offset', label_offset)
+                # print('label_offset_bits', label_offset_bits)
                 instr_bits = f'{l_bits_12}{l_bits_10_5}{rs2_bits}{rs1_bits}{funct_bits}{l_bits_4_1}{l_bits_11}{op_bits}'
-                print('instr_bits', instr_bits)
+                # print('instr_bits', instr_bits)
                 assert len(instr_bits) == 32
                 hex_lines.append(bits_to_hex(instr_bits))
             elif cmd in [
@@ -843,11 +845,13 @@ def run(args):
     with open(args.out_hex, 'w') as f:
         for hex_line in hex_lines:
             f.write(hex_line + '\n')
-    if args.dump_hex:
-        with open(args.out_hex) as f:
-            for line in f:
-                print(line.strip())
-    print('wrote ' + args.out_hex)
+    if not args.quiet:
+        if args.dump_hex:
+            with open(args.out_hex) as f:
+                for line in f:
+                    print(line.strip())
+    if not args.quiet:
+        print('wrote ' + args.out_hex)
 
 
 if __name__ == '__main__':
@@ -855,6 +859,7 @@ if __name__ == '__main__':
     parser.add_argument('--in-asm', type=str, default='prog6.asm')
     parser.add_argument('--out-hex', type=str, default='build/prog6.hex')
     parser.add_argument('--dump-hex', action='store_true')
+    parser.add_argument('--quiet', action='store_true', help='less spam')
     parser.add_argument('--offset', type=int, default=0, help='at what address will this be located?')
     args = parser.parse_args()
     run(args)

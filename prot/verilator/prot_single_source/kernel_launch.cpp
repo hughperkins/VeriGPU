@@ -106,7 +106,7 @@ int cudaConfigureCall(
     int block_y = block.y;
     int block_z = block.z;
 
-    VERIGPU_PRINT("cudaConfigureCall(grid=" << grid << ",block=" << block << ",sharedMem=" << sharedMem << ",queue=" << (uint64_t)queue_as_voidstar << ")")
+    // VERIGPU_PRINT("cudaConfigureCall(grid=" << grid << ",block=" << block << ",sharedMem=" << sharedMem << ",queue=" << (uint64_t)queue_as_voidstar << ")")
 
     launchConfiguration.grid[0] = grid_x;
     launchConfiguration.grid[1] = grid_y;
@@ -119,7 +119,7 @@ int cudaConfigureCall(
 
 namespace VeriGPU
 {
-    size_t assemble(uint32_t offset, std::string assembly, vector<unsigned int> &codeWords) {
+    size_t assemble(uint32_t offset, std::string assembly, vector<unsigned int> &codeWords, bool quiet) {
         // now we have to assemble it...
         // perhaps we can just use clang to assemble it???
         // anyway for now, first try using assembler.py
@@ -131,19 +131,22 @@ namespace VeriGPU
             throw std::runtime_error("ERROR: You need to define VERIGPUDIR");
         }
         std::string verigpuDir = pString;
-        std::cout << "VERIGPUDIR=" << verigpuDir << std::endl;
+        // std::cout << "VERIGPUDIR=" << verigpuDir << std::endl;
 
         std::ofstream of;
         std::string asmPath = makePreferred(verigpuDir + "/build/prog.asm");
-        std::cout << "asmPath " << asmPath << std::endl;
+        // std::cout << "asmPath " << asmPath << std::endl;
         of.open(asmPath);
         of << assembly << std::endl;
         of.close();
-        int ret = system(("python " + makePreferred(verigpuDir + "/verigpu/assembler.py") +
-                          " --in-asm " + makePreferred(verigpuDir + "/build/prog.asm") +
-                          " --out-hex " + makePreferred(verigpuDir + "/build/prog.hex") +
-                          " --offset " + std::to_string(offset)
-        ).c_str());
+        std::string cmd_line = ("python " + makePreferred(verigpuDir + "/verigpu/assembler.py") +
+                                " --in-asm " + makePreferred(verigpuDir + "/build/prog.asm") +
+                                " --out-hex " + makePreferred(verigpuDir + "/build/prog.hex") +
+                                " --offset " + std::to_string(offset));
+        if (quiet) {
+            cmd_line += " --quiet";
+        }
+        int ret = system(cmd_line.c_str());
         assert(ret == 0);
 
         // now get size of file
@@ -161,10 +164,10 @@ namespace VeriGPU
             codeWords.push_back(codeWord);
         }
         fin.close();
-        std::cout << numLines << " lines in hex file" << std::endl;
+        // std::cout << numLines << " lines in hex file" << std::endl;
         size_t kernelCodeSpaceNeeded = numLines << 2;
-        std::cout << "kernelCodeSpaceNeeded=" << kernelCodeSpaceNeeded << " bytes" << std::endl;
-        std::cout << "len(codeWords)" << codeWords.size() << std::endl;
+        // std::cout << "kernelCodeSpaceNeeded=" << kernelCodeSpaceNeeded << " bytes" << std::endl;
+        // std::cout << "len(codeWords)" << codeWords.size() << std::endl;
         return kernelCodeSpaceNeeded;
     }
 
@@ -173,7 +176,7 @@ namespace VeriGPU
         uint32_t bit11 = ((val >> 11) % 2);
         uint32_t u = (val >> 12) + bit11;
         std::bitset<32> ub(u);
-        std::cout << "upper " << ub << std::endl;
+        // std::cout << "upper " << ub << std::endl;
         return u;
     }
 
@@ -182,7 +185,7 @@ namespace VeriGPU
         // the return number will be signeed, in terms of bits, just stored in unsigned type
         uint32_t l = val % (1 << 12);
         std::bitset<32> lb(l);
-        std::cout << "lower " << lb << std::endl;
+        // std::cout << "lower " << lb << std::endl;
         return l;
     }
 
@@ -229,11 +232,11 @@ void configureKernel(const char *kernelName, const char *deviceriscvsourcecode)
     // pthread_mutex_lock(&launchMutex);
     // launchMutex.lock();
     // std::lock_guard<std::recursive_mutex> guard(launchMutex);
-    VERIGPU_PRINT("=========================================");
+    // VERIGPU_PRINT("=========================================");
     launchConfiguration.kernelName = kernelName;
     launchConfiguration.deviceriscvsourcecode = deviceriscvsourcecode;
 
-    std::cout << "configureKernel kernelName=" << kernelName << std::endl;
+    // std::cout << "configureKernel kernelName=" << kernelName << std::endl;
 
     // in order to handle by-value structs containing pointers to gpu structs, we're first going
     // to add the first Memory object to the clmems, so it is available to the kernel, for
@@ -289,7 +292,7 @@ void setKernelArgPointerVoid(void *ptrVoid)
     // The elementSize used to be used, but is no longer used/needed. Should probably be
     // removed from the method parameters at some point.
 
-    std::cout << "setKernelArgPointerVoid ptrVoid " << (size_t)ptrVoid << std::endl;
+    // std::cout << "setKernelArgPointerVoid ptrVoid " << (size_t)ptrVoid << std::endl;
     launchConfiguration.args.push_back(std::unique_ptr<Arg>(new PointerVoidArg(ptrVoid)));
     // pthread_mutex_unlock(&launchMutex);
 }
@@ -308,7 +311,7 @@ void setKernelArgInt32(int value)
     // std::lock_guard<std::recursive_mutex> guard(launchMutex);
     // pthread_mutex_lock(&launchMutex);
     launchConfiguration.args.push_back(std::unique_ptr<Arg>(new Int32Arg(value)));
-    VERIGPU_PRINT("setKernelArgInt32 " << value);
+    // VERIGPU_PRINT("setKernelArgInt32 " << value);
     // pthread_mutex_unlock(&launchMutex);
 }
 
@@ -326,7 +329,7 @@ void setKernelArgFloat(float value)
     // std::lock_guard<std::recursive_mutex> guard(launchMutex);
     // pthread_mutex_lock(&launchMutex);
     launchConfiguration.args.push_back(std::unique_ptr<Arg>(new FloatArg(value)));
-    VERIGPU_PRINT("setKernelArgFloat " << value);
+    // VERIGPU_PRINT("setKernelArgFloat " << value);
     // pthread_mutex_unlock(&launchMutex);
 }
 
@@ -336,8 +339,8 @@ void kernelGo()
     {
         // launchMutex.lock();
         // pthread_mutex_lock(&launchMutex);
-        VERIGPU_PRINT("kernelGo() kernel: " << launchConfiguration.kernelName);
-        std::cout << "kernel source code " << launchConfiguration.deviceriscvsourcecode << std::endl;
+        // VERIGPU_PRINT("kernelGo() kernel: " << launchConfiguration.kernelName);
+        // std::cout << "kernel source code " << launchConfiguration.deviceriscvsourcecode << std::endl;
 
         // things we have to do:
         // - allocate memory for stack (note: we should probably just keep this memory around between calls :) )
@@ -381,7 +384,7 @@ void kernelGo()
         // - whilst disabled, can have something like req_set_pc, and pc_value
 
         void *stack = gpuMalloc(stackSize);
-        std::cout << "allocated stack pos=" << (size_t)(stack) << std::endl;
+        // std::cout << "allocated stack pos=" << (size_t)(stack) << std::endl;
 /*
 Example of header for assembly:
 li sp, 1000
@@ -405,7 +408,7 @@ halt
         vector<uint32_t> paramsCode;  // hold LI code for parameters
         for (int i = 0; i < launchConfiguration.args.size(); i++)
         {
-            VERIGPU_PRINT("arg i=" << i << " " << launchConfiguration.args[i]->str());
+            // VERIGPU_PRINT("arg i=" << i << " " << launchConfiguration.args[i]->str());
             uint32_t arg_as_int = launchConfiguration.args[i]->asUInt32();
             uint32_to_li(i, arg_as_int, paramsCode);
         }
@@ -413,27 +416,27 @@ halt
         asmHeader << "li sp, " << ((size_t)(stack) + stackSize) << std::endl;
         asmHeader << "jal x1, " << launchConfiguration.kernelName << std::endl;
         asmHeader << "halt" << std::endl;
-        std::cout << "asmHeader:" << std::endl;
-        std::cout << asmHeader.str() << std::endl;
+        // std::cout << "asmHeader:" << std::endl;
+        // std::cout << asmHeader.str() << std::endl;
 
         std::string fullAssembly = asmHeader.str() + launchConfiguration.deviceriscvsourcecode;
         std::cout << std::endl;
-        std::cout << "fullAssembly" << std::endl;
-        std::cout << fullAssembly << std::endl;
+        // std::cout << "fullAssembly" << std::endl;
+        // std::cout << fullAssembly << std::endl;
 
         vector<unsigned int> codeWords;
-        size_t mainSize = assemble(0, fullAssembly, codeWords);
+        size_t mainSize = assemble(0, fullAssembly, codeWords, true);
         size_t kernelCodeSpaceNeeded = mainSize + (paramsCode.size() << 2);
 
         void *gpuKernelSpace = gpuMalloc(kernelCodeSpaceNeeded);
-        std::cout << "gpuKernelSpace=" << (size_t)gpuKernelSpace << std::endl;
+        // std::cout << "gpuKernelSpace=" << (size_t)gpuKernelSpace << std::endl;
 
         // now we need to reassemble, with offset at this new position
         // we also need to add to the offset, for the parmeter LI instructions
         codeWords.clear();
         uint32_t reassemble_offset = (size_t)gpuKernelSpace + (paramsCode.size() << 2);
-        assemble(reassemble_offset, fullAssembly, codeWords);
-        std::cout << "reassemble at offset " << reassemble_offset << std::endl;
+        assemble(reassemble_offset, fullAssembly, codeWords, true);
+        // std::cout << "reassemble at offset " << reassemble_offset << std::endl;
 
         vector<uint32_t> combinedCode;
         combinedCode.reserve(kernelCodeSpaceNeeded >> 2);
@@ -441,17 +444,17 @@ halt
         combinedCode.insert(combinedCode.end(), codeWords.begin(), codeWords.end());
 
         gpuCopyToDevice(gpuKernelSpace, &combinedCode[0], combinedCode.size() << 2);
-        std::cout << "copied kernel to device" << std::endl;
+        // std::cout << "copied kernel to device" << std::endl;
 
         size_t global[3];
         for (int i = 0; i < 3; i++)
         {
             global[i] = launchConfiguration.grid[i] * launchConfiguration.block[i];
         }
-        VERIGPU_PRINT("grid: " << launchConfiguration.grid << " block: " << launchConfiguration.block
-                            << " global: " << global);
+        // VERIGPU_PRINT("grid: " << launchConfiguration.grid << " block: " << launchConfiguration.block
+        //                     << " global: " << global);
         int workgroupSize = launchConfiguration.block[0] * launchConfiguration.block[1] * launchConfiguration.block[2];
-        VERIGPU_PRINT("workgroupSize=" << workgroupSize);
+        // VERIGPU_PRINT("workgroupSize=" << workgroupSize);
 
         vector<uint32_t> args_as_ints;
         for (int i = 0; i < launchConfiguration.args.size(); i++)

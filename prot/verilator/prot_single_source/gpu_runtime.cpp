@@ -66,9 +66,7 @@ void gpuCreateContext()
 
 void gpuDestroyContext()
 {
-    std::cout << "gpuDestroyContext before delete dut" << std::endl;
     delete dut;
-    std::cout << "gpuDestroyContext after delete dut" << std::endl;
     dut = 0;
 }
 
@@ -82,7 +80,7 @@ void *gpuMalloc(uint32_t requestedBytes)
 {
     // who should manage the memory? driver? gpu?
     // maybe driver???
-    std::cout << "gpuMalloc " << requestedBytes << std::endl;
+    // std::cout << "gpuMalloc " << requestedBytes << std::endl;
     MemoryInfo *freeSpace = 0;
     for (auto it = freeSpaces.begin(), e = freeSpaces.end(); it != e; it++)
     {
@@ -93,18 +91,18 @@ void *gpuMalloc(uint32_t requestedBytes)
             break;
         }
     }
-    std::cout << "freeSpace " << freeSpace << std::endl;
+    // std::cout << "freeSpace " << freeSpace << std::endl;
     if (freeSpace == 0)
     {
         throw std::runtime_error(std::string("Not enough free space"));
     }
-    std::cout << "found freeSpace" << *freeSpace << std::endl;
+    // std::cout << "found freeSpace" << *freeSpace << std::endl;
     if (freeSpace->size > requestedBytes + 256)
     {
-        std::cout << "splitting, since available chunk is size " << freeSpace->size
-                  << " and we only need " << requestedBytes << std::endl;
+        // std::cout << "splitting, since available chunk is size " << freeSpace->size
+        //           << " and we only need " << requestedBytes << std::endl;
         MemoryInfo *secondSpace = new MemoryInfo(freeSpace->pos + requestedBytes, freeSpace->size - requestedBytes);
-        std::cout << "new spaces " << *freeSpace << " " << *secondSpace << std::endl;
+        // std::cout << "new spaces " << *freeSpace << " " << *secondSpace << std::endl;
         freeSpaces.erase(freeSpace);
         freeSpaces.insert(secondSpace);
         usedSpaces.insert(freeSpace);
@@ -120,7 +118,7 @@ void *gpuMalloc(uint32_t requestedBytes)
 
 void gpuCopyToDevice(void *gpuMemPtr, void *srcData, size_t numBytes)
 {
-    std::cout << "gpuCopyToDevice our addr " << srcData << " theirs " << gpuMemPtr << " numBytes " << numBytes << std::endl;
+    // std::cout << "gpuCopyToDevice our addr " << srcData << " theirs " << gpuMemPtr << " numBytes " << numBytes << std::endl;
     dut->cpu_recv_instr = COPY_TO_GPU;
     tick();
 
@@ -144,7 +142,7 @@ void gpuCopyToDevice(void *gpuMemPtr, void *srcData, size_t numBytes)
 
 void gpuCopyFromDevice(void *destData, void *gpuMemPtr, size_t numBytes)
 {
-    std::cout << "gpuCopyFromDevice our addr " << destData << " theirs " << gpuMemPtr << " numBytes " << numBytes << std::endl;
+    // std::cout << "gpuCopyFromDevice our addr " << destData << " theirs " << gpuMemPtr << " numBytes " << numBytes << std::endl;
     dut->cpu_recv_instr = COPY_FROM_GPU;
     tick();
 
@@ -198,5 +196,5 @@ void gpuLaunchKernel(void *kernelPos, uint32_t numParams, const uint32_t *const 
         // std::cout << "gpu_runtime.cpp awaiting cpu_out_ack" << std::endl;
         tick();
     }
-    std::cout << "gpu_runtime.cpp gpuLaunchKernel kernel finished" << std::endl;
+    // std::cout << "gpu_runtime.cpp gpuLaunchKernel kernel finished" << std::endl;
 }
