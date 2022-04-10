@@ -4,8 +4,8 @@ set -x
 set -e
 set -o pipefail
 
-test/behav/verilator_compile_proc.sh
-test/behav/verilator_compile_comp.sh
+# test/behav/verilator_compile_proc.sh
+# test/behav/verilator_compile_comp.sh
 
 python -V
 yosys -V
