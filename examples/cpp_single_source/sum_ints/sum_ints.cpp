@@ -41,7 +41,7 @@ int main(int argc, char **argv, char **env)
     // remember: single source :) Hopefully we can handle this :)
     sum_ints<<<dim3(1, 1, 1), dim3(1, 1, 1)>>>((unsigned int *)ptrGpuIn, numValues, (unsigned int *)ptrGpuOut);
 
-    gpuCopyFromDevice((void *)&returnValue, ptrGpuIn, 1 * sizeof(uint32_t));
+    gpuCopyFromDevice((void *)&returnValue, ptrGpuOut, 1 * sizeof(uint32_t));
     std::cout << "returned result " << returnValue << std::endl;
     assert(returnValue == 31);
 
