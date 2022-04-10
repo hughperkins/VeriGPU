@@ -831,6 +831,7 @@ module core(
             c2_instr <= c2_instr_next;
 
             if (set_pc_req) begin
+                $display("core updating PC to %0d", set_pc_addr);
                 pc <= set_pc_addr;
             end
 

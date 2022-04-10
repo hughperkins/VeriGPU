@@ -66,7 +66,9 @@ void gpuCreateContext()
 
 void gpuDestroyContext()
 {
+    std::cout << "gpuDestroyContext before delete dut" << std::endl;
     delete dut;
+    std::cout << "gpuDestroyContext after delete dut" << std::endl;
     dut = 0;
 }
 
@@ -189,8 +191,11 @@ void gpuLaunchKernel(void *kernelPos, uint32_t numParams, const uint32_t *const 
         dut->cpu_in_data = p_params[i];
         tick();
     }
+    dut->cpu_recv_instr = NOP;
 
-    while (!dut->cpu_out_ack) {
+    while (!dut->cpu_out_ack)
+    {
+        std::cout << "gpu_runtime.cpp awaiting cpu_out_ack" << std::endl;
         tick();
     }
     std::cout << "gpu_runtime.cpp gpuLaunchKernel kernel finished" << std::endl;

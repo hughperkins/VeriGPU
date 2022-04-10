@@ -44,8 +44,10 @@ int main(int argc, char **argv, char **env)
     gpuCopyFromDevice((void *)&returnValue, ptrGpuOut, 1 * sizeof(uint32_t));
     std::cout << "returned result " << returnValue << std::endl;
     assert(returnValue == 31);
+    std::cout << "sum_ints.cpp before destroycontext" << std::endl;
 
     gpuDestroyContext();
+    std::cout << "sum_ints.cpp after destroycontext" << std::endl;
 
     exit(EXIT_SUCCESS);
 }

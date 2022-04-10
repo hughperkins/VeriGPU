@@ -101,6 +101,6 @@ g++ -o sum_ints sum_ints-hostpatched.o -L${BASEDIR}/prot/verilator/prot_single_s
 
 set +x
 
-for i in {1..10}; do {
+# for i in {1..10}; do {
     ./sum_ints +verilator+rand+reset+2 +verilator+seed+$(($RANDOM * 65536 + $RANDOM))
-} done
+# } done

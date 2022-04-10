@@ -176,7 +176,7 @@ module gpu_controller(
         n_core_set_pc_addr = '0;
 
         for(int i = 0; i < MAX_PARAMS; i++) begin
-            n_params[i] = '0; 
+            n_params[i] = params[i];
         end
 
         if(rst) begin
@@ -267,7 +267,7 @@ module gpu_controller(
                     end
                 end
                 STATE_KERNEL_LAUNCH: begin
-                    $display("gpu_controller state STATE_KERNEL_LAUNCH");
+                    $display("gpu_controller state STATE_KERNEL_LAUNCH set PC to %0d", params[0]);
                     // n_core_ena = 1;
                     n_core_set_pc_req = 1;
                     n_core_set_pc_addr = params[0];
@@ -377,6 +377,7 @@ module gpu_controller(
             param_pos <= n_param_pos;
             num_params <= n_num_params;
 
+            // this probalby needs to be redone a bit, more like a register file
             for(int i = 0; i < MAX_PARAMS; i++) begin
                params[i] <= n_params[i]; 
             end
