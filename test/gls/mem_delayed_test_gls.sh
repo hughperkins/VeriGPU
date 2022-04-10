@@ -12,9 +12,9 @@ if [[ -f build/netlist/6.v ]]; then {
     rm build/netlist/6.v
 } fi
 
-python verigpu/run_yosys.py --in-verilog src/mem_delayed_small.sv \
-    src/assert_ignore.sv src/const.sv src/mem_delayed.sv \
-    --top-module mem_delayed >/dev/null
+python verigpu/run_yosys.py --in-verilog src/mem_small.sv \
+    src/assert_ignore.sv src/const.sv src/global_mem_controller.sv \
+    --top-module global_mem_controller >/dev/null
 
 # cat <<EOF > build/insert_monitor.txt
 #   always @(*) begin
@@ -25,5 +25,5 @@ python verigpu/run_yosys.py --in-verilog src/mem_delayed_small.sv \
 # sed -i -e '/_0000_/r build/insert_monitor.txt' build/netlist/6.v
 
 iverilog -Wall -g2012 tech/osu018/osu018_stdcells.v build/netlist/6.v src/const.sv src/assert.sv \
-    src/mem_delayed_small.sv test/mem_delayed_test.sv
+    src/mem_small.sv test/mem_delayed_test.sv
 ./a.out 

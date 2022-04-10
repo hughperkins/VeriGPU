@@ -795,8 +795,32 @@ module core(
 
     always @(posedge clk or negedge rst) begin
         // assert(~$isunknown(rst));
-        if (~rst || clr) begin
+        if (~rst) begin
             // $display("core.rst state=%0d n_state=%0d pc=%0d n_pc=%0d", state, next_state, pc, next_pc);
+            pc <= 128;
+            state <= C0;
+            regs[0] <= '0;
+
+            c2_instr <= '0;
+
+            div_req <= '0;
+            div_r_quot_sel <= '0;
+            div_r_mod_sel <= '0;
+            div_rs1_data <= '0;
+            div_rs2_data <= '0;
+
+            fadd_req <= 0;
+            fadd_a <= '0;
+            fadd_b <= '0;
+
+            fmul_req <= 0;
+            fmul_a <= '0;
+            fmul_b <= '0;
+
+            mul_req <= '0;
+            mul_a <= '0;
+            mul_b <= '0;
+        end else if(clr) begin
             pc <= 128;
             state <= C0;
             regs[0] <= '0;

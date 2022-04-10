@@ -39,7 +39,8 @@ for prog in ${progs}; do {
         src/int/chunked_add_task.sv src/int/chunked_sub_task.sv \
         src/generated/mul_pipeline_cycle_24bit_2bpc.sv src/float/float_mul_pipeline.sv \
         src/generated/mul_pipeline_cycle_32bit_2bpc.sv src/int/mul_pipeline_32bit.sv \
-        src/mem_delayed_large.sv src/mem_delayed.sv src/comp.sv build/comp_driver.sv
+        src/mem_large.sv src/global_mem_controller.sv \
+        test/single_core_mounted.sv test/single_core_mounted_driver.sv
     ./a.out | tee build/out.txt
     if  ! cat build/out.txt | grep '^out[ \.]' > build/out_only.txt; then {
         echo "grep failed"
