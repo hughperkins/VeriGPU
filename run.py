@@ -13,7 +13,7 @@ def run(args):
     with open('test/behav/single_core_mounted_driver.sv') as f:
         comp_driver = f.read()
     comp_driver = comp_driver.replace('{PROG}', 'prog')
-    with open('build/core_driver.sv', 'w') as f:
+    with open('build/single_core_mounted_driver.sv', 'w') as f:
         f.write(comp_driver)
     os.system(f'cat examples/direct/{args.name}.asm')
     if args.verilator:
@@ -27,7 +27,7 @@ def run(args):
             ' src/generated/mul_pipeline_cycle_24bit_2bpc.sv src/float/float_mul_pipeline.sv'
             ' src/generated/mul_pipeline_cycle_32bit_2bpc.sv src/int/mul_pipeline_32bit.sv'
             ' src/core.sv test/behav/single_core_mounted.sv'
-            ' src/mem_large.sv src/global_mem_controller.sv build/core_driver.sv') == 0
+            ' src/mem_large.sv src/global_mem_controller.sv build/single_core_mounted_driver.sv') == 0
         os.system('./a.out | tee /tmp/out.txt')
     with open('/tmp/out.txt') as f:
         output = f.read()

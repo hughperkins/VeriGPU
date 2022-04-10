@@ -687,9 +687,9 @@ module core(
         //     $time, mem_rd_data, div_wr_reg_req, c2_instr, state, pc, mem_ack
         // );
     // always_comb begin
-        $display("t=%0d core.comb rst=%0d clr=%0d ena=%0d state=%0d pc=%0d",
-            $time, rst, clr, ena, state, pc
-        );
+        // $display("t=%0d core.comb rst=%0d clr=%0d ena=%0d state=%0d pc=%0d",
+        //     $time, rst, clr, ena, state, pc
+        // );
 
         halt = 0;
         out = '0;
@@ -796,7 +796,7 @@ module core(
     always @(posedge clk or negedge rst) begin
         // assert(~$isunknown(rst));
         if (~rst || clr) begin
-            $display("core.rst state=%0d n_state=%0d pc=%0d n_pc=%0d", state, next_state, pc, next_pc);
+            // $display("core.rst state=%0d n_state=%0d pc=%0d n_pc=%0d", state, next_state, pc, next_pc);
             pc <= 128;
             state <= C0;
             regs[0] <= '0;
@@ -826,7 +826,7 @@ module core(
             //     "t=%0d core.ff mem_addr %0d mem_wr_data %0d mem_rd_data %0d mem_wr_req %b mem_rd_req  %b mem_ack %b mem_busy %b",
             //     $time,
             //     mem_addr,     mem_wr_data,    mem_rd_data,    mem_wr_req,   mem_rd_req,    mem_ack,   mem_busy);
-            $display("ff tick t=%0d rst=%0b clk=%0b clr=%0d ena=%0d next_pc=%0d next_state=%0d", $time, rst, clr, ena, clk, next_pc, next_state);
+            // $display("ff tick t=%0d rst=%0b clk=%0b clr=%0d ena=%0d next_pc=%0d next_state=%0d", $time, rst, clr, ena, clk, next_pc, next_state);
             pc <= next_pc;
             state <= next_state;
             c2_instr <= c2_instr_next;

@@ -26,14 +26,24 @@ module single_core_mounted_driver();
     reg [data_width - 1:0] contr_core1_set_pc_addr;
     reg contr_core1_halt;
 
+    reg [data_width - 1:0] out;
+    reg outen;
+    reg outflen;
+
+    reg [63:0] double;
+
     single_core_mounted single_core_mounted_(
         .rst(rst),
         .clk(clk),
+
+        .outen(outen),
+        .outflen(outflen),
+        .out(out),
+
         .contr_mem_wr_en(contr_mem_wr_en),
         .contr_mem_wr_addr(contr_mem_wr_addr),
         .contr_mem_wr_data(contr_mem_wr_data),
         .contr_core1_ena(contr_core1_ena),
-        .contr_core1_clr(contr_core1_clr),
         .contr_core1_clr(contr_core1_clr),
         .contr_core1_set_pc_req(contr_core1_set_pc_req),
         .contr_core1_set_pc_addr(contr_core1_set_pc_addr),
