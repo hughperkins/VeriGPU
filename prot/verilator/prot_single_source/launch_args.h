@@ -35,6 +35,7 @@ namespace VeriGPU
         virtual ~Arg() {}
         // virtual void inject(easycl::CLKernel *kernel) = 0;
         virtual void appendToAsmSStream(std::ostringstream &oss, int argIndex) = 0;
+        virtual uint32_t asUInt32() = 0;
         virtual std::string str() = 0;
 
     private:
@@ -75,6 +76,9 @@ namespace VeriGPU
         {
             oss << "li a" << argIndex << ", " << v << std::endl;
         }
+        virtual uint32_t asUInt32() {
+            return v;
+        }
         virtual std::string str();
         int v;
         static bool classof(const Arg *arg)
@@ -90,6 +94,10 @@ namespace VeriGPU
         // {
         //     kernel->in_uint32(v);
         // }
+        virtual uint32_t asUInt32()
+        {
+            return v;
+        }
         virtual std::string str() { return "UInt32Arg"; }
         uint32_t v;
         virtual void appendToAsmSStream(std::ostringstream &oss, int argIndex)
@@ -126,6 +134,10 @@ namespace VeriGPU
         // }
         virtual std::string str() { return "FloatArg"; }
         float v;
+        virtual uint32_t asUInt32()
+        {
+            return (uint32_t)v;
+        }
         virtual void appendToAsmSStream(std::ostringstream &oss, int argIndex)
         {
             oss << "li a" << argIndex << ", " << v << std::endl;
@@ -148,6 +160,10 @@ namespace VeriGPU
         {
             oss << "li a" << argIndex << ", 0" << std::endl;
         }
+        virtual uint32_t asUInt32()
+        {
+            return 0;
+        }
         static bool classof(const Arg *arg)
         {
             return arg->getKind() == AK_NullPtrArg;
@@ -161,6 +177,10 @@ namespace VeriGPU
         // {
         //     kernel->in_nullptr();
         // }
+        virtual uint32_t asUInt32()
+        {
+            return (uint32_t)(size_t)ptr;
+        }
         virtual std::string str() { return "AK_PointerVoidArg ptr=" + std::to_string((size_t)(ptr)); }
         void *ptr;
         virtual void appendToAsmSStream(std::ostringstream &oss, int argIndex)

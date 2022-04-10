@@ -32,6 +32,7 @@ public:
 void *gpuMalloc(uint32_t requestedBytes);
 void gpuCopyToDevice(void *gpuMemPtr, void *srcData, size_t numBytes);
 void gpuCopyFromDevice(void *destData, void *gpuMemPtr, size_t numBytes);
+void gpuLaunchKernel(void *kernelPos, uint32_t numParams, const uint32_t *const p_params);
 void tick();
 void gpuCreateContext();
 void gpuDestroyContext();

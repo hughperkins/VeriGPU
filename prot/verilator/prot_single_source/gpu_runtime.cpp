@@ -174,3 +174,24 @@ void gpuCopyFromDevice(void *destData, void *gpuMemPtr, size_t numBytes)
     // }
     std::cout << "hopefully received data from GPU" << std::endl;
 }
+
+void gpuLaunchKernel(void *kernelPos, uint32_t numParams, const uint32_t *const p_params) {
+    dut->cpu_recv_instr = KERNEL_LAUNCH;
+    tick();
+
+    dut->cpu_in_data = (size_t)kernelPos;
+    tick();
+
+    dut->cpu_in_data = numParams;
+    tick();
+
+    for(int i = 0; i < numParams; i++) {
+        dut->cpu_in_data = p_params[i];
+        tick();
+    }
+
+    while (!dut->cpu_out_ack) {
+        tick();
+    }
+    std::cout << "gpu_runtime.cpp gpuLaunchKernel kernel finished" << std::endl;
+}

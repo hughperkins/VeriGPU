@@ -462,6 +462,14 @@ halt
         int workgroupSize = launchConfiguration.block[0] * launchConfiguration.block[1] * launchConfiguration.block[2];
         VERIGPU_PRINT("workgroupSize=" << workgroupSize);
 
+        vector<uint32_t> args_as_ints;
+        for (int i = 0; i < launchConfiguration.args.size(); i++)
+        {
+            args_as_ints.push_back(launchConfiguration.args[i]->asUInt32());
+        }
+
+        gpuLaunchKernel(gpuKernelSpace, launchConfiguration.args.size(), &args_as_ints[0]);
+
         // launchMutex.unlock();
         // launchMutex.unlock();
         // pthread_mutex_unlock(&launchMutex);

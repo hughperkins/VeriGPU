@@ -47,6 +47,7 @@ module gpu_controller(
     input [31:0] cpu_in_data,
     output reg [31:0] cpu_out_data,
     output reg cpu_out_ack,  // high each time we are outputing data
+    // output reg cpu_kernel_finished, // maybe should have an outbound instruction instead? (that would probalby be the AXI way)
 
     // we also need to be able to read/write memory
     output reg mem_wr_en,
@@ -58,12 +59,13 @@ module gpu_controller(
     input mem_rd_ack,
 
     // and core (later: cores)
-    output reg core_en,
+    output reg core_ena,
     output reg core_clr,
     output reg core_set_pc_req,
-    output reg [data_width - 1:0] core_set_pc_addr
+    output reg [data_width - 1:0] core_set_pc_addr,
+    input core_halt
 );
-    parameter MAX_PARAMS = 4;
+    parameter MAX_PARAMS = 20;
 
     reg [5:0] state;
     reg [31:0] instr;
@@ -97,6 +99,7 @@ module gpu_controller(
     reg [$clog2(MAX_PARAMS) - 1:0] n_param_pos;
     reg [$clog2(MAX_PARAMS) - 1:0] n_num_params;
     reg [31:0] n_params [MAX_PARAMS];
+    reg [32 - $clog2(MAX_PARAMS) - 1:0] unused_params_bits;
 
     reg [31:0] n_internal_data_addr;
     reg [31:0] n_internal_end_data_addr_excl;
@@ -115,21 +118,29 @@ module gpu_controller(
     // reg [31:0] n_mem_wr_data;
     // reg [31:0] n_mem_rd_data;
 
+    reg n_core_ena;
+    reg n_core_clr;
+    reg n_core_set_pc_req;
+    reg [data_width - 1:0] n_core_set_pc_addr;
+
     reg [31:0] n_out_data;
     reg n_cpu_out_ack;
+    // reg n_cpu_kernel_finished;
 
     typedef enum bit[5:0] {
-        IDLE,
-        RECV_PARAMS,
-        RECEIVE_DATA,
-        SEND_DATA
+        STATE_IDLE,
+        STATE_RECV_PARAMS,
+        STATE_RECEIVE_DATA,
+        STATE_SEND_DATA,
+        STATE_KERNEL_LAUNCH,
+        STATE_KERNEL_LAUNCH2
     } e_state;
 
     typedef enum bit[31:0] {
-        NOP = 0,
-        COPY_TO_GPU = 1,
-        COPY_FROM_GPU = 2,
-        KERNEL_LAUNCH = 3
+        INSTR_NOP = 0,
+        INSTR_COPY_TO_GPU = 1,
+        INSTR_COPY_FROM_GPU = 2,
+        INSTR_KERNEL_LAUNCH = 3
     } e_instr;
 
     // reg [31:0] mem [512];  // put here for now, use comp's in a bit
@@ -155,7 +166,14 @@ module gpu_controller(
         n_mem_wr_addr = '0;
         n_mem_wr_data = '0;
         n_mem_rd_addr = '0;
+
         n_cpu_out_ack = 0;
+        // n_cpu_kernel_finished = 0;
+
+        n_core_ena = 0;
+        n_core_clr = 0;
+        n_core_set_pc_req = 0;
+        n_core_set_pc_addr = '0;
 
         for(int i = 0; i < MAX_PARAMS; i++) begin
             n_params[i] = '0; 
@@ -163,22 +181,30 @@ module gpu_controller(
 
         if(rst) begin
             case(state)
-                IDLE: begin
-                    n_state = RECV_PARAMS;
+                STATE_IDLE: begin
+                    n_state = STATE_RECV_PARAMS;
                     n_param_pos = 0;
                     n_instr = cpu_recv_instr;
                     case(cpu_recv_instr)
-                        COPY_TO_GPU: begin
+                        INSTR_COPY_TO_GPU: begin
                             $display("gpucontroller COPY_TO_GPU");
                             n_num_params = 2;
                         end
-                        COPY_FROM_GPU: begin
+                        INSTR_COPY_FROM_GPU: begin
                             $display("gpucontroller COPY_FROM_GPU");
                             n_num_params = 2;
                         end
-                        NOP: begin
+                        INSTR_KERNEL_LAUNCH: begin
+                            $display("gpucontroller INSTR_KERNEL_LAUNCH");
+                            // what parameters will we need?
+                            // - address of the kernel
+                            // - number of parameters we will send
+                            // so, this first number is 2
+                            n_num_params = 2;
+                        end
+                        INSTR_NOP: begin
                             $display("NOP");
-                            n_state = IDLE;
+                            n_state = STATE_IDLE;
                             // do nothing...
                         end
                         default: begin
@@ -186,7 +212,7 @@ module gpu_controller(
                         end
                     endcase
                 end
-                RECV_PARAMS: begin
+                STATE_RECV_PARAMS: begin
                     $display("gpucontroller RECV_PARAMS param_pos=%0d in_data=%0d", param_pos, cpu_in_data);
                     // we use in_data to receive because
                     // means we can give more control to recv_instr, eg it could
@@ -197,16 +223,16 @@ module gpu_controller(
                     n_param_pos = param_pos + 1;
                     if(n_param_pos == num_params) begin
                         case(instr)
-                            COPY_TO_GPU: begin
+                            INSTR_COPY_TO_GPU: begin
                                 n_internal_data_addr = params[0];
                                 n_internal_end_data_addr_excl = params[0] + n_params[1];
                                 $display("gpucontroller RECV_PARAMS COPY_TO_GPU addr %0d count %0d final_addr_excl %0d", params[0], n_params[1], n_internal_end_data_addr_excl);
-                                n_state = RECEIVE_DATA;
+                                n_state = STATE_RECEIVE_DATA;
                             end
-                            COPY_FROM_GPU: begin
+                            INSTR_COPY_FROM_GPU: begin
                                 n_internal_end_data_addr_excl = params[0] + n_params[1];
                                 $display("gpucontroller RECV_PARAMS COPY_FROM_GPU addr %0d count %0d final_addr_excl %0d", params[0], n_params[1], n_internal_end_data_addr_excl);
-                                n_state = SEND_DATA;
+                                n_state = STATE_SEND_DATA;
                                 // n_mem_rd_addr = params[0];
                                 n_mem_rd_en = 1;
                                 n_mem_rd_addr = params[0];
@@ -215,13 +241,50 @@ module gpu_controller(
                                 n_internal_data_addr = params[0] + 4;
                                 // n_mem_rd_req =? 1;
                             end
+                            INSTR_KERNEL_LAUNCH: begin
+                                if(n_param_pos == 2) begin
+                                    // we've received the kernel pos, and the number of kernel parameters
+                                    // now adjust the number of parmaeters to receive from gpu to 2 + number of kernel params
+                                    $display(
+                                        "gpucontroller RECV_PARAMS INSTR_KERNEL_LAUNCH kernel addr %0d num kernel params %0d",
+                                        params[0], n_params[1]);
+                                    if(n_params[1] == 0) begin
+                                        n_state = STATE_KERNEL_LAUNCH;
+                                        $display("gpucontroller RECV_PARAMS INSTR_KERNEL_LAUNCH moving to state STATE_KERNEL_LAUNCH");
+                                    end else begin
+                                        {unused_params_bits, n_num_params} = 2 + n_params[1];
+                                    end
+                                end else begin
+                                    // we've reeived all params, including kenrel params
+                                    n_state = STATE_KERNEL_LAUNCH;
+                                    $display("gpucontroller RECV_PARAMS INSTR_KERNEL_LAUNCH moving to state STATE_KERNEL_LAUNCH");
+                                end
+                            end
                             default: begin
                                 $display("recv params case instr hit default");
                             end
                         endcase
                     end
                 end
-                RECEIVE_DATA: begin
+                STATE_KERNEL_LAUNCH: begin
+                    $display("gpu_controller state STATE_KERNEL_LAUNCH");
+                    // n_core_ena = 1;
+                    n_core_set_pc_req = 1;
+                    n_core_set_pc_addr = params[0];
+                    n_state = STATE_KERNEL_LAUNCH2;
+                end
+                STATE_KERNEL_LAUNCH2: begin
+                    $display("gpu_controller state STATE_KERNEL_LAUNCH2");
+                    n_core_ena = 1;
+                    if(core_halt) begin
+                        $display("gpu_controller state STATE_KERNEL_LAUNCH2 got HALT");
+                        n_core_ena = 0;
+                        n_core_clr = 1;
+                        n_state = STATE_IDLE;
+                        n_cpu_out_ack = 1;
+                    end
+                end
+                STATE_RECEIVE_DATA: begin
                     $display("gpucontroller RECEIVE_DATA");
                     $display("gpucontroller receive data addr %0d val %0d", internal_data_addr, cpu_in_data);
                     // mem[data_addr] = in_data;
@@ -237,10 +300,10 @@ module gpu_controller(
 
                     if(n_internal_data_addr >= internal_end_data_addr_excl) begin
                         $display("gpucontroller finished data receive");
-                        n_state = IDLE;
+                        n_state = STATE_IDLE;
                     end
                 end
-                SEND_DATA: begin
+                STATE_SEND_DATA: begin
                     $display("gpucontroller SEND_DATA");
                     if(internal_mem_read_sent && mem_rd_ack) begin
                         n_out_data = mem_rd_data;
@@ -260,7 +323,7 @@ module gpu_controller(
 
                     if(mem_rd_ack && ~n_internal_mem_read_sent) begin
                         $display("gpucontroller finished data send => IDLE");
-                        n_state = IDLE;
+                        n_state = STATE_IDLE;
                     end
                     // if(n_data_addr >= last_data_addr_excl) begin
                     // end else begin
@@ -278,7 +341,7 @@ module gpu_controller(
         // $display("controller.ff");
         if(~rst) begin
             cpu_out_data <= '0;
-            state <= IDLE;
+            state <= STATE_IDLE;
             param_pos <= '0;
             instr <= '0;
             num_params <= '0;
@@ -298,12 +361,13 @@ module gpu_controller(
 
             internal_mem_read_sent <= 0;
 
-            core_en <= 0;
+            core_ena <= 0;
             core_clr <= 0;
             core_set_pc_req <= 0;
             core_set_pc_addr <= '0;
 
             cpu_out_ack = 0;
+            // cpu_kernel_finished = 0;
 
             // mem_rd_data <= '0;
         end else begin
@@ -328,7 +392,13 @@ module gpu_controller(
 
             internal_mem_read_sent <= n_internal_mem_read_sent;
 
+            core_ena <= n_core_ena;
+            core_clr <= n_core_clr;
+            core_set_pc_req <= n_core_set_pc_req;
+            core_set_pc_addr <= n_core_set_pc_addr;
+
             cpu_out_ack = n_cpu_out_ack;
+            // cpu_kernel_finished = n_cpu_kernel_finished;
 
             // if(n_mem_wr_req) begin
             //     $display("ff write mem addr=%0d data=%0d", n_mem_wr_addr, n_mem_wr_data);
