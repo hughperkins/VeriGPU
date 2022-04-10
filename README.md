@@ -51,9 +51,9 @@ Compile the GPU and runtime:
 
 ![Compile GPU and runtime](/docs/img/compile_gpu_and_runtime.png)
 
-- Compile the single-source C++, and run:
+Compile the single-source C++, and run:
 
-![examples/cpp_single_source/sum_ints/run.sh](/examples/cpp_single_source/sum_ints/run.sh)
+- [examples/cpp_single_source/sum_ints/run.sh](/examples/cpp_single_source/sum_ints/run.sh)
 
 ![Run single-source example](/docs/img/single_source_run.png)
 
