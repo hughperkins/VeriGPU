@@ -213,7 +213,7 @@ module gpu_controller(
                     endcase
                 end
                 STATE_RECV_PARAMS: begin
-                    $display("gpucontroller RECV_PARAMS param_pos=%0d in_data=%0d", param_pos, cpu_in_data);
+                    // $display("gpucontroller RECV_PARAMS param_pos=%0d in_data=%0d", param_pos, cpu_in_data);
                     // we use in_data to receive because
                     // means we can give more control to recv_instr, eg it could
                     // send RESET in the middle of sending a new instruction, and we wouldn't
@@ -274,7 +274,7 @@ module gpu_controller(
                     n_state = STATE_KERNEL_LAUNCH2;
                 end
                 STATE_KERNEL_LAUNCH2: begin
-                    $display("gpu_controller state STATE_KERNEL_LAUNCH2");
+                    // $display("gpu_controller state STATE_KERNEL_LAUNCH2");
                     n_core_ena = 1;
                     if(core_halt) begin
                         $display("gpu_controller state STATE_KERNEL_LAUNCH2 got HALT");
@@ -285,8 +285,8 @@ module gpu_controller(
                     end
                 end
                 STATE_RECEIVE_DATA: begin
-                    $display("gpucontroller RECEIVE_DATA");
-                    $display("gpucontroller receive data addr %0d val %0d", internal_data_addr, cpu_in_data);
+                    // $display("gpucontroller RECEIVE_DATA");
+                    // $display("gpucontroller receive data addr %0d val %0d", internal_data_addr, cpu_in_data);
                     // mem[data_addr] = in_data;
                     // n_mem_wr_en = 1;
                     // n_mem_wr_addr = data_addr;
@@ -304,7 +304,7 @@ module gpu_controller(
                     end
                 end
                 STATE_SEND_DATA: begin
-                    $display("gpucontroller SEND_DATA");
+                    // $display("gpucontroller SEND_DATA");
                     if(internal_mem_read_sent && mem_rd_ack) begin
                         n_out_data = mem_rd_data;
                         n_internal_mem_read_sent = 0;

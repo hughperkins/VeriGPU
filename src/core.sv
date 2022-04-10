@@ -488,14 +488,14 @@ module core(
         reg signed [31:0] imm;
         reg [31:0] next_pc;
 
-        $display("_instr %b", _instr);
-        $display("_instr[31] %b", _instr[31]);
+        // $display("_instr %b", _instr);
+        // $display("_instr[31] %b", _instr[31]);
         imm = { {11{_instr[31]}}, _instr[31], _instr[19:12], _instr[20], _instr[30:21], 1'b0 };
-        $display("imm %b %0d", imm, imm);
+        // $display("imm %b %0d", imm, imm);
         write_reg(_rd_sel, pc + 4);
         next_pc = imm + pc;
-        $display("pc %0d next_pc %0d", pc, next_pc);
-        $display("JAL storing %0d in x%0d", pc + 4, _rd_sel);
+        // $display("pc %0d next_pc %0d", pc, next_pc);
+        $display("JAL jumping to %0d", next_pc);
         read_next_instr(next_pc);
     endtask
 
@@ -503,17 +503,18 @@ module core(
         reg signed [31:0] imm;
         reg [31:0] next_pc;
 
-        $display("_instr %b", _instr);
-        $display("_instr[31] %b", _instr[31]);
+        // $display("_instr %b", _instr);
+        // $display("_instr[31] %b", _instr[31]);
         // imm = { {12{_instr[31]}}, _instr[31], _instr[19:12], _instr[20], _instr[30:21], 1'b0 };
         imm = { {20{_instr[31]}}, _instr[31:20] };
-        $display("imm %b %0d", imm, imm);
+        // $display("imm %b %0d", imm, imm);
         write_reg(_rd_sel, pc + 4);
         next_pc = imm + pc;
-        $display("pc %0d next_pc %0d", pc, next_pc);
+        // $display("pc %0d next_pc %0d", pc, next_pc);
         next_pc = imm + _rs1_data;
-        $display("pc %0d next_pc %0d", pc, next_pc);
-        $display("JALR storing %0d in x%0d", pc + 4, _rd_sel);
+        // $display("pc %0d next_pc %0d", pc, next_pc);
+        // $display("JALR storing %0d in x%0d", pc + 4, _rd_sel);
+        $display("JALR jumping to %0d", next_pc);
         read_next_instr(next_pc);
     endtask
 

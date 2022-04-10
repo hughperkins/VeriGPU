@@ -247,17 +247,17 @@ def word_bits_to_lui_addi_bits(word_bits: str):
 
 def offset_to_auipc_jalr_offset(offset: int):
     label_offset_bits = int_to_bits(offset, 32)
-    print('label_offse_bits', label_offset_bits)
+    # print('label_offse_bits', label_offset_bits)
     l_offset_31_12 = label_offset_bits[-32:-12]
-    print('l_offset_31_12', l_offset_31_12)
+    # print('l_offset_31_12', l_offset_31_12)
     assert len(l_offset_31_12) == 20
     l_offset_31_12_int = bits_to_int(l_offset_31_12)
     l_offset_11_0 = label_offset_bits[-12:]
     assert len(l_offset_11_0) == 12
     auipc_offset = l_offset_31_12_int + int(label_offset_bits[-11])
-    print('auipc_offset', auipc_offset)
-    print('2^20', int(math.pow(2, 20)))
-    print('2^19', int(math.pow(2, 19)))
+    # print('auipc_offset', auipc_offset)
+    # print('2^20', int(math.pow(2, 20)))
+    # print('2^19', int(math.pow(2, 19)))
     if auipc_offset >= int(math.pow(2, 20)):
         auipc_offset -= int(math.pow(2, 20))
     jalr_offset = bits_to_int(l_offset_11_0)

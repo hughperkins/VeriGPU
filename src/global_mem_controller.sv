@@ -168,12 +168,12 @@ module global_mem_controller (
             contr_rd_ack <= 0;
 
             if(contr_wr_en) begin
-                $display("mem controller contr wr en writing %0d to addr %0d", contr_wr_data, contr_wr_addr);
+                // $display("mem controller contr wr en writing %0d to addr %0d", contr_wr_data, contr_wr_addr);
                 mem[contr_wr_addr >> 2] <= contr_wr_data;
             end
 
             if(contr_rd_en) begin
-                $display("mem controller contr rd en reading %0d from addr %0d", mem[contr_rd_addr >> 2], contr_rd_addr);
+                // $display("mem controller contr rd en reading %0d from addr %0d", mem[contr_rd_addr >> 2], contr_rd_addr);
                 contr_rd_data <= mem[contr_rd_addr >> 2];
                 contr_rd_ack <= 1;
             end

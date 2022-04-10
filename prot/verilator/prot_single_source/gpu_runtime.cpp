@@ -195,7 +195,7 @@ void gpuLaunchKernel(void *kernelPos, uint32_t numParams, const uint32_t *const 
 
     while (!dut->cpu_out_ack)
     {
-        std::cout << "gpu_runtime.cpp awaiting cpu_out_ack" << std::endl;
+        // std::cout << "gpu_runtime.cpp awaiting cpu_out_ack" << std::endl;
         tick();
     }
     std::cout << "gpu_runtime.cpp gpuLaunchKernel kernel finished" << std::endl;
