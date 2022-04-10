@@ -38,13 +38,22 @@ Single-source compilation and runtime
 
 Single-source C++:
 
+- [examples/cpp_single_source/sum_ints/sum_ints.cpp](/examples/cpp_single_source/sum_ints/sum_ints.cpp)
+
 ![Single-source C++](/docs/img/single_source_code.png)
 
 Compile the GPU and runtime:
 
+- CMakeLists.txt: [prot/verilator/prot_single_source/CMakeLists.txt](/prot/verilator/prot_single_source/CMakeLists.txt)
+- GPU runtime: [prot/verilator/prot_single_source/gpu_runtime.cpp](/prot/verilator/prot_single_source/gpu_runtime.cpp)
+- GPU controller: [src/gpu_controller.sv](/src/gpu_controller.sv)
+- Single GPU core: [src/core.sv](/src/core.sv)
+
 ![Compile GPU and runtime](/docs/img/compile_gpu_and_runtime.png)
 
-Compile the single-source C++, and run:
+- Compile the single-source C++, and run:
+
+![examples/cpp_single_source/sum_ints/run.sh](/examples/cpp_single_source/sum_ints/run.sh)
 
 ![Run single-source example](/docs/img/single_source_run.png)
 
