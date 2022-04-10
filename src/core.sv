@@ -6,7 +6,13 @@ Max propagation delay: 82.8 nand units
 Area:                  30956.0 nand units
  */
 module core(
-    input rst, clk,
+    input rst,  // async resets the core, everything goes to zero (do we actually need this?), active low
+    input clk,  // clock
+    input clr,  // synchronous reset the core; everything goes to zero, active high
+    input ena,  // enables gpu to run; active high
+    input set_pc_req,  // requests to change PC; best to do this with ena 0
+    input [addr_width - 1:0] set_pc_addr, // new address for PC
+
     output reg [data_width - 1:0] out,
     output reg outen,
     output reg outflen,
@@ -675,7 +681,7 @@ module core(
     endtask
 
     // always @(*) begin
-    always @(mem_rd_data, div_wr_reg_req, c2_instr, state, pc, mem_ack, fadd_ack, mul_ack, fmul_ack) begin
+    always @(mem_rd_data, div_wr_reg_req, c2_instr, state, pc, mem_ack, fadd_ack, mul_ack, fmul_ack, ena) begin
         // $display("t=%0d proc.comb mem_rd_data=%0d div_wr_reg_req=%0d c2_instr=%0h state=%0d pc=%0d mem_ack=%0d",
         //     $time, mem_rd_data, div_wr_reg_req, c2_instr, state, pc, mem_ack
         // );
@@ -747,45 +753,48 @@ module core(
         n_mul_a = '0;
         n_mul_b = '0;
 
-        // if(~rst) begin
-        //     $display(
-        //         "t=%0d proc.comb state=%0d pc=%0d c1_op=%0d mem_rd_data=%0d mem_wr_req=%0b mem_rd_req=%0b mem_ack=%0b regs[1]=%0d",
-        //         $time, state, pc, c1_op, mem_rd_data, mem_wr_req, mem_rd_req, mem_ack, regs[1]);
-        // end
-        `assert_known(state);
-        case(state)
-            C0: begin
-                // if(~rst) begin
-                //     $display("comb C0");
-                // end
-                read_next_instr(pc);
-            end
-            C1: begin
-                // $display("comb C1 instr=%h", c1_instr);
-                mem_rd_req = 0;
-                if(mem_ack) begin
-                    // $display("in mem_ack mem_ack=%0d mem_rd_data=%0d", mem_ack, mem_rd_data);
-                    instr_c1();
-                    c2_instr_next = mem_rd_data;
+        `assert_known(ena)
+        if(ena) begin
+            // if(~rst) begin
+            //     $display(
+            //         "t=%0d proc.comb state=%0d pc=%0d c1_op=%0d mem_rd_data=%0d mem_wr_req=%0b mem_rd_req=%0b mem_ack=%0b regs[1]=%0d",
+            //         $time, state, pc, c1_op, mem_rd_data, mem_wr_req, mem_rd_req, mem_ack, regs[1]);
+            // end
+            `assert_known(state);
+            case(state)
+                C0: begin
+                    // if(~rst) begin
+                    //     $display("comb C0");
+                    // end
+                    read_next_instr(pc);
                 end
-            end
-            C2: begin
-                // $display("Comb.C2");
-                instr_c2();
-            end
-            default: begin
-                $display("Comb.default halt=1");
-                halt = 1;
-            end
-        endcase
-        // if(~rst) begin
-        //     $display("comb end mem_rd_req=%0b",mem_rd_req);
-        // end
+                C1: begin
+                    // $display("comb C1 instr=%h", c1_instr);
+                    mem_rd_req = 0;
+                    if(mem_ack) begin
+                        // $display("in mem_ack mem_ack=%0d mem_rd_data=%0d", mem_ack, mem_rd_data);
+                        instr_c1();
+                        c2_instr_next = mem_rd_data;
+                    end
+                end
+                C2: begin
+                    // $display("Comb.C2");
+                    instr_c2();
+                end
+                default: begin
+                    $display("Comb.default halt=1");
+                    halt = 1;
+                end
+            endcase
+            // if(~rst) begin
+            //     $display("comb end mem_rd_req=%0b",mem_rd_req);
+            // end
+        end
     end
 
     always @(posedge clk or negedge rst) begin
         // assert(~$isunknown(rst));
-        if (~rst) begin
+        if (~rst || clr) begin
             // $display("proc.rst state=%0d n_state=%0d pc=%0d n_pc=%0d", state, next_state, pc, next_pc);
             pc <= 128;
             state <= C0;
@@ -820,6 +829,10 @@ module core(
             pc <= next_pc;
             state <= next_state;
             c2_instr <= c2_instr_next;
+
+            if (set_pc_req) begin
+                pc <= set_pc_addr;
+            end
 
             `assert_known(wr_reg_req);
             if (wr_reg_req && wr_reg_sel != 0) begin
