@@ -8,7 +8,7 @@
 #include <bitset>
 #include <iomanip>
 #include <verilated_vcd_c.h>
-#include "comp.h"
+#include "single_core_mounted.h"
 
 #define MAX_SIM_TIME 5000000
 // #define MAX_SIM_TIME 2000
@@ -24,19 +24,23 @@ int main(int argc, char **argv, char **env)
 {
     Verilated::commandArgs(argc, argv);
 
-    comp *dut = new comp;
+    single_core_mounted *dut = new single_core_mounted;
 
     // Verilated::traceEverOn(true);
     // VerilatedVcdC *m_trace = new VerilatedVcdC;
     // dut->trace(m_trace, 5);
     // m_trace->open("waveform.vcd");
+    std::cout << "verilator_driver" << std::endl;
 
     dut->rst = 0;
-    dut->oob_wen = 0;
-    dut->ena = 0;
+    // dut->oob_wen = 0;
+    dut->contr_core1_ena = 0;
+    dut->contr_core1_clr = 0;
+    // dut->ena = 0;
     dut->clk = 0;
     sim_time += 5;
     dut->eval();
+
     dut->clk = 1;
     sim_time += 5;
     dut->eval();
@@ -44,26 +48,46 @@ int main(int argc, char **argv, char **env)
     dut->clk = 0;
     sim_time += 5;
     dut->eval();
+
     dut->clk = 1;
     sim_time += 5;
     dut->eval();
 
     dut->rst = 1;
+    dut->contr_core1_set_pc_req = 1;
+    dut->contr_core1_set_pc_addr = 128;
     dut->clk = 0;
     sim_time += 5;
     dut->eval();
+
     dut->clk = 1;
     sim_time += 5;
     dut->eval();
 
+    dut->contr_core1_set_pc_req = 0;
+
     std::fstream infile;
-    infile.open("../../../build/prog.hex", std::fstream::in);
+    // infile.exceptions(std::ios::failbit | std::ios::badbit);
+    std::string hex_path = "../../../../build/prog.hex";
+    infile.open(hex_path, std::fstream::in);
+    if(!infile) {
+        std::cout << "" << std::endl;
+        std::cout << "ERROR: failed to open file " << hex_path << std::endl;
+        return -1;
+    }
+    // infile.exceptions(std::ios::goodbit);
     unsigned int a;
     unsigned int addr = kernel_offset;
+    std::cout << "iterating file" << std::endl;
     while(infile >> std::hex >> a) {
-        dut->oob_wen = 1;
-        dut->oob_wr_addr = addr;
-        dut->oob_wr_data = a;
+        // dut->oob_wen = 1;
+        // dut->oob_wr_addr = addr;
+        // dut->oob_wr_data = a;
+        std::cout << "writing to global memory pos=" << addr << " v=" << a << std::endl;
+        dut->contr_mem_wr_en = 1;
+        dut->contr_mem_wr_addr = addr;
+        dut->contr_mem_wr_data = a;
+
         addr += 4;
         dut->clk = 0;
         sim_time += 5;
@@ -72,9 +96,11 @@ int main(int argc, char **argv, char **env)
         sim_time += 5;
         dut->eval();
     }
+    std::cout << "finished iterating file" << std::endl;
 
-    dut->oob_wen = 0;
-    dut->ena = 1;
+    dut->contr_mem_wr_en = 0;
+    // dut->oob_wen = 0;
+    dut->contr_core1_ena = 1;
     dut->clk = 0;
     sim_time += 5;
     dut->eval();
@@ -94,7 +120,7 @@ int main(int argc, char **argv, char **env)
         dut->clk = 1;
         sim_time += 5;
         dut->eval();
-        if(int(dut->halt)) {
+        if(int(dut->contr_core1_halt)) {
             std::cout << "HALT" << std::endl;
             break;
         }

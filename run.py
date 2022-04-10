@@ -10,14 +10,14 @@ def run(args):
         f' --in-asm examples/direct/{args.name}.asm'
         ' --offset 128'
         ' --out-hex build/prog.hex') == 0
-    with open('src/core_driver.sv') as f:
+    with open('test/behav/single_core_mounted_driver.sv') as f:
         comp_driver = f.read()
     comp_driver = comp_driver.replace('{PROG}', 'prog')
     with open('build/core_driver.sv', 'w') as f:
         f.write(comp_driver)
     os.system(f'cat examples/direct/{args.name}.asm')
     if args.verilator:
-        os.system('src/verilator/run.sh | tee /tmp/out.txt')
+        os.system('test/behav/verilator/run.sh | tee /tmp/out.txt')
     else:
         assert os.system(
             'iverilog -Wall -g2012 -pfileline=1 src/assert.sv src/op_const.sv'
@@ -26,7 +26,7 @@ def run(args):
             ' src/int/chunked_add_task.sv src/int/chunked_sub_task.sv '
             ' src/generated/mul_pipeline_cycle_24bit_2bpc.sv src/float/float_mul_pipeline.sv'
             ' src/generated/mul_pipeline_cycle_32bit_2bpc.sv src/int/mul_pipeline_32bit.sv'
-            ' src/core.sv'
+            ' src/core.sv test/behav/single_core_mounted.sv'
             ' src/mem_large.sv src/global_mem_controller.sv build/core_driver.sv') == 0
         os.system('./a.out | tee /tmp/out.txt')
     with open('/tmp/out.txt') as f:
