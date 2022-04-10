@@ -15,5 +15,5 @@ if [[ ! -e build ]]; then {
 } fi
 
 python test/timing/get_prog_cycles.py | tee build/clock-cycles.txt
-bash test/timing/delay_prop_proc.sh | tee build/timing-proc.txt
-bash test/timing/delay_prop_whole_comp.sh | tee build/timing-comp.txt
+bash test/timing/delay_prop_core.sh | tee build/timing-core.txt
+bash test/timing/delay_prop_gpu_die.sh | tee build/timing-gpu-die.txt

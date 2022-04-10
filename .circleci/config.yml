@@ -73,9 +73,9 @@ jobs:
             cicd/run-timing.sh
           no_output_timeout: 2m
       - store_artifacts:
-          path: build/timing-proc.txt
+          path: build/timing-core.txt
       - store_artifacts:
-          path: build/timing-comp.txt
+          path: build/timing-gpu-die.txt
       - store_artifacts:
           path: build/clock-cycles.txt
 
