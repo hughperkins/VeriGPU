@@ -32,7 +32,17 @@ Single-source compilation and runtime
 
 <!-- ![toy proc workflow](/docs/img/toy_proc_workflow.png) -->
 
-![Example output](/docs/img/example_output.png)
+<!-- ![Example output](/docs/img/example_output.png) -->
+
+## Single-source C++
+
+Source code:
+
+![Single-source C++](/docs/img/single_source_code.png)
+
+Run:
+
+![Run single-source example](/docs/img/single_source_run.png)
 
 # Planning
 
