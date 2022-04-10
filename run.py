@@ -6,12 +6,14 @@ import sys
 def run(args):
     args.name = args.name.replace('.asm', '').replace('examples/direct/', '')
     assert os.system(
-        f'{sys.executable} verigpu/assembler.py --in-asm examples/direct/{args.name}.asm --offset 128'
-        f' --out-hex build/prog.hex') == 0
-    with open('src/comp_driver.sv') as f:
+        f'{sys.executable} verigpu/assembler.py'
+        f' --in-asm examples/direct/{args.name}.asm'
+        ' --offset 128'
+        ' --out-hex build/prog.hex') == 0
+    with open('src/core_driver.sv') as f:
         comp_driver = f.read()
     comp_driver = comp_driver.replace('{PROG}', 'prog')
-    with open('build/comp_driver.sv', 'w') as f:
+    with open('build/core_driver.sv', 'w') as f:
         f.write(comp_driver)
     os.system(f'cat examples/direct/{args.name}.asm')
     if args.verilator:
@@ -24,8 +26,8 @@ def run(args):
             ' src/int/chunked_add_task.sv src/int/chunked_sub_task.sv '
             ' src/generated/mul_pipeline_cycle_24bit_2bpc.sv src/float/float_mul_pipeline.sv'
             ' src/generated/mul_pipeline_cycle_32bit_2bpc.sv src/int/mul_pipeline_32bit.sv'
-            ' src/core.sv src/comp.sv'
-            ' src/mem_delayed_large.sv src/mem_delayed.sv build/comp_driver.sv') == 0
+            ' src/core.sv'
+            ' src/mem_large.sv src/global_mem_controller.sv build/core_driver.sv') == 0
         os.system('./a.out | tee /tmp/out.txt')
     with open('/tmp/out.txt') as f:
         output = f.read()

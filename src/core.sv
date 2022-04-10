@@ -1,5 +1,5 @@
 /*
- epresents processor, but not including any memory elements, such as mem and reg_file, which are slow to synthesize
+represents single GPU core
 
 As of mar 28 2022:
 Max propagation delay: 82.8 nand units
@@ -682,13 +682,13 @@ module core(
     endtask
 
     // always @(*) begin
-    always @(mem_rd_data, div_wr_reg_req, c2_instr, state, pc, mem_ack, fadd_ack, mul_ack, fmul_ack, ena) begin
-        // $display("t=%0d proc.comb mem_rd_data=%0d div_wr_reg_req=%0d c2_instr=%0h state=%0d pc=%0d mem_ack=%0d",
+    always @(mem_rd_data, div_wr_reg_req, c2_instr, state, pc, mem_ack, fadd_ack, mul_ack, fmul_ack, ena, clr, rst) begin
+        // $display("t=%0d core.comb mem_rd_data=%0d div_wr_reg_req=%0d c2_instr=%0h state=%0d pc=%0d mem_ack=%0d",
         //     $time, mem_rd_data, div_wr_reg_req, c2_instr, state, pc, mem_ack
         // );
     // always_comb begin
-        // $display("t=%0d proc.comb state=%0d pc=%0d",
-        //     $time, state, pc
+        // $display("t=%0d core.comb rst=%0d clr=%0d ena=%0d state=%0d pc=%0d",
+        //     $time, rst, clr, ena, state, pc
         // );
 
         halt = 0;
@@ -758,7 +758,7 @@ module core(
         if(ena) begin
             // if(~rst) begin
             //     $display(
-            //         "t=%0d proc.comb state=%0d pc=%0d c1_op=%0d mem_rd_data=%0d mem_wr_req=%0b mem_rd_req=%0b mem_ack=%0b regs[1]=%0d",
+            //         "t=%0d core.comb state=%0d pc=%0d c1_op=%0d mem_rd_data=%0d mem_wr_req=%0b mem_rd_req=%0b mem_ack=%0b regs[1]=%0d",
             //         $time, state, pc, c1_op, mem_rd_data, mem_wr_req, mem_rd_req, mem_ack, regs[1]);
             // end
             `assert_known(state);
@@ -796,7 +796,7 @@ module core(
     always @(posedge clk or negedge rst) begin
         // assert(~$isunknown(rst));
         if (~rst || clr) begin
-            // $display("proc.rst state=%0d n_state=%0d pc=%0d n_pc=%0d", state, next_state, pc, next_pc);
+            $display("core.rst state=%0d n_state=%0d pc=%0d n_pc=%0d", state, next_state, pc, next_pc);
             pc <= 128;
             state <= C0;
             regs[0] <= '0;
@@ -821,12 +821,12 @@ module core(
             mul_a <= '0;
             mul_b <= '0;
         end else begin
-            // $display("proc.run pc=%0d state=%0d mem_ack=%0d mem_rd_data=%0d %h", pc, state, mem_ack, mem_rd_data, mem_rd_data);
+            // $display("core.run pc=%0d state=%0d mem_ack=%0d mem_rd_data=%0d %h", pc, state, mem_ack, mem_rd_data, mem_rd_data);
             // $display(
-            //     "t=%0d proc.ff mem_addr %0d mem_wr_data %0d mem_rd_data %0d mem_wr_req %b mem_rd_req  %b mem_ack %b mem_busy %b",
+            //     "t=%0d core.ff mem_addr %0d mem_wr_data %0d mem_rd_data %0d mem_wr_req %b mem_rd_req  %b mem_ack %b mem_busy %b",
             //     $time,
             //     mem_addr,     mem_wr_data,    mem_rd_data,    mem_wr_req,   mem_rd_req,    mem_ack,   mem_busy);
-            // $display("ff tick t=%0d clk=%0b next_pc=%0d next_state=%0d", $time, clk, next_pc, next_state);
+            // $display("ff tick t=%0d rst=%0b clk=%0b clr=%0d ena=%0d next_pc=%0d next_state=%0d", $time, rst, clr, ena, clk, next_pc, next_state);
             pc <= next_pc;
             state <= next_state;
             c2_instr <= c2_instr_next;
