@@ -222,7 +222,7 @@ module core(
         `assert_known(_funct);
         case(_funct)
             ADDI: begin
-                $display("%0d ADDI x%0d <= %0d + %0d", pc, _rd, c1_rs1_data, _i_imm);
+                // $display("%0d ADDI x%0d <= %0d + %0d", pc, _rd, c1_rs1_data, _i_imm);
                 write_reg(_rd, c1_rs1_data + _i_imm);
             end
             SLTI: begin
@@ -230,7 +230,7 @@ module core(
                 write_reg(_rd, { {31{1'b0}}, (c1_rs1_data < _i_imm)});
             end
             SLTIU: begin
-                $display("%0d SLTIU x%0d <= %0d < %0d", pc, _rd, c1_rs1_data, c1_rs2_data);
+                // $display("%0d SLTIU x%0d <= %0d < %0d", pc, _rd, c1_rs1_data, c1_rs2_data);
                 write_reg(_rd, { {31{1'b0}}, (c1_rs1_data < _i_imm)});
             end
             XORI: begin
@@ -243,11 +243,11 @@ module core(
                 write_reg(_rd, c1_rs1_data & _i_imm);
             end
             SLLI: begin
-                $display("%0d SLLI x%0d <= %0d << %0d", pc, _rd, c1_rs1_data, c1_rs2_sel);
+                // $display("%0d SLLI x%0d <= %0d << %0d", pc, _rd, c1_rs1_data, c1_rs2_sel);
                 write_reg(_rd, (c1_rs1_data << c1_rs2_sel));
             end
             SRLI: begin
-                $display("%0d SRLI x%0d <= %0d >> %0d", pc, _rd, c1_rs1_data, c1_rs2_sel);
+                // $display("%0d SRLI x%0d <= %0d >> %0d", pc, _rd, c1_rs1_data, c1_rs2_sel);
                 write_reg(_rd, (c1_rs1_data >> c1_rs2_sel));
             end
             // SRAI: begin FIXME: implement
@@ -270,27 +270,27 @@ module core(
         `assert_known(_funct);
         case(_funct)
             BEQ: begin
-                $display("%0d BEQ %0d == %0d => %0d", pc, c1_rs1_data, c1_rs2_data, branch_dest);
+                // $display("%0d BEQ %0d == %0d => %0d", pc, c1_rs1_data, c1_rs2_data, branch_dest);
                 if (c1_rs1_data == c1_rs2_data) branch = 1;
             end
             BNE: begin
-                $display("%0d BNE %0d != %0d => %0d", pc, c1_rs1_data, c1_rs2_data, branch_dest);
+                // $display("%0d BNE %0d != %0d => %0d", pc, c1_rs1_data, c1_rs2_data, branch_dest);
                 if (c1_rs1_data != c1_rs2_data) branch = 1;
             end
             BGE: begin
-                $display("%0d BGE %0d >= %0d => %0d", pc, c1_rs1_data, c1_rs2_data, branch_dest);
+                // $display("%0d BGE %0d >= %0d => %0d", pc, c1_rs1_data, c1_rs2_data, branch_dest);
                 if (c1_rs1_data >= c1_rs2_data) branch = 1;
             end
             BLT: begin  //fix me: BLT and BLTU should not be the same... (ditto for BGE and BGEU)
-                $display("%0d BLT %0d < %0d => %0d", pc, c1_rs1_data, c1_rs2_data, branch_dest);
+                // $display("%0d BLT %0d < %0d => %0d", pc, c1_rs1_data, c1_rs2_data, branch_dest);
                 if (c1_rs1_data < c1_rs2_data) branch = 1;
             end
             BGEU: begin
-                $display("%0d BGEU %0d >= %0d => %0d", pc, c1_rs1_data, c1_rs2_data, branch_dest);
+                // $display("%0d BGEU %0d >= %0d => %0d", pc, c1_rs1_data, c1_rs2_data, branch_dest);
                 if (c1_rs1_data >= c1_rs2_data) branch = 1;
             end
             BLTU: begin
-                $display("%0d BLTU %0d < %0d => %0d", pc, c1_rs1_data, c1_rs2_data, branch_dest);
+                // $display("%0d BLTU %0d < %0d => %0d", pc, c1_rs1_data, c1_rs2_data, branch_dest);
                 if (c1_rs1_data < c1_rs2_data) branch = 1;
             end
             default: begin end
@@ -315,14 +315,14 @@ module core(
         `assert_known(funct5);
         case (funct5)
             FADD: begin
-                $display("FADD.C1 x%0d <=", _rd_sel);
+                // $display("FADD.C1 x%0d <=", _rd_sel);
                 n_fadd_req = 1;
                 n_fadd_a = _rs1_data;
                 n_fadd_b = _rs2_data;
                 next_state = C2;
             end
             FMUL: begin
-                $display("FMUL.C1 x%0d <=", _rd_sel);
+                // $display("FMUL.C1 x%0d <=", _rd_sel);
                 n_fmul_req = 1;
                 n_fmul_a = _rs1_data;
                 n_fmul_b = _rs2_data;
@@ -348,7 +348,7 @@ module core(
                 // $display("FADD.C2");
                 `assert_known(fadd_ack);
                 if(fadd_ack) begin
-                    $display("FADD.C2 x%0d <= %b", _rd_sel, fadd_out);
+                    // $display("FADD.C2 x%0d <= %b", _rd_sel, fadd_out);
                     wr_reg_data = fadd_out;
                     wr_reg_sel = _rd_sel;
                     wr_reg_req = 1;
@@ -359,7 +359,7 @@ module core(
                 // $display("FMUL.C2");
                 `assert_known(fmul_ack);
                 if(fmul_ack) begin
-                    $display("FMUL.C2 x%0d <= %b", _rd_sel, fmul_out);
+                    // $display("FMUL.C2 x%0d <= %b", _rd_sel, fmul_out);
                     wr_reg_data = fmul_out;
                     wr_reg_sel = _rd_sel;
                     wr_reg_req = 1;
@@ -383,7 +383,7 @@ module core(
         `assert_known(_funct);
         case(_funct)
             ADD: begin
-                $display("%0d ADD x%0d <= %0d + %0d", pc, _rd_sel, c1_rs1_data, c1_rs2_data);
+                // $display("%0d ADD x%0d <= %0d + %0d", pc, _rd_sel, c1_rs1_data, c1_rs2_data);
                 chunked_add_task(
                     c1_rs1_data,
                     c1_rs2_data,
@@ -393,11 +393,11 @@ module core(
             // fixme: this should be signed
             SLT: wr_reg_data = c1_rs1_data < c1_rs2_data ? 1 : 0;
             SLTU: begin
-                $display("%0d SLTU x%0d <= %0d < %0d", pc, _rd_sel, c1_rs1_data, c1_rs2_data);
+                // $display("%0d SLTU x%0d <= %0d < %0d", pc, _rd_sel, c1_rs1_data, c1_rs2_data);
                 wr_reg_data = c1_rs1_data < c1_rs2_data ? 1 : 0;
             end
             AND: begin
-                $display("%0d AND x%0d <= %0d & %0d", pc, _rd_sel, c1_rs1_data, c1_rs2_data);
+                // $display("%0d AND x%0d <= %0d & %0d", pc, _rd_sel, c1_rs1_data, c1_rs2_data);
                 wr_reg_data = c1_rs1_data & c1_rs2_data;
             end
             OR: wr_reg_data = c1_rs1_data | c1_rs2_data;
@@ -415,7 +415,7 @@ module core(
             SRA: wr_reg_data = c1_rs1_data >> c1_rs2_data[4:0];
             // RV32M
             MUL: begin
-                $display("%0d MUL.c1 %0d * %0d => x%0d", pc, c1_rs1_data, c1_rs2_data, _rd_sel);
+                // $display("%0d MUL.c1 %0d * %0d => x%0d", pc, c1_rs1_data, c1_rs2_data, _rd_sel);
                 n_mul_req = 1;
                 n_mul_a = c1_rs1_data;
                 n_mul_b = c1_rs2_data;
@@ -423,7 +423,7 @@ module core(
                 skip_advance_pc = 1;
             end
             DIVU: begin
-                $display("%0d DIVU.c1 %0d / %0d => x%0d", pc, c1_rs1_data, c1_rs2_data, _rd_sel);
+                // $display("%0d DIVU.c1 %0d / %0d => x%0d", pc, c1_rs1_data, c1_rs2_data, _rd_sel);
                 `assert_known(div_busy);
                 if(div_busy == 0) begin
                     // $display("sending req to div unit a=%0d b=%0d quot_sel=%0d", c1_rs1_data, c1_rs2_data, _rd_sel);
@@ -443,7 +443,7 @@ module core(
                 end
             end
             REMU: begin
-                $display("%0d REMU.c1 x%0d <= %0d / %0d", pc, _rd_sel, c1_rs1_data, c1_rs2_data);
+                // $display("%0d REMU.c1 x%0d <= %0d / %0d", pc, _rd_sel, c1_rs1_data, c1_rs2_data);
                 `assert_known(div_busy);
                 if(~div_busy) begin
                     // $display("sending req to div unit a=%0d b=%0d mod_sel=%0d", c1_rs1_data, c1_rs2_data, _rd_sel);
@@ -495,7 +495,7 @@ module core(
         write_reg(_rd_sel, pc + 4);
         next_pc = imm + pc;
         // $display("pc %0d next_pc %0d", pc, next_pc);
-        $display("JAL jumping to %0d", next_pc);
+        // $display("JAL jumping to %0d", next_pc);
         read_next_instr(next_pc);
     endtask
 
@@ -514,28 +514,28 @@ module core(
         next_pc = imm + _rs1_data;
         // $display("pc %0d next_pc %0d", pc, next_pc);
         // $display("JALR storing %0d in x%0d", pc + 4, _rd_sel);
-        $display("JALR jumping to %0d", next_pc);
+        // $display("JALR jumping to %0d", next_pc);
         read_next_instr(next_pc);
     endtask
 
     task op_store(input [addr_width - 1:0] _addr);
-        $display("%0d STORE addr %0d <= %0d", pc, _addr, c1_rs2_data);
+        // $display("%0d STORE addr %0d <= %0d", pc, _addr, c1_rs2_data);
         `assert_known(_addr);
         case (_addr)
             1000000: begin
                 // write_out(regs[c1_rs2]);
                 write_out(c1_rs2_data);
-                $display("OUT %0d", c1_rs2_data);
+                // $display("OUT %0d", c1_rs2_data);
                 // immediately jump to next instruction, since not a real store...
                 read_next_instr(pc + 4);
             end
             1000004: begin
-                $display("%0d 1000004: HALT", pc);
+                // $display("%0d 1000004: HALT", pc);
                 halt = 1;
             end
             1000008: begin
                 write_float(c1_rs2_data);
-                $display("OUTR %0f", c1_rs2_data);
+                // $display("OUTR %0f", c1_rs2_data);
                 read_next_instr(pc + 4);
             end
             default: begin
@@ -561,7 +561,7 @@ module core(
             end
             LOAD: begin
                 // $display("c1.LOAD c1_rs1=%0d regs[c1_rs1]=%0d c1_load_offset=%0d", c1_rs1_sel, regs[c1_rs1_sel], c1_load_offset);
-                $display("%0d LOAD.C1  <= addr %0d", pc, c1_rs1_data + c1_load_offset);
+                // $display("%0d LOAD.C1  <= addr %0d", pc, c1_rs1_data + c1_load_offset);
                 // read from memory
                 // lw rd, offset(rs1)
                 read_mem(c1_rs1_data + c1_load_offset);
@@ -586,19 +586,19 @@ module core(
                 op_op(c1_op_funct, c1_rd_sel, c1_rs1_sel, c1_rs2_sel);
             end
             LUI: begin
-                $display("c1.LUI");
+                // $display("c1.LUI");
                 op_lui(c1_instr, c1_rd_sel);
             end
             AUIPC: begin
-                $display("c1.AUIPC");
+                // $display("c1.AUIPC");
                 op_auipc(c1_instr, c1_rd_sel);
             end
             JAL: begin
-                $display("c1.JAL");
+                // $display("c1.JAL");
                 op_jal(c1_instr, c1_rd_sel);
             end
             JALR: begin
-                $display("c1.JALR");
+                // $display("c1.JALR");
                 op_jalr(c1_instr, c1_rd_sel, c1_rs1_data);
             end
             default: begin
@@ -617,7 +617,7 @@ module core(
                 `assert_known(mem_ack);
                 if(mem_ack) begin
                     // $display("C2.load next c2_rd_sel=%0d mem_rd_data=%0d", c2_rd_sel, mem_rd_data);
-                    $display("%0d LOAD.C2 x%0d <= %0d", pc, c2_rd_sel, mem_rd_data);
+                    // $display("%0d LOAD.C2 x%0d <= %0d", pc, c2_rd_sel, mem_rd_data);
                     write_reg(c2_rd_sel, mem_rd_data);
                     read_next_instr(pc + 4);
                 end
@@ -640,7 +640,7 @@ module core(
                         // $display("MUL.C2");
                         `assert_known(mul_ack);
                         if(mul_ack) begin
-                            $display("MUL.C2 x%0d <=", c2_rd_sel);
+                            // $display("MUL.C2 x%0d <=", c2_rd_sel);
                             wr_reg_data = mul_out;
                             wr_reg_sel = c2_rd_sel;
                             wr_reg_req = 1;
@@ -653,7 +653,7 @@ module core(
                         if(div_wr_reg_req) begin
                             // go to next instruction
                             // well, lets read the result for now
-                            $display("DIVU.C2 x%0d <= %0d", div_wr_reg_sel, div_wr_reg_data);
+                            // $display("DIVU.C2 x%0d <= %0d", div_wr_reg_sel, div_wr_reg_data);
                             div_wr_reg_ack = 1;
                             write_reg(div_wr_reg_sel, div_wr_reg_data);
                             read_next_instr(pc + 4);
@@ -665,7 +665,7 @@ module core(
                         if(div_wr_reg_req) begin
                             // go to next instruction
                             // well, lets read the result for now
-                            $display("REMU.C2 x%0d <= %0d", div_wr_reg_sel, div_wr_reg_data);
+                            // $display("REMU.C2 x%0d <= %0d", div_wr_reg_sel, div_wr_reg_data);
                             div_wr_reg_ack = 1;
                             write_reg(div_wr_reg_sel, div_wr_reg_data);
                             read_next_instr(pc + 4);
@@ -856,7 +856,7 @@ module core(
             c2_instr <= c2_instr_next;
 
             if (set_pc_req) begin
-                $display("core updating PC to %0d", set_pc_addr);
+                // $display("core updating PC to %0d", set_pc_addr);
                 pc <= set_pc_addr;
             end
 

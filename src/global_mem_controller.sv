@@ -142,7 +142,7 @@ module global_mem_controller (
     always @(posedge clk, negedge rst) begin
         `assert_known(rst);
         if(~rst) begin
-            $display("mem_delayed.rst");
+            // $display("mem_delayed.rst");
             clks_to_wait <= 0;
             core1_busy <= 0;
             core1_ack <= 0;
