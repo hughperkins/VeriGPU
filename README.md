@@ -36,11 +36,15 @@ Single-source compilation and runtime
 
 ## Single-source C++
 
-Source code:
+Single-source C++:
 
 ![Single-source C++](/docs/img/single_source_code.png)
 
-Run:
+Compile the GPU and runtime:
+
+![Compile GPU and runtime](/docs/img/compile_gpu_and_runtime.png)
+
+Compile the single-source C++, and run:
 
 ![Run single-source example](/docs/img/single_source_run.png)
 
