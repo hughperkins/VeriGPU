@@ -78,8 +78,7 @@ Well, it's not certain that it can never be built. If we actually create a plaus
 
 But, in the mean-time... there are a number of things that are hard or extremely expensive to run for real, such as:
 - plasmas (in a fusion reactor for example)
-- rockets
-- nuclear warheads
+- space rockets
 - mars landers
 - ... and also VLSI ASICs, such as GPUs
 
