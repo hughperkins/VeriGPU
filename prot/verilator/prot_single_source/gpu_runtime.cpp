@@ -135,11 +135,11 @@ void gpuCopyToDevice(void *gpuMemPtr, void *srcData, size_t numBytes)
     long numWords = numBytes >> 2;
     for (long i = 0; i < numWords; i++)
     {
-        std::cout << "sending word " << i << " which is " << srcDataWords[i] << std::endl;
+        // std::cout << "sending word " << i << " which is " << srcDataWords[i] << std::endl;
         dut->cpu_in_data = srcDataWords[i];
         tick();
     }
-    std::cout << "hopefully copied data to GPU" << std::endl;
+    // std::cout << "hopefully copied data to GPU" << std::endl;
 }
 
 void gpuCopyFromDevice(void *destData, void *gpuMemPtr, size_t numBytes)
@@ -157,13 +157,13 @@ void gpuCopyFromDevice(void *destData, void *gpuMemPtr, size_t numBytes)
     dut->cpu_recv_instr = NOP;
     uint32_t *destDataWords = (uint32_t *)destData;
     long numWords = numBytes >> 2;
-    std::cout << "gpuCopyFromDevice numWords=" << numWords << " sim_time=" << sim_time << std::endl;
+    // std::cout << "gpuCopyFromDevice numWords=" << numWords << " sim_time=" << sim_time << std::endl;
     long i = 0;
     while(i < numWords && sim_time < MAX_SIM_TIME) {
-        std::cout << "gpuCopyFromDevice i=" << i << " sim_time=" << sim_time << std::endl;
+        // std::cout << "gpuCopyFromDevice i=" << i << " sim_time=" << sim_time << std::endl;
         if (dut->cpu_out_ack) {
             destDataWords[i] = dut->cpu_out_data;
-            std::cout << "gpuCopyFromDevice received word " << i << " which is " << destDataWords[i] << std::endl;
+            // std::cout << "gpuCopyFromDevice received word " << i << " which is " << destDataWords[i] << std::endl;
             i++;
         }
         tick();
@@ -174,7 +174,7 @@ void gpuCopyFromDevice(void *destData, void *gpuMemPtr, size_t numBytes)
     //     destDataWords[i] = dut->cpu_out_data;
     //     std::cout << "received word " << i << " which is " << destDataWords[i] << std::endl;
     // }
-    std::cout << "hopefully received data from GPU" << std::endl;
+    // std::cout << "hopefully received data from GPU" << std::endl;
 }
 
 void gpuLaunchKernel(void *kernelPos, uint32_t numParams, const uint32_t *const p_params) {
