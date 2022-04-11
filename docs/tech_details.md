@@ -1,6 +1,16 @@
 # Implementation details
 
-![verigpu workflow](/docs/img/toy_proc_workflow.png)
+GPU Die Architecture:
+
+![GPU Die Architecture](/docs/img/gpu_die.png)
+
+Single Core:
+
+![Single Core](/docs/img/core.png)
+
+Single-source compilation and runtime
+
+![End-to-end Architecture](/docs/img/endtoend.png)
 
 ## Processor instruction set
 
