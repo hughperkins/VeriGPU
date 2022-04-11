@@ -9,7 +9,7 @@ elseif(WIN32)
 message(FATAL "Win32 not currently supported. PRs welcome")
 # set(CLANG_HOME "C:\\Program Files\\LLVM" CACHE PATH "the downloaded clang-4.0.0 folder, containing lib, bin etc")
 elseif(LINUX)
-# we assuem you've installed clang 13 from here https://apt.llvm.org/
+# we assuem you've installed clang 13 from here https://apt.llvm.org/ (section 'install (stable branch)')
 # if  you need some other scenario, please submit an approparite PR :)
 # set(CMAKE_CXX_COMPILER clang++-13)
 # set(CMAKE_C_COMPILER clang-13)
