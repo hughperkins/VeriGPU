@@ -16,17 +16,21 @@ Intend to keep the cores very focused on ML. For example, [brain floating point]
 
 # Architecture
 
+Big Picture:
+
+![Big Picture](docs/img/overall.png)
+
 GPU Die Architecture:
 
-![GPU Die Architecture](/docs/img/gpu_die_arch2.png)
+![GPU Die Architecture](/docs/img/gpu_die.png)
 
 Single Core:
 
-![Single Core](/docs/img/single_core_arch2.png)
+![Single Core](/docs/img/core.png)
 
 Single-source compilation and runtime
 
-![End-to-end Architecture](/docs/img/endtoend_arch_2.png)
+![End-to-end Architecture](/docs/img/endtoend.png)
 
 # Simulation
 
