@@ -28,6 +28,7 @@ if [[ $(uname) == Linux ]]; then {
     LLC=llc-13
     # PATHHOSTSIDE=${BASEDIR}/prot/verilator/prot_single_source/build-cmake-linux/patch_hostside
     GPURUNTIMEDIR=${BASEDIR}/prot/verilator/prot_single_source/build-cmake-linux
+    LIBEXPFS=-lstdc++fs
 } elif [[ $(uname) == Darwin ]]; then {
     echo Mac detected
     CLANGDIR=/usr/local/opt/llvm-14.0.0
@@ -121,7 +122,7 @@ g++ -std=c++14 -fPIE -I${VERILATORDIR}/include -c ${VERILATORDIR}/include/verila
 
 # g++ -o sum_ints sum_ints-hostpatched.o gpu_runtime.o verilated.o obj_dir/controller__ALL.o
 # g++ -c ${BASEDIR}/prot/cpp/hostside/prot_upper_lower.cpp
-g++ --no-pie -o sum_ints sum_ints-hostpatched.o -L${GPURUNTIMEDIR} -lverigpu_runtime -lstdc++fs
+g++ -o sum_ints sum_ints-hostpatched.o -L${GPURUNTIMEDIR} -lverigpu_runtime ${LIBEXPFS}
 # g++ --pie -o sum_ints prot_upper_lower.o -L${GPURUNTIMEDIR} -lverigpu_runtime
 # ld --no-pie -o sum_ints sum_ints-hostpatched.o -L${GPURUNTIMEDIR} -lverigpu_runtime
 
