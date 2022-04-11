@@ -17,6 +17,10 @@ export VERIGPUDIR=${BASEDIR}
 
 VERILATORDIR=/usr/local/share/verilator
 
+if [[ ! -e ${VERIGPUDIR}/build ]]; then {
+    mkdir -p ${VERIGPUDIR}/build
+} fi
+
 if [[ $(uname) == Linux ]]; then {
     # assume installed clang 13 using https://apt.llvm.org/
     # if you want to handle other scenarios, please submit a PR :)

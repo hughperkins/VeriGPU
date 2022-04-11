@@ -137,6 +137,10 @@ namespace VeriGPU
         std::string asmPath = makePreferred(verigpuDir + "/build/prog.asm");
         // std::cout << "asmPath " << asmPath << std::endl;
         of.open(asmPath);
+        if(!of) {
+            std::cout << "Failed to open file " << asmPath << std::endl;
+            throw std::runtime_error("Failed to open file " + asmPath);
+        }
         of << assembly << std::endl;
         of.close();
         std::string cmd_line = ("python3 " + makePreferred(verigpuDir + "/verigpu/assembler.py") +
@@ -420,7 +424,7 @@ halt
         // std::cout << asmHeader.str() << std::endl;
 
         std::string fullAssembly = asmHeader.str() + launchConfiguration.deviceriscvsourcecode;
-        std::cout << std::endl;
+        // std::cout << std::endl;
         // std::cout << "fullAssembly" << std::endl;
         // std::cout << fullAssembly << std::endl;
 
