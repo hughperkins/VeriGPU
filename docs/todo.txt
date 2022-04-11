@@ -1,9 +1,9 @@
 - fix tests for single source. need to figure out llvm installation in container
 - make a general single-source 'compile' script (?)
+- move runtime out of prot into src
 - fix single source runtime, so we only assemble each kernel once, and then cache that
 - split `global_mem_controller.sv` into `global_mem_controller.sv` and `global_mem.sv`
 - rename 'gpu_runtime' to 'gpu_runtime_and_simulator'
-- update diagrams with new file names
 - add simulated latency to global_mem_controller for calls from gpu_controller
 - check if my coding guidelines talk about `n_` notation
 - check what does 'zero' mean in riscv32?
@@ -42,6 +42,7 @@ things I need that not thinking of implementing myself in short-term
 - Network on a chip (NoC)
 
 done:
+- update diagrams with new file names
 - make launch_kernel.cpp able to create li an, [number] code
 - look into compilng and running gpu kernel
 - look into running verilator without using cmake

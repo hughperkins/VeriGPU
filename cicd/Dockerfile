@@ -6,7 +6,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
 RUN apt-get install -y gperf flex bison build-essential clang tcl-dev libboost-dev autoconf wget pkg-config \
     libfl-dev zlibc zlib1g zlib1g-dev perl git ccache libgoogle-perftools-dev numactl \
-    perl-doc python3 python3-pip python-is-python3 libreadline-dev cmake xz-utils
+    perl-doc python3 python3-pip python-is-python3 libreadline-dev cmake xz-utils expect
 RUN python3 -V
 
 COPY docker_files docker_files
