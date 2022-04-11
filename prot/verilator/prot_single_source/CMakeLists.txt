@@ -2,21 +2,29 @@ cmake_minimum_required(VERSION 3.16.3)
 
 if(APPLE)
 set(CLANG_HOME "/usr/local/opt/llvm-14.0.0" CACHE PATH "the downloaded clang+llvm-14.0.0-x86_64-apple-darwin folder, containing lib, bin etc")
-# set(PYTHON27_PATH "/usr/bin/python2" CACHE FILEPATH "full path of python27")
+# set(CMAKE_CXX_COMPILER ${CLANG_HOME}/bin/clang++)
+# set(CMAKE_C_COMPILER ${CLANG_HOME}/bin/clang)
+# set(LLCM_CONFIG llvm-config-13)
 elseif(WIN32)
+message(FATAL "Win32 not currently supported. PRs welcome")
 # set(CLANG_HOME "C:\\Program Files\\LLVM" CACHE PATH "the downloaded clang-4.0.0 folder, containing lib, bin etc")
-# set(PYTHON27_PATH "C:\\python27\\python" CACHE FILEPATH "full path of python27")
-else()
-set(CLANG_HOME "/usr/local/opt/llvm-14.0.0" CACHE PATH "the downloaded clang-144.0.0 folder, containing lib, bin etc")
-# set(PYTHON27_PATH "/usr/bin/python2" CACHE FILEPATH "full path of python27")
-endif()
+elseif(LINUX)
+# we assuem you've installed clang 13 from here https://apt.llvm.org/
+# if  you need some other scenario, please submit an approparite PR :)
+# set(CMAKE_CXX_COMPILER clang++-13)
+# set(CMAKE_C_COMPILER clang-13)
+# set(ADDITIONAL_LLVM_INCLUDE usr/include/llvm-13)
+# set(LLCM_CONFIG llvm-config-13)
 
-set(CMAKE_CXX_COMPILER ${CLANG_HOME}/bin/clang++)
-set(CMAKE_C_COMPILER ${CLANG_HOME}/bin/clang)
+# set(CLANG_HOME "/usr/local/opt/llvm-14.0.0" CACHE PATH "the downloaded clang-144.0.0 folder, containing lib, bin etc")
+set(ZLIB_LIBRARY "/usr/lib/x86_64-linux-gnu/libz.so" CACHE PATH "path to libz library, see https://askubuntu.com/questions/1244299/cmake-can-not-find-zlib-on-ubuntu-20-04")
+endif()
 
 project(verigpu_runtime)
 
 find_package(LLVM REQUIRED CONFIG PATHS "${CLANG_HOME}/lib/cmake/llvm")
+# find_package(ZLIB HINTS "/usr/lib/x86_64-linux-gnu/pkgconfig")
+find_package(ZLIB REQUIRED)
 
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
@@ -25,7 +33,8 @@ llvm_map_components_to_libnames(llvm_libs support core irreader transformutils)
 
 message(STATUS "llvm_libs ${llvm_libs}")
 
-find_package(verilator HINTS $ENV{VERILATOR_ROOT})
+find_package(verilator REQUIRED HINTS $ENV{VERILATOR_ROOT})
+
 # set(BASE CACHE STRING "root of verigpu repo" "${CMAKE_SOURCE_DIR}/../../..")
 set(BASE "${CMAKE_SOURCE_DIR}/../../..")
 set(SRC "${BASE}/src")
@@ -39,7 +48,8 @@ add_library(verigpu_runtime
     ${CMAKE_SOURCE_DIR}/stringhelper.cpp
     ${CMAKE_SOURCE_DIR}/vector_types.cpp
 )
-target_include_directories(verigpu_runtime PRIVATE ${CLANG_HOME}/include)
+message(STATUS "LLVM_INCLUDE_DIRS ${LLVM_INCLUDE_DIRS}")
+target_include_directories(verigpu_runtime PRIVATE ${CLANG_HOME}/include ${LLVM_INCLUDE_DIRS})
 verilate(verigpu_runtime
     SOURCES
         ${SRC}/const.sv
@@ -63,16 +73,16 @@ verilate(verigpu_runtime
     TOP_MODULE gpu_card
     PREFIX gpu_card
 )
-target_compile_options(verigpu_runtime PRIVATE "-std=c++14")
+target_compile_options(verigpu_runtime PRIVATE "-std=c++14;-fPIE")
 
 # some of this stuff is copied from Coriander, apr 6 2022
 
-execute_process(
-    COMMAND ${BASE}/cmake/get-llvm-cxxflags.sh ${CLANG_HOME}
-    OUTPUT_VARIABLE LLVM_CXXFLAGS
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-message(STATUS "LLVM_CXXFLAGS ${LLVM_CXXFLAGS}")
+# execute_process(
+#     COMMAND ${BASE}/cmake/get-llvm-cxxflags.sh ${CLANG_HOME}
+#     OUTPUT_VARIABLE LLVM_CXXFLAGS
+#     OUTPUT_STRIP_TRAILING_WHITESPACE
+# )
+# message(STATUS "LLVM_CXXFLAGS ${LLVM_CXXFLAGS}")
 
 
 # STRING(REGEX REPLACE " " ";" LLVM_CXXFLAGS "${LLVM_CXXFLAGS}")
@@ -121,9 +131,11 @@ add_executable(patch_hostside
 )
 target_include_directories(patch_hostside PRIVATE ${CLANG_HOME}/include)
 # target_include_directories(patch_hostside PRIVATE include)
+target_include_directories(patch_hostside PRIVATE ${LLVM_INCLUDE_DIRS})
 target_include_directories(patch_hostside PRIVATE ${BASE}/third_party/argparsecpp)
 # target_include_directories(patch_hostside PRIVATE src/EasyCL)
 target_compile_options(patch_hostside PRIVATE ${LLVM_CXXFLAGS} -g)
+target_link_libraries(patch_hostside ZLIB::ZLIB)
 target_link_libraries(patch_hostside "${LLVM_LIBPATHS}" ${llvm_libs})
 
 # should try running the following now:

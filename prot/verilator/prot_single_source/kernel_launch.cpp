@@ -139,7 +139,7 @@ namespace VeriGPU
         of.open(asmPath);
         of << assembly << std::endl;
         of.close();
-        std::string cmd_line = ("python " + makePreferred(verigpuDir + "/verigpu/assembler.py") +
+        std::string cmd_line = ("python3 " + makePreferred(verigpuDir + "/verigpu/assembler.py") +
                                 " --in-asm " + makePreferred(verigpuDir + "/build/prog.asm") +
                                 " --out-hex " + makePreferred(verigpuDir + "/build/prog.hex") +
                                 " --offset " + std::to_string(offset));

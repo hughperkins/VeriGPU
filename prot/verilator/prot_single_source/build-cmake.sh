@@ -7,11 +7,19 @@ set -o pipefail
 
 cd prot/verilator/prot_single_source
 
-if [[ ! -e build ]]; then {
-    mkdir build
+if [[ $(uname) == Linux ]]; then {
+    echo Linux detected
+    BUILDDIR=build-cmake-linux
+} elif [[ $(uname) == Darwin ]]; then {
+    echo Mac detected
+    BUILDDIR=build-cmake-mac
 } fi
 
-cd build
+if [[ ! -e ${BUILDDIR} ]]; then {
+    mkdir ${BUILDDIR}
+} fi
+
+cd ${BUILDDIR}
 
 cmake ..
 # unbuffer make -j $(nproc)
