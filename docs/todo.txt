@@ -1,3 +1,5 @@
+- fix tests for single source. need to figure out llvm installation in container
+- make a general single-source 'compile' script (?)
 - fix single source runtime, so we only assemble each kernel once, and then cache that
 - split `global_mem_controller.sv` into `global_mem_controller.sv` and `global_mem.sv`
 - rename 'gpu_runtime' to 'gpu_runtime_and_simulator'
