@@ -81,7 +81,7 @@ we want the GPU to run quickly, and to use minimal die area. Read how we measure
 
 - [docs/metrics.md](docs/metrics.md)
 
-# Why work on something that we might never be able to make for real?
+<!-- # Why work on something that we might never be able to make for real?
 
 Well, it's not certain that it can never be built. If we actually create a plausibly verified and working GPU design, there is a bunch of VC around to tape it out.
 
@@ -97,7 +97,7 @@ In the case of GPUs, simulation is relatively straightforward. CMOS circuitry is
 
 I feel that being able to work on projects in the absence of being able to 'just try things out' for real is plausibly a useful and valuable skill.
 
-(to do: I need to write some instructions on how to quickly get stuck into running the simulations :) )
+(to do: I need to write some instructions on how to quickly get stuck into running the simulations :) ) -->
 
 <!-- # Why not target/test on FPGA?
 
