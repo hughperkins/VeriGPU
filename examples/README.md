@@ -6,4 +6,3 @@
 - [cpp_single_source](cpp_single_source): c++ code, that contains a GPU kernel, that we will compile, and run
     - the source-code contains both host-side code, that does things like allocate memory on the gpu, copy in data, from system main-memory, and launch a kernel
     - and it contains at least one GPU kernel, which will be compiled, pushed into the GPU, and then run
-    - these are currently under development, a work in progress :)

@@ -64,8 +64,8 @@ module mul_pipeline_32bit(
             IDLE: begin
                 `assert_known(req);
                 if(req) begin
-                    $display("a %b %0d", a, a);
-                    $display("b %b %0d", b, b);
+                    // $display("a %b %0d", a, a);
+                    // $display("b %b %0d", b, b);
                     n_internal_a = a;
                     n_internal_b = b;
                     n_pos = 0;
@@ -89,9 +89,9 @@ module mul_pipeline_32bit(
                 n_cin = cout;
                 n_pos = pos + bits_per_cycle;
                 `assert_known(pos);
-                $display("driver clocked pos=%0d n_out=%b %0d cin=%b n_cin=%b", pos, n_out, n_out, cin, n_cin);
+                // $display("driver clocked pos=%0d n_out=%b %0d cin=%b n_cin=%b", pos, n_out, n_out, cin, n_cin);
                 if (n_pos >= width) begin
-                    $display("final n_out %b %0d", n_out, n_out);
+                    // $display("final n_out %b %0d", n_out, n_out);
                     n_ack = 1;
                     n_state = IDLE;
                 end
