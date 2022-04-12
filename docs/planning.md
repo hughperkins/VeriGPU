@@ -31,4 +31,4 @@ The GPU is aimed squarely at machine learning training. Therefore it should idea
 
 ## Tactical day-to-day backlog
 
-[docs/todo.txt](/docs/todo.txt)
+[verigpu_todo](https://docs.google.com/document/d/1utjD04LOe6-4HFtN9yd3vVQ6e3kqfW4zAFZKtfaCxn8/edit?usp=sharing)
