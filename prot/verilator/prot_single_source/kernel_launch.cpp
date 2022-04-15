@@ -73,7 +73,11 @@ using namespace VeriGPU;
 static LaunchConfiguration launchConfiguration;
 // static DebugDumper debugDumper(&launchConfiguration);
 
-std::unique_ptr<ArgStore_base> g_arg;
+// std::unique_ptr<ArgStore_base> g_arg;
+
+// static std::map<std::string, vector<uint32_t>> codeByKernelName;
+static std::map<std::string, void *> gpuKernelByName;
+static void *stack = 0;
 
 size_t cuInit(unsigned int flags)
 {
@@ -387,7 +391,9 @@ void kernelGo()
         //   probalby need async reset on the controller though I guess?)
         // - whilst disabled, can have something like req_set_pc, and pc_value
 
-        void *stack = gpuMalloc(stackSize);
+        if(stack == 0) {  // obviously not thread safe
+            stack = gpuMalloc(stackSize);
+        }
         // std::cout << "allocated stack pos=" << (size_t)(stack) << std::endl;
 /*
 Example of header for assembly:
@@ -416,38 +422,44 @@ halt
             uint32_t arg_as_int = launchConfiguration.args[i]->asUInt32();
             uint32_to_li(i, arg_as_int, paramsCode);
         }
-        // we should probably make the li for sp also dynamic
-        asmHeader << "li sp, " << ((size_t)(stack) + stackSize) << std::endl;
-        asmHeader << "jal x1, " << launchConfiguration.kernelName << std::endl;
-        asmHeader << "halt" << std::endl;
-        // std::cout << "asmHeader:" << std::endl;
-        // std::cout << asmHeader.str() << std::endl;
+        if (gpuKernelByName.find(launchConfiguration.kernelName) == gpuKernelByName.end()) {
+            // std::cout << "building kernel " << launchConfiguration.kernelName << std::endl;
+            // we should probably make the li for sp also dynamic
+            asmHeader << "li sp, " << ((size_t)(stack) + stackSize) << std::endl;
+            asmHeader << "jal x1, " << launchConfiguration.kernelName << std::endl;
+            asmHeader << "halt" << std::endl;
+            // std::cout << "asmHeader:" << std::endl;
+            // std::cout << asmHeader.str() << std::endl;
 
-        std::string fullAssembly = asmHeader.str() + launchConfiguration.deviceriscvsourcecode;
-        // std::cout << std::endl;
-        // std::cout << "fullAssembly" << std::endl;
-        // std::cout << fullAssembly << std::endl;
+            std::string fullAssembly = asmHeader.str() + launchConfiguration.deviceriscvsourcecode;
+            // std::cout << std::endl;
+            // std::cout << "fullAssembly" << std::endl;
+            // std::cout << fullAssembly << std::endl;
 
-        vector<unsigned int> codeWords;
-        size_t mainSize = assemble(0, fullAssembly, codeWords, true);
-        size_t kernelCodeSpaceNeeded = mainSize + (paramsCode.size() << 2);
+            vector<unsigned int> codeWords;
+            size_t mainSize = assemble(0, fullAssembly, codeWords, true);
+            size_t kernelCodeSpaceNeeded = mainSize + (paramsCode.size() << 2);
 
-        void *gpuKernelSpace = gpuMalloc(kernelCodeSpaceNeeded);
-        // std::cout << "gpuKernelSpace=" << (size_t)gpuKernelSpace << std::endl;
+            void *gpuKernelSpace = gpuMalloc(kernelCodeSpaceNeeded);
+            // std::cout << "gpuKernelSpace=" << (size_t)gpuKernelSpace << std::endl;
 
-        // now we need to reassemble, with offset at this new position
-        // we also need to add to the offset, for the parmeter LI instructions
-        codeWords.clear();
-        uint32_t reassemble_offset = (size_t)gpuKernelSpace + (paramsCode.size() << 2);
-        assemble(reassemble_offset, fullAssembly, codeWords, true);
-        // std::cout << "reassemble at offset " << reassemble_offset << std::endl;
+            // now we need to reassemble, with offset at this new position
+            // we also need to add to the offset, for the parmeter LI instructions
+            codeWords.clear();
+            uint32_t reassemble_offset = (size_t)gpuKernelSpace + (paramsCode.size() << 2);
+            assemble(reassemble_offset, fullAssembly, codeWords, true);
+            // std::cout << "reassemble at offset " << reassemble_offset << std::endl;
 
-        vector<uint32_t> combinedCode;
-        combinedCode.reserve(kernelCodeSpaceNeeded >> 2);
-        combinedCode.insert(combinedCode.end(), paramsCode.begin(), paramsCode.end());
-        combinedCode.insert(combinedCode.end(), codeWords.begin(), codeWords.end());
+            vector<uint32_t> combinedCode;
+            combinedCode.reserve(kernelCodeSpaceNeeded >> 2);
+            combinedCode.insert(combinedCode.end(), paramsCode.begin(), paramsCode.end());
+            combinedCode.insert(combinedCode.end(), codeWords.begin(), codeWords.end());
 
-        gpuCopyToDevice(gpuKernelSpace, &combinedCode[0], combinedCode.size() << 2);
+            gpuCopyToDevice(gpuKernelSpace, &combinedCode[0], combinedCode.size() << 2);
+
+            gpuKernelByName[launchConfiguration.kernelName] = gpuKernelSpace;
+        }
+
         // std::cout << "copied kernel to device" << std::endl;
 
         size_t global[3];
@@ -465,8 +477,8 @@ halt
         {
             args_as_ints.push_back(launchConfiguration.args[i]->asUInt32());
         }
-
-        gpuLaunchKernel(gpuKernelSpace, launchConfiguration.args.size(), &args_as_ints[0]);
+        // std::cout << "launching kernel" << std::endl;
+        gpuLaunchKernel(gpuKernelByName[launchConfiguration.kernelName], launchConfiguration.args.size(), &args_as_ints[0]);
 
         // launchMutex.unlock();
         // launchMutex.unlock();

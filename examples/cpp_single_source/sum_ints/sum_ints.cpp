@@ -37,12 +37,14 @@ int main(int argc, char **argv, char **env)
     gpuCopyToDevice(ptrGpuIn, values, numValues * sizeof(uint32_t));
     uint32_t returnValue;
 
-    // launch the kernel :)
-    sum_ints<<<dim3(1, 1, 1), dim3(1, 1, 1)>>>((unsigned int *)ptrGpuIn, numValues, (unsigned int *)ptrGpuOut);
+    for(int i = 0; i < 10; i++) {
+        // launch the kernel :)
+        sum_ints<<<dim3(1, 1, 1), dim3(1, 1, 1)>>>((unsigned int *)ptrGpuIn, numValues, (unsigned int *)ptrGpuOut);
 
-    gpuCopyFromDevice((void *)&returnValue, ptrGpuOut, 1 * sizeof(uint32_t));
-    std::cout << "sum_ints.cpp returned result " << returnValue << std::endl;
-    assert(returnValue == 31);
+        gpuCopyFromDevice((void *)&returnValue, ptrGpuOut, 1 * sizeof(uint32_t));
+        std::cout << "sum_ints.cpp returned result " << returnValue << std::endl;
+        assert(returnValue == 31);
+    }
 
     gpuDestroyContext();
 
