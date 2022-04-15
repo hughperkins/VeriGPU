@@ -342,6 +342,7 @@ def run(args):
         p1 = split_line[1] if len(split_line) >= 2 else None
         p2 = split_line[2] if len(split_line) >= 3 else None
         p3 = split_line[3] if len(split_line) >= 4 else None
+        p4 = split_line[4] if len(split_line) >= 5 else None
 
         try:
             # if cmd.startswith('.'):
@@ -407,6 +408,14 @@ def run(args):
                 asm_cmds.appendleft('lw x30, 0(x31)')
                 asm_cmds.appendleft(f'li x31, {p1}')
                 continue
+            elif cmd == 'fmadd.s':
+                # yes, I'm going to cheat and change this to a multiply followed by and add :P
+                # cmd will look like this:
+                # fmad.s rd rs1 rs2 rs3
+                #        p1 p2  p3  p4
+                # and rd = rs1 * rx2 + rs3
+                asm_cmds.appendleft(f'fadd.s {p1} {p1} {p4}')
+                asm_cmds.appendleft(f'fmul.s {p1} {p2} {p3}')
             elif cmd == 'mv':
                 # e.g.
                 # mv rd, rs
