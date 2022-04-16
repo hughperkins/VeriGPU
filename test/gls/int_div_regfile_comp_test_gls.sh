@@ -8,7 +8,7 @@ set -o pipefail
 prog=test_divu_modu_mul
 
 python verigpu/assembler.py --in-asm examples/direct/${prog}.asm --out-hex build/build.hex
-cat test/behav/single_core_mounted_driver.sv | sed -e "s/{PROG}/build/g" > build/single_core_mounted_driver.sv
+cat test/behav/core_and_mem_driver.sv | sed -e "s/{PROG}/build/g" > build/core_and_mem_driver.sv
 
 # first output gate-level netlists for int_div_regfile.sv
 python verigpu/run_yosys.py --in-verilog src/const.sv \
@@ -22,6 +22,6 @@ iverilog -g2012 tech/osu018/osu018_stdcells.v build/netlist/6.v src/const.sv \
     src/generated/mul_pipeline_cycle_32bit_2bpc.sv src/int/mul_pipeline_32bit.sv \
     src/float/float_params.sv src/float/float_add_pipeline.sv \
     src/op_const.sv src/core.sv src/global_mem_controller.sv \
-    test/behav/single_core_mounted.sv test/behav/single_core_mounted_driver.sv
+    test/behav/core_and_mem.sv test/behav/core_and_mem_driver.sv
 
 ./a.out

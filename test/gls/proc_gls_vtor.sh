@@ -34,7 +34,7 @@ python verigpu/run_yosys.py --in-verilog src/assert_ignore.sv src/op_const.sv sr
 
 for prog in ${progs}; do {
     python verigpu/assembler.py --offset 128 --in-asm examples/direct/${prog}.asm --out-hex build/prog.hex
-    cat test/behav/single_core_mounted_driver.sv | sed -e "s/{PROG}/prog/g" > build/single_core_mounted_driver.sv
+    cat test/behav/core_and_mem_driver.sv | sed -e "s/{PROG}/prog/g" > build/core_and_mem_driver.sv
 
     bash test/behav/verilator/run_netlist.sh | tee build/out.txt
     if  ! cat build/out.txt | grep '^out[ \.]' > build/out_only.txt; then {

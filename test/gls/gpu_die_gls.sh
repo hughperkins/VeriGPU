@@ -32,7 +32,7 @@ python verigpu/run_yosys.py --in-verilog src/assert_ignore.sv \
 
 for prog in ${progs}; do {
     python verigpu/assembler.py --in-asm examples/direct/${prog}.asm --out-hex build/prog.hex
-    cat test/behav//gpu_die_driver.sv | sed -e "s/{PROG}/prog/g" > build/gpu_die_driver.sv
+    cat test/behav/gpu_die_driver.sv | sed -e "s/{PROG}/prog/g" > build/gpu_die_driver.sv
 
     iverilog -g2012 tech/osu018/osu018_stdcells.v build/netlist/6.v src/assert_ignore.sv src/const.sv \
         src/mem_large.sv build/gpu_die_driver.sv
