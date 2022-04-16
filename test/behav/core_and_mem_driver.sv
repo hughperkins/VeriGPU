@@ -1,5 +1,5 @@
-// drive the single_core_mounted, to test it
-module single_core_mounted_driver();
+// drive the core_and_mem, to test it
+module core_and_mem_driver();
     parameter mem_load_size = 256;
     parameter out_size = 128;
 
@@ -32,7 +32,7 @@ module single_core_mounted_driver();
 
     reg [63:0] double;
 
-    single_core_mounted single_core_mounted_(
+    core_and_mem core_and_mem_(
         .rst(rst),
         .clk(clk),
 

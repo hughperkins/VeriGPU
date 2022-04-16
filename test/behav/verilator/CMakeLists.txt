@@ -7,8 +7,8 @@ set(BASE ${CMAKE_SOURCE_DIR}/../../..)
 set(SRC ${BASE}/src)
 set(BEHAV ${CMAKE_SOURCE_DIR}/..)
 
-add_executable(single_core_mounted ${CMAKE_SOURE_DIR}verilator_driver.cpp ${VERILATOR_ROOT}/include/verilated.cpp)
-verilate(single_core_mounted SOURCES ${SRC}/assert.sv ${SRC}/const.sv ${SRC}/op_const.sv
+add_executable(core_and_mem ${CMAKE_SOURE_DIR}verilator_driver.cpp ${VERILATOR_ROOT}/include/verilated.cpp)
+verilate(core_and_mem SOURCES ${SRC}/assert.sv ${SRC}/const.sv ${SRC}/op_const.sv
     ${SRC}/int/chunked_add_task.sv ${SRC}/int/chunked_sub_task.sv
     ${SRC}/float/float_params.sv ${SRC}/float/float_mul_pipeline.sv
     ${SRC}/float/float_add_pipeline.sv
@@ -18,9 +18,9 @@ verilate(single_core_mounted SOURCES ${SRC}/assert.sv ${SRC}/const.sv ${SRC}/op_
     ${SRC}/int/int_div_regfile.sv
     ${SRC}/core.sv
     ${SRC}/mem_large.sv ${SRC}/global_mem_controller.sv
-    ${BEHAV}/single_core_mounted.sv
-    TOP_MODULE single_core_mounted
-    PREFIX single_core_mounted
+    ${BEHAV}/core_and_mem.sv
+    TOP_MODULE core_and_mem
+    PREFIX core_and_mem
     VERILATOR_ARGS +1800-2017ext+sv --x-initial unique --x-assign unique
 )
 option(BUILD_NETLIST "build netlist" OFF)
@@ -30,9 +30,9 @@ verilate(single_core_netlist SOURCES ${SRC}/assert.sv ${SRC}/const.sv ${SRC}/op_
     ${BASE}/tech/osu018/osu018_stdcells-verilator.sv
     ${BASE}/build/netlist/6.v
     ${SRC}/mem_large.sv ${SRC}/global_mem_controller.sv
-    ${BEHAV}/single_core_mounted.sv
-    TOP_MODULE single_core_mounted
-    PREFIX single_core_mounted
+    ${BEHAV}/core_and_mem.sv
+    TOP_MODULE core_and_mem
+    PREFIX core_and_mem
     VERILATOR_ARGS +1800-2017ext+sv --x-initial unique --x-assign unique
 )
 endif()

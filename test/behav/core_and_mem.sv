@@ -3,7 +3,7 @@
 // places a single core with a global emmroy, so we can test the core in isolation, without
 // gpu controller etc
 
-module single_core_mounted(
+module core_and_mem(
     input clk, rst,
     input contr_mem_wr_en,
     input [addr_width - 1:0] contr_mem_wr_addr,

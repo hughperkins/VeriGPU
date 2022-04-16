@@ -15,7 +15,7 @@ if [[ ! -d build ]]; then {
 cd build
 
 cmake .. -DBUILD_NETLIST:bool=false
-make -j $(nproc) single_core_mounted
-./single_core_mounted +verilator+rand+reset+0
-./single_core_mounted +verilator+rand+reset+1
-./single_core_mounted +verilator+rand+reset+2 +verilator+seed+$(($RANDOM * 65536 + $RANDOM))
+make -j $(nproc) core_and_mem
+./core_and_mem +verilator+rand+reset+0
+./core_and_mem +verilator+rand+reset+1
+./core_and_mem +verilator+rand+reset+2 +verilator+seed+$(($RANDOM * 65536 + $RANDOM))
