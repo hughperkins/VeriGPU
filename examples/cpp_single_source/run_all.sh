@@ -4,8 +4,8 @@ set -ex
 set -o pipefail
 
 # first build the runtime and gpu...
-prot/verilator/prot_single_source/build-cmake.sh
+bash prot/verilator/prot_single_source/build-cmake.sh
 
-examples/cpp_single_source/data_transfer/run.sh
-examples/cpp_single_source/sum_ints/run.sh
-examples/cpp_single_source/mul_ints/run.sh
+for ex in $(ls -b examples/cpp_single_source/*.cpp); do {
+    bash examples/cpp_single_source/run.sh $(basename ${ex} .cpp)
+} done

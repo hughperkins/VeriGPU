@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Usage:
+
+# examples/cpp_single_source/run.sh [example name]
+
+# e.g.
+
+# examples/cpp_single_source/run.sh matrix_mul
+
 # This expects 'expect' to be installed, e.g.
 # brew install expect
 # or
@@ -9,11 +17,20 @@
 set -ex
 set -o pipefail
 
+if [[ x$1 == x ]]; then {
+    echo "Usage: $0 [example name]"
+    exit 1
+} fi
+
+BASENAME=$1
+
 SCRIPTDIR=$(dirname $0)
-BASENAME=$(basename $SCRIPTDIR)
+# BASENAME=$(basename $SCRIPTDIR)
 BASEDIR=$PWD
 SRC=${BASEDIR}/src
 export VERIGPUDIR=${BASEDIR}
+BUILDDIR=build/${BASENAME}
+SRC=$PWD/examples/cpp_single_source
 
 VERILATORDIR=/usr/local/share/verilator
 
@@ -31,7 +48,7 @@ if [[ $(uname) == Linux ]]; then {
     # and then `git apply` the patch from https://reviews.llvm.org/D122918
     # (and then use `ccmake` on the `llvm` folder to configure,
     # and then `make -j 8 llc` to build)
-    LLC_ZFINX=/home/ubuntu/git/llvm-project/build-llvm-zfinx-patch/bin/llc
+    LLC_ZFINX=/usr/local/bin/llc-zfinx
     LLC=llc-14
     GPURUNTIMEDIR=${BASEDIR}/prot/verilator/prot_single_source/build-cmake-linux
     LIBEXPFS=-lstdc++fs
@@ -45,23 +62,22 @@ if [[ $(uname) == Linux ]]; then {
     # and then `git apply` the patch from https://reviews.llvm.org/D122918
     # (and then use `ccmake` on the `llvm` folder to configure,
     # and then `make -j 8 llc` to build)
-    LLC_ZFINX=/Users/hp/git/llvm-project/build-llvm-zfinx-patch/bin/llc
-    BUILDDIR=cmake-mac
+    LLC_ZFINX=/usr/local/bin/llc-zfinx
     GPURUNTIMEDIR=${BASEDIR}/prot/verilator/prot_single_source/build-cmake-mac
     MACCLTINCLUDE="-I/Library/Developer/CommandLineTools/SDKs/MacOSX11.0.sdk/usr/include"
 } fi
 
-cd ${SCRIPTDIR}
+# cd ${SCRIPTDIR}
 
-if [[ -d build_bash ]]; then {
-    rm -R build_bash
+if [[ -d ${BUILDDIR} ]]; then {
+    rm -R ${BUILDDIR}
 } fi
 
-if [[ ! -d build_bash ]]; then {
-    mkdir build_bash
+if [[ ! -d ${BUILDDIR} ]]; then {
+    mkdir ${BUILDDIR}
 } fi
 
-cd build_bash
+cd ${BUILDDIR}
 
 # building patch_hostside is being migrated into cmake script at 
 # /prot/verilator/prot_single_source/CMakeLists.txt
@@ -74,10 +90,10 @@ ${CLANGPP} -fPIE \
     -I${CLANGDIR}/include/c++/v1 \
     ${MACCLTINCLUDE} \
     -I${BASEDIR}/prot/verilator/prot_single_source \
-    -S ../sum_floats.cpp \
-    -o sum_floats-hostraw.ll
+    -S ${SRC}/${BASENAME}.cpp \
+    -o ${BASENAME}-hostraw.ll
 
-# device-side => sum_floats.ll
+# device-side => ${BASENAME}.ll
 ${CLANGPP} -fPIE \
     -x cuda \
     --cuda-device-only -emit-llvm \
@@ -87,26 +103,26 @@ ${CLANGPP} -fPIE \
     -I${CLANGDIR}/include/c++/v1 \
     ${MACCLTINCLUDE} \
     -I${BASEDIR}/prot/verilator/prot_single_source \
-    -S ../sum_floats.cpp \
-    -o sum_floats-device.ll
+    -S ${SRC}/${BASENAME}.cpp \
+    -o ${BASENAME}-device.ll
 
-${LLC_ZFINX} sum_floats-device.ll -o sum_floats-device.s --march=riscv32 -mattr=+m,+zfinx
+${LLC_ZFINX} ${BASENAME}-device.ll -o ${BASENAME}-device.s --march=riscv32 -mattr=+m,+zfinx
 
 # now we have to patch hostside...
 ${GPURUNTIMEDIR}/patch_hostside \
-     --devicellfile sum_floats-device.ll \
-     --deviceriscvfile sum_floats-device.s \
-     --hostrawfile sum_floats-hostraw.ll \
-     --hostpatchedfile sum_floats-hostpatched.ll
+     --devicellfile ${BASENAME}-device.ll \
+     --deviceriscvfile ${BASENAME}-device.s \
+     --hostrawfile ${BASENAME}-hostraw.ll \
+     --hostpatchedfile ${BASENAME}-hostpatched.ll
 echo patched hostside
 
-${LLC} sum_floats-hostpatched.ll --relocation-model=pic -o sum_floats-hostpatched.s
+${LLC} ${BASENAME}-hostpatched.ll --relocation-model=pic -o ${BASENAME}-hostpatched.s
 
-g++ -std=c++14 -fPIE -c sum_floats-hostpatched.s
+g++ -std=c++14 -fPIE -c ${BASENAME}-hostpatched.s
 g++ -std=c++14 -fPIE -I${VERILATORDIR}/include -c ${VERILATORDIR}/include/verilated.cpp
 
-g++ -o sum_floats sum_floats-hostpatched.o -L${GPURUNTIMEDIR} -lverigpu_runtime ${LIBEXPFS}
+g++ -o ${BASENAME} ${BASENAME}-hostpatched.o -L${GPURUNTIMEDIR} -lverigpu_runtime ${LIBEXPFS}
 
 set +x
 
-./sum_floats +verilator+rand+reset+2 +verilator+seed+$(($RANDOM * 65536 + $RANDOM))
+./${BASENAME} +verilator+rand+reset+2 +verilator+seed+$(($RANDOM * 65536 + $RANDOM))

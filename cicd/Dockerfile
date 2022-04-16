@@ -11,13 +11,37 @@ RUN python3 -V
 
 COPY docker_files docker_files
 
-# clang and llvm 13
+# bleeding edge llvm, riscv llc
+RUN git clone --filter=tree:0 https://github.com/hughperkins/llvm-project.git -b D122918-zfinx-from-sunshaoce && \
+    cd llvm-project && \
+    mkdir build && \
+    cd build && \
+    cmake -D EXPERIMENTAL_TARGETS_TO_BUILD:str=RISCV \
+    -D LLVM_TARGETS_TO_BUILD:str=RISCV \
+    -D CMAKE_BUILD_TYPE:STR=Release \
+    -D LLVM_BUILD_RUNTIME:BOOL=OFF \
+    -D LLVM_BUILD_RUNTIMES:BOOL=OFF \
+    -D LLVM_BUILD_TOOLS:BOOL=OFF \
+    -D LLVM_BUILD_UTILS:BOOL=OFF \
+    -D LLVM_INCLUDE_BENCHMARKS:BOOL=OFF \
+    -D LLVM_INCLUDE_DOCS:BOOL=OFF \
+    -D LLVM_INCLUDE_EXAMPLES:BOOL=OFF \
+    -D LLVM_INCLUDE_RUNTIMES:BOOL=OFF \
+    -D LLVM_INCLUDE_TESTS:BOOL=OFF \
+    -D LLVM_INCLUDE_UTILS:BOOL=OFF \
+    ../llvm && \
+    make -j $(nproc) llc && \
+    cp bin/llc /usr/local/bin/llc-zfinx && \
+    cd ../.. && \
+    rm -Rf llvm-project
+
+# clang and llvm 14, for clang
 RUN wget https://apt.llvm.org/llvm-snapshot.gpg.key && \
     apt-key add llvm-snapshot.gpg.key && \
     cp -v docker_files/llvm-sources.list /etc/apt/sources.list.d/ && \
     apt-get update && \
-    apt-get install -y clang-13 lldb-13 lld-13 libllvm13 llvm-13 llvm-13-dev llvm-13-runtime && \
-    clang++-13 --version
+    apt-get install -y clang-14 lldb-14 lld-14 libllvm14 llvm-14 llvm-14-dev llvm-14-runtime && \
+    clang++-14 --version
 
 # llvm 14.0.0
 # RUN wget -q https://github.com/llvm/llvm-project/releases/download/llvmorg-14.0.0/clang+llvm-14.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz && \
