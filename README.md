@@ -42,7 +42,7 @@ Single-source compilation and runtime
 
 Single-source C++:
 
-- [examples/cpp_single_source/sum_ints/sum_ints.cpp](/examples/cpp_single_source/sum_ints.cpp)
+- [examples/cpp_single_source/sum_ints.cpp](/examples/cpp_single_source/sum_ints.cpp)
 
 ![Single-source C++](/docs/img/single_source_code.png)
 
@@ -57,7 +57,7 @@ Compile the GPU and runtime:
 
 Compile the single-source C++, and run:
 
-- [examples/cpp_single_source/sum_ints/run.sh](/examples/cpp_single_source/sum_ints/run.sh)
+- [examples/cpp_single_source/run.sh sum_ints](/examples/cpp_single_source/run.sh)
 
 ![Run single-source example](/docs/img/single_source_run.png)
 
