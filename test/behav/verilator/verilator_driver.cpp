@@ -78,12 +78,12 @@ int main(int argc, char **argv, char **env)
     // infile.exceptions(std::ios::goodbit);
     unsigned int a;
     unsigned int addr = kernel_offset;
-    std::cout << "iterating file" << std::endl;
+    // std::cout << "iterating file" << std::endl;
     while(infile >> std::hex >> a) {
         // dut->oob_wen = 1;
         // dut->oob_wr_addr = addr;
         // dut->oob_wr_data = a;
-        std::cout << "writing to global memory pos=" << addr << " v=" << a << std::endl;
+        // std::cout << "writing to global memory pos=" << addr << " v=" << a << std::endl;
         dut->contr_mem_wr_en = 1;
         dut->contr_mem_wr_addr = addr;
         dut->contr_mem_wr_data = a;
@@ -96,7 +96,7 @@ int main(int argc, char **argv, char **env)
         sim_time += 5;
         dut->eval();
     }
-    std::cout << "finished iterating file" << std::endl;
+    // std::cout << "finished iterating file" << std::endl;
 
     dut->contr_mem_wr_en = 0;
     // dut->oob_wen = 0;
@@ -121,17 +121,17 @@ int main(int argc, char **argv, char **env)
         sim_time += 5;
         dut->eval();
         if(int(dut->contr_core1_halt)) {
-            std::cout << "HALT" << std::endl;
+            // std::cout << "HALT" << std::endl;
             break;
         }
         if(int(dut->outen)) {
             out_types.push_back(0);
-            std::cout << "OUT " << int(dut->out) << std::endl;
+            // std::cout << "OUT " << int(dut->out) << std::endl;
             outs.push_back(int(dut->out));
         }
         if(int(dut->outflen)) {
             out_types.push_back(1);
-            std::cout << "OUT.S " << reinterpret_cast<float &>(dut->out) << std::endl;
+            // std::cout << "OUT.S " << reinterpret_cast<float &>(dut->out) << std::endl;
             out_floats.push_back(reinterpret_cast<float &>(dut->out));
         }
         // m_trace->dump(sim_time);
