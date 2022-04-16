@@ -42,7 +42,7 @@ Single-source compilation and runtime
 
 Single-source C++:
 
-- [examples/cpp_single_source/sum_ints/sum_ints.cpp](/examples/cpp_single_source/sum_ints/sum_ints.cpp)
+- [examples/cpp_single_source/sum_ints/sum_ints.cpp](/examples/cpp_single_source/sum_ints.cpp)
 
 ![Single-source C++](/docs/img/single_source_code.png)
 
