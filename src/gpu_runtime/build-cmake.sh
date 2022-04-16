@@ -18,7 +18,7 @@ if [[ $(uname) == Linux ]]; then {
 } fi
 
 if [[ ! -e ${BUILDDIR} ]]; then {
-    mkdir ${BUILDDIR}
+    mkdir -p ${BUILDDIR}
 } fi
 
 cd ${BUILDDIR}
