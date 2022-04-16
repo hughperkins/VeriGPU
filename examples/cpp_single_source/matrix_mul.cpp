@@ -1,13 +1,3 @@
-/*
-Send some integers to the gpu, launch a kernel to calculate their sum,
-receive the result back to cpu-side, check correct
-
-This is a work in progress. Stretch goal. Not working yet.
-
-To run it (once it's working), current plan is to run:
-
-examples/cpp_single_source/matrix_mul/run.sh
-*/
 #include "gpu_runtime.h"
 #include <iostream>
 #include <cassert>

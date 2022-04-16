@@ -2,24 +2,26 @@
 
 ## Overall plan
 
-We aim to design an opensource GPU, ready for tape-out, that can run machine learning training, using either [OpenCL™](https://www.khronos.org/opencl/) or [CUDA®](https://developer.nvidia.com/cuda-zone) (for compatibility purposes). There are some steps to go through to get there :)
+We aim to design an opensource GPU, ready for tape-out, that can run machine learning training, using [HIP](https://github.com/ROCm-Developer-Tools/HIP) (for compatibility purposes). There are some steps to go through to get there :)
 
 System components
 
 |Component                     |Status|
 |------------------------------|------|
-|Processor controller          |In progress|
+|GPU controller          |Exists|
 |Parallel instruction execution|Planned|
 | Out of order execution       |Won't do (see below)|
 | Data memory caching           |Planned|
 | Instruction memory cachine   |Planned|
-| Integer APU                  |In progress|
-| Floating point unit          |In progress|
-| Branching                    |Drafted|
+| Integer APU                  |Exists, for + / - +|
+| Floating point unit          |Exists, for * +|
+| Branching                    |Done|
 | Single instruction multiple thread (SIMT) |Planned|
-|Assembler                      |In progress|
-| OpenCL™ compiler              |Planned (stretch)|
-| CUDA® compiler (for compatibility} |Planned (stretch)|
+|Assembler                      |Exists|
+| Single-source C++ compilation              |Exists|
+| HIP compiler              |Planned|
+| SYCL compiler              |Maybe|
+| CUDA® compiler (for compatibility} |Maybe|
 
 ## Design decisions
 
@@ -27,7 +29,7 @@ We do not currently intend to implement out of order execution, meaning starting
 
 We will on the other hand implement parallel instruction execution, where we start an instruction whilst the previous instruction is still running. This is standard and fairly light-weight, doesn't take up too much die area.
 
-The GPU is aimed squarely at machine learning training. Therefore it should ideally be compatible with current machine learning frameworks, such as [PyTorch](https://pytorch.org) and [Tensorflow](https://www.tensorflow.org/). This means that it almost certainly needs to be compatible with CUDA®. However, we might also implement an OpenCL™ interface, though support by major frameworks is currently limited. There is a dedicated OpenCL deep learning framework at [DeepCL](https://github.com/hughperkins/DeepCL), but it has a relatively limited set of neural network layers, and possible network topologies, compared to PyTorch and Tensorflow. There is a port of the old lua torch to OpenCL at [https://github.com/hughperkins/cltorch](https://github.com/hughperkins/cltorch), however the vast majority of ML practioners have now moved onto PyTorch, or use Tensorflow.
+The GPU is aimed squarely at machine learning training. Therefore it should ideally be compatible with current machine learning frameworks, such as [PyTorch](https://pytorch.org) and [Tensorflow](https://www.tensorflow.org/). This means that it almost certainly needs to be compatible with [NVIDIA® CUDA™](https://developer.nvidia.com/cuda-toolkit) or [AMD HIP](https://github.com/ROCm-Developer-Tools/HIP). However, we might also implement a OpenCL™ or SYCL interface, though support by major frameworks is currently limited. There is a dedicated OpenCL deep learning framework at [DeepCL](https://github.com/hughperkins/DeepCL), but it has a relatively limited set of neural network layers, and possible network topologies, compared to PyTorch and Tensorflow. There is a port of the old lua torch to OpenCL at [https://github.com/hughperkins/cltorch](https://github.com/hughperkins/cltorch), however the vast majority of ML practioners have now moved onto PyTorch, or use Tensorflow.
 
 ## Tactical day-to-day backlog
 

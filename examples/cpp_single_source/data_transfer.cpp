@@ -1,13 +1,3 @@
-/*
-Send some integers to the gpu, receive them back, to a new buffer, check
-identical
-
-This actually runs ok. At least, transfer of data to/from a verilog placeholder is working.
-
-You can compile and run this by doing, from the repo root:
-
-examples/cpp_single_source/data_transfer/run.sh
-*/
 #include "gpu_runtime.h"
 #include <iostream>
 #include <cassert>
