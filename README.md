@@ -48,8 +48,8 @@ Single-source C++:
 
 Compile the GPU and runtime:
 
-- CMakeLists.txt: [prot/verilator/prot_single_source/CMakeLists.txt](/prot/verilator/prot_single_source/CMakeLists.txt)
-- GPU runtime: [prot/verilator/prot_single_source/gpu_runtime.cpp](/prot/verilator/prot_single_source/gpu_runtime.cpp)
+- CMakeLists.txt: [src/gpu_runtime/CMakeLists.txt](/src/gpu_runtime/CMakeLists.txt)
+- GPU runtime: [src/gpu_runtime/gpu_runtime.cpp](/src/gpu_runtime/gpu_runtime.cpp)
 - GPU controller: [src/gpu_controller.sv](/src/gpu_controller.sv)
 - Single GPU RISC-V core: [src/core.sv](/src/core.sv)
 

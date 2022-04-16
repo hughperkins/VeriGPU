@@ -38,6 +38,7 @@ if [[ ! -e ${VERIGPUDIR}/build ]]; then {
     mkdir -p ${VERIGPUDIR}/build
 } fi
 
+GPU_RUNTIME_INCLUDE=${BASEDIR}/src/gpu_runtime
 if [[ $(uname) == Linux ]]; then {
     # assume installed clang 14 using https://apt.llvm.org/
     # if you want to handle other scenarios, please submit a PR :)
@@ -50,7 +51,7 @@ if [[ $(uname) == Linux ]]; then {
     # and then `make -j 8 llc` to build)
     LLC_ZFINX=/usr/local/bin/llc-zfinx
     LLC=llc-14
-    GPURUNTIMEDIR=${BASEDIR}/prot/verilator/prot_single_source/build-cmake-linux
+    GPU_RUNTIME_BUILD=${BASEDIR}/build/runtime-linux
     LIBEXPFS=-lstdc++fs
 } elif [[ $(uname) == Darwin ]]; then {
     echo Mac detected
@@ -63,7 +64,7 @@ if [[ $(uname) == Linux ]]; then {
     # (and then use `ccmake` on the `llvm` folder to configure,
     # and then `make -j 8 llc` to build)
     LLC_ZFINX=/usr/local/bin/llc-zfinx
-    GPURUNTIMEDIR=${BASEDIR}/prot/verilator/prot_single_source/build-cmake-mac
+    GPU_RUNTIME_BUILD=${BASEDIR}/build/runtime-mac
     MACCLTINCLUDE="-I/Library/Developer/CommandLineTools/SDKs/MacOSX11.0.sdk/usr/include"
 } fi
 
@@ -89,7 +90,7 @@ ${CLANGPP} -fPIE \
     -I${CLANGDIR}/include \
     -I${CLANGDIR}/include/c++/v1 \
     ${MACCLTINCLUDE} \
-    -I${BASEDIR}/prot/verilator/prot_single_source \
+    -I${GPU_RUNTIME_INCLUDE} \
     -S ${SRC}/${BASENAME}.cpp \
     -o ${BASENAME}-hostraw.ll
 
@@ -102,14 +103,14 @@ ${CLANGPP} -fPIE \
     -I${CLANGDIR}/include \
     -I${CLANGDIR}/include/c++/v1 \
     ${MACCLTINCLUDE} \
-    -I${BASEDIR}/prot/verilator/prot_single_source \
+    -I${GPU_RUNTIME_INCLUDE} \
     -S ${SRC}/${BASENAME}.cpp \
     -o ${BASENAME}-device.ll
 
 ${LLC_ZFINX} ${BASENAME}-device.ll -o ${BASENAME}-device.s --march=riscv32 -mattr=+m,+zfinx
 
 # now we have to patch hostside...
-${GPURUNTIMEDIR}/patch_hostside \
+${GPU_RUNTIME_BUILD}/patch_hostside \
      --devicellfile ${BASENAME}-device.ll \
      --deviceriscvfile ${BASENAME}-device.s \
      --hostrawfile ${BASENAME}-hostraw.ll \
@@ -121,7 +122,7 @@ ${LLC} ${BASENAME}-hostpatched.ll --relocation-model=pic -o ${BASENAME}-hostpatc
 g++ -std=c++14 -fPIE -c ${BASENAME}-hostpatched.s
 g++ -std=c++14 -fPIE -I${VERILATORDIR}/include -c ${VERILATORDIR}/include/verilated.cpp
 
-g++ -o ${BASENAME} ${BASENAME}-hostpatched.o -L${GPURUNTIMEDIR} -lverigpu_runtime ${LIBEXPFS}
+g++ -o ${BASENAME} ${BASENAME}-hostpatched.o -L${GPU_RUNTIME_BUILD} -lverigpu_runtime ${LIBEXPFS}
 
 set +x
 

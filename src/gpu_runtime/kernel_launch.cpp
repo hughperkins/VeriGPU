@@ -77,7 +77,7 @@ static LaunchConfiguration launchConfiguration;
 
 // static std::map<std::string, vector<uint32_t>> codeByKernelName;
 static std::map<std::string, void *> gpuKernelByName;
-static void *stack = 0;
+static void *stackGpu = 0;
 
 size_t cuInit(unsigned int flags)
 {
@@ -391,8 +391,8 @@ void kernelGo()
         //   probalby need async reset on the controller though I guess?)
         // - whilst disabled, can have something like req_set_pc, and pc_value
 
-        if(stack == 0) {  // obviously not thread safe
-            stack = gpuMalloc(stackSize);
+        if(stackGpu == 0) {  // obviously not thread safe
+            stackGpu = gpuMalloc(stackSize);
         }
         // std::cout << "allocated stack pos=" << (size_t)(stack) << std::endl;
 /*
@@ -425,7 +425,7 @@ halt
         if (gpuKernelByName.find(launchConfiguration.kernelName) == gpuKernelByName.end()) {
             // std::cout << "building kernel " << launchConfiguration.kernelName << std::endl;
             // we should probably make the li for sp also dynamic
-            asmHeader << "li sp, " << ((size_t)(stack) + stackSize) << std::endl;
+            asmHeader << "li sp, " << ((size_t)(stackGpu) + stackSize) << std::endl;
             asmHeader << "jal x1, " << launchConfiguration.kernelName << std::endl;
             asmHeader << "halt" << std::endl;
             // std::cout << "asmHeader:" << std::endl;

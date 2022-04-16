@@ -5,14 +5,16 @@
 set -ex
 set -o pipefail
 
-cd prot/verilator/prot_single_source
+# cd prot/verilator/prot_single_source
+
+BASEDIR=$PWD
 
 if [[ $(uname) == Linux ]]; then {
     echo Linux detected
-    BUILDDIR=build-cmake-linux
+    BUILDDIR=build/runtime-linux
 } elif [[ $(uname) == Darwin ]]; then {
     echo Mac detected
-    BUILDDIR=build-cmake-mac
+    BUILDDIR=build/runtime-mac
 } fi
 
 if [[ ! -e ${BUILDDIR} ]]; then {
@@ -21,6 +23,7 @@ if [[ ! -e ${BUILDDIR} ]]; then {
 
 cd ${BUILDDIR}
 
-cmake ..
+cmake ${BASEDIR}/src/gpu_runtime
+
 # unbuffer make -j $(nproc)
 unbuffer make VERBOSE=1

@@ -1,29 +1,19 @@
 cmake_minimum_required(VERSION 3.16.3)
 
 if(APPLE)
-set(CLANG_HOME "/usr/local/opt/llvm-14.0.0" CACHE PATH "the downloaded clang+llvm-14.0.0-x86_64-apple-darwin folder, containing lib, bin etc")
-# set(CMAKE_CXX_COMPILER ${CLANG_HOME}/bin/clang++)
-# set(CMAKE_C_COMPILER ${CLANG_HOME}/bin/clang)
-# set(LLCM_CONFIG llvm-config-13)
-elseif(WIN32)
-message(FATAL "Win32 not currently supported. PRs welcome")
-# set(CLANG_HOME "C:\\Program Files\\LLVM" CACHE PATH "the downloaded clang-4.0.0 folder, containing lib, bin etc")
-elseif(LINUX)
-# we assuem you've installed clang 13 from here https://apt.llvm.org/ (section 'install (stable branch)')
-# if  you need some other scenario, please submit an approparite PR :)
-# set(CMAKE_CXX_COMPILER clang++-13)
-# set(CMAKE_C_COMPILER clang-13)
-# set(ADDITIONAL_LLVM_INCLUDE usr/include/llvm-13)
-# set(LLCM_CONFIG llvm-config-13)
+    set(CLANG_HOME "/usr/local/opt/llvm-14.0.0" CACHE PATH "the downloaded clang+llvm-14.0.0-x86_64-apple-darwin folder, containing lib, bin etc")
 
-# set(CLANG_HOME "/usr/local/opt/llvm-14.0.0" CACHE PATH "the downloaded clang-144.0.0 folder, containing lib, bin etc")
-set(ZLIB_LIBRARY "/usr/lib/x86_64-linux-gnu/libz.so" CACHE PATH "path to libz library, see https://askubuntu.com/questions/1244299/cmake-can-not-find-zlib-on-ubuntu-20-04")
+elseif(WIN32)
+    message(FATAL "Win32 not currently supported. PRs welcome")
+elseif(LINUX)
+    set(ZLIB_LIBRARY "/usr/lib/x86_64-linux-gnu/libz.so" CACHE PATH "path to libz library, see https://askubuntu.com/questions/1244299/cmake-can-not-find-zlib-on-ubuntu-20-04")
 endif()
+
+set(CMAKE_CXX_STANDARD 14)
 
 project(verigpu_runtime)
 
 find_package(LLVM REQUIRED CONFIG PATHS "${CLANG_HOME}/lib/cmake/llvm")
-# find_package(ZLIB HINTS "/usr/lib/x86_64-linux-gnu/pkgconfig")
 find_package(ZLIB REQUIRED)
 
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
@@ -36,7 +26,7 @@ message(STATUS "llvm_libs ${llvm_libs}")
 find_package(verilator REQUIRED HINTS $ENV{VERILATOR_ROOT})
 
 # set(BASE CACHE STRING "root of verigpu repo" "${CMAKE_SOURCE_DIR}/../../..")
-set(BASE "${CMAKE_SOURCE_DIR}/../../..")
+set(BASE "${CMAKE_SOURCE_DIR}/../..")
 set(SRC "${BASE}/src")
 message(STATUS "BASE ${BASE}")
 
@@ -73,7 +63,7 @@ verilate(verigpu_runtime
     TOP_MODULE gpu_card
     PREFIX gpu_card
 )
-target_compile_options(verigpu_runtime PRIVATE "-std=c++14;-fPIE")
+target_compile_options(verigpu_runtime PRIVATE "-fPIE")
 
 # some of this stuff is copied from Coriander, apr 6 2022
 
