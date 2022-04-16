@@ -8,7 +8,7 @@
 #include <bitset>
 #include <iomanip>
 #include <verilated_vcd_c.h>
-#include "single_core_mounted.h"
+#include "core_and_mem.h"
 
 #define MAX_SIM_TIME 5000000
 // #define MAX_SIM_TIME 2000
@@ -24,7 +24,7 @@ int main(int argc, char **argv, char **env)
 {
     Verilated::commandArgs(argc, argv);
 
-    single_core_mounted *dut = new single_core_mounted;
+    core_and_mem *dut = new core_and_mem;
 
     // Verilated::traceEverOn(true);
     // VerilatedVcdC *m_trace = new VerilatedVcdC;
