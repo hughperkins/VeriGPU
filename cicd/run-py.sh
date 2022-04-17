@@ -15,4 +15,4 @@ if [[ ! -e build ]]; then {
     mkdir build
 } fi
 
-pytest -v .
+pytest -v test/py
