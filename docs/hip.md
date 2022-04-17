@@ -5,7 +5,7 @@ HIP API, as described in https://github.com/ROCm-Developer-Tools/HIP
 ## Test case for development
 
 ```
-src/gpu_runtime/build-cmake.sh &&  python verigpu/test_hip.py
+src/gpu_runtime/build-cmake.sh &&  python examples/hip/test_hip.py
 ```
 
 ## Pre-requisites
@@ -41,12 +41,6 @@ hipSetDevice
 hipSetDevice
 hipGetDevice
 hipGetDevice
-hipMemcpyWithStream
-hipGetLastError
-hipGetErrorString
+hipMemcpyWithStream dst=128 src=94902917325632 size=12 kind=1 stream=0
 hipSetDevice
-Traceback (most recent call last):
-  File "/home/ubuntu/git/verigpu/verigpu/test_hip.py", line 4, in <module>
-    a.cuda()
-RuntimeError
 ```
