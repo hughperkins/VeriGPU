@@ -1,4 +1,5 @@
 - learn AXI
+- get working with pytorch, at least for something simple, like adding 1 to an int tensor
 - migrate to use llvm assembler instead of assembler.py?
 - make a general single-source 'compile' script (?)
 - split `global_mem_controller.sv` into `global_mem_controller.sv` and `global_mem.sv`
@@ -19,15 +20,12 @@
 - fuse AUIPC and JALR
 - fuse DIV and MOD
 - implement fmad?
-- maybe use a C/C++ -> RISC-V compiler, instead of writing assembler?
 - instruction cache
 - level 1 cache
 - memory can have byte access (via cache)
 - check endian-ness relative to risc-v spec
 - check spir-v vs risc-v
 - gpu structure
-- opencl
-- CUDA(R)
 - change bits of address to 64-bit, to allow 16GB+ of memory
 - (figure out a way to have asserts displayed over if it is the last run through the comb block before the flip-flops flip?)
 - (maybe create a lint checker that tests taht if statements have)

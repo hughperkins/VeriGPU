@@ -19,7 +19,8 @@ System components
 | Single instruction multiple thread (SIMT) |Planned|
 |Assembler                      |Exists|
 | Single-source C++ compilation              |Exists|
-| HIP compiler              |Planned|
+| Works with pytorch       |Started |
+| HIP compiler              |Started|
 | SYCL compiler              |Maybe|
 | CUDA® compiler (for compatibility} |Maybe|
 
