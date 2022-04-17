@@ -63,6 +63,9 @@ verilate(verigpu_runtime
     TOP_MODULE gpu_card
     PREFIX gpu_card
 )
+if(LINUX)
+    target_link_libraries(verigpu_runtime PRIVATE stdc++fs)
+endif()
 target_compile_options(verigpu_runtime PRIVATE "-fPIE;-fPIC")
 
 # some of this stuff is copied from Coriander, apr 6 2022
