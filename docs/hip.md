@@ -20,6 +20,8 @@ src/gpu_runtime/build-cmake.sh &&  python examples/pytorch/test_create_tensor.py
     - must have created symlinks from `${VERIGPU}/build-runtime/libverigpu_runtime.so`, where `${VERIGPU}` is the absolute path to the VeriGPU repository, to files in the above `lib` directory, with the exact same names as those moved
 - must have all pre-requisites for running VeriGPU single-source, [examples/cpp_single_source/README.md](/examples/cpp_single_source/README.md)
 
+(Note that in the future, we will need to compile pytorch from scratch, since we need to compile the kernels ourselves, into RISC-V).
+
 ## Results at time of writing
 
 At time of writing, running this test-case gives:
