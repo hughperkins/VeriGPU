@@ -126,4 +126,5 @@ g++ -o ${BASENAME} ${BASENAME}-hostpatched.o -L${GPU_RUNTIME_BUILD} -lverigpu_ru
 
 set +x
 
+export LD_LIBRARY_PATH=${GPU_RUNTIME_BUILD}
 ./${BASENAME} +verilator+rand+reset+2 +verilator+seed+$(($RANDOM * 65536 + $RANDOM))

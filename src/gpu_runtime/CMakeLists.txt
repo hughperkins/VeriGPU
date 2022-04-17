@@ -31,7 +31,7 @@ set(SRC "${BASE}/src")
 message(STATUS "BASE ${BASE}")
 
 # add_library(verigpu_runtime SHARED
-add_library(verigpu_runtime
+add_library(verigpu_runtime SHARED
     ${VERILATOR_ROOT}/include/verilated.cpp
     ${CMAKE_SOURCE_DIR}/gpu_runtime.cpp
     ${CMAKE_SOURCE_DIR}/kernel_launch.cpp
@@ -63,7 +63,7 @@ verilate(verigpu_runtime
     TOP_MODULE gpu_card
     PREFIX gpu_card
 )
-target_compile_options(verigpu_runtime PRIVATE "-fPIE")
+target_compile_options(verigpu_runtime PRIVATE "-fPIE;-fPIC")
 
 # some of this stuff is copied from Coriander, apr 6 2022
 
