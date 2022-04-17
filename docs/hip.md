@@ -18,7 +18,7 @@ src/gpu_runtime/build-cmake.sh &&  python verigpu/test_hip.py
         - libhsa-runtime64.so
         - libroctx64.so
     - must have created symlinks from `${VERIGPU}/build-runtime/libverigpu_runtime.so`, where `${VERIGPU}` is the absolute path to the VeriGPU repository, to files in the above `lib` directory, with the exact same names as those moved
-- must have all pre-requisites for running VeriGPU single-source, [examples/cpp_single_source/README.md](examples/cpp_single_source/README.md)
+- must have all pre-requisites for running VeriGPU single-source, [examples/cpp_single_source/README.md](/examples/cpp_single_source/README.md)
 
 ## Results at time of writing
 
