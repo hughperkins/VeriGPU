@@ -117,7 +117,7 @@ void *gpuMalloc(uint32_t requestedBytes)
     }
 }
 
-void gpuCopyToDevice(void *gpuMemPtr, void *srcData, size_t numBytes)
+void gpuCopyToDevice(void *gpuMemPtr, const void *srcData, size_t numBytes)
 {
     // std::cout << "gpuCopyToDevice our addr " << srcData << " theirs " << gpuMemPtr << " numBytes " << numBytes << std::endl;
     dut->cpu_recv_instr = COPY_TO_GPU;
@@ -141,7 +141,7 @@ void gpuCopyToDevice(void *gpuMemPtr, void *srcData, size_t numBytes)
     // std::cout << "hopefully copied data to GPU" << std::endl;
 }
 
-void gpuCopyFromDevice(void *destData, void *gpuMemPtr, size_t numBytes)
+void gpuCopyFromDevice(void *destData, const void *gpuMemPtr, size_t numBytes)
 {
     // std::cout << "gpuCopyFromDevice our addr " << destData << " theirs " << gpuMemPtr << " numBytes " << numBytes << std::endl;
     dut->cpu_recv_instr = COPY_FROM_GPU;
@@ -176,7 +176,8 @@ void gpuCopyFromDevice(void *destData, void *gpuMemPtr, size_t numBytes)
     // std::cout << "hopefully received data from GPU" << std::endl;
 }
 
-void gpuLaunchKernel(void *kernelPos, uint32_t numParams, const uint32_t *const p_params) {
+void gpuLaunchKernel(const void *kernelPos, uint32_t numParams, const uint32_t *const p_params)
+{
     dut->cpu_recv_instr = KERNEL_LAUNCH;
     tick();
 

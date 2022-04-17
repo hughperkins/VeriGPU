@@ -71,6 +71,14 @@ extern "C"
         *ptr = gpuMalloc(size);
         return hipSuccess;
     }
+    hipError_t hipMemcpyWithStream(
+        void *dst, const void *src, size_t sizeBytes,
+        hipMemcpyKind kind, hipStream_t stream) {
+        std::cout << "hipMemcpyWithStream dst=" << (size_t)dst << " src=" << (size_t)src << " size=" << sizeBytes <<
+            " kind=" << kind << " stream=" << stream << std::endl;
+        gpuCopyToDevice(dst, src, sizeBytes);
+        return hipSuccess;
+    }
 
     // auto-generated stubs:
     void hipMemcpy()
@@ -536,10 +544,6 @@ extern "C"
     void roctxMarkA()
     {
         std::cout << "roctxMarkA" << std::endl;
-    }
-    void hipMemcpyWithStream()
-    {
-        std::cout << "hipMemcpyWithStream" << std::endl;
     }
     void hipOccupancyMaxActiveBlocksPerMultiprocessor()
     {
