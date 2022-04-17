@@ -37,6 +37,7 @@ add_library(verigpu_runtime SHARED
     ${CMAKE_SOURCE_DIR}/kernel_launch.cpp
     ${CMAKE_SOURCE_DIR}/stringhelper.cpp
     ${CMAKE_SOURCE_DIR}/vector_types.cpp
+    ${CMAKE_SOURCE_DIR}/hip_api.cpp
 )
 message(STATUS "LLVM_INCLUDE_DIRS ${LLVM_INCLUDE_DIRS}")
 target_include_directories(verigpu_runtime PRIVATE ${CLANG_HOME}/include ${LLVM_INCLUDE_DIRS})
@@ -64,7 +65,7 @@ verilate(verigpu_runtime
     PREFIX gpu_card
 )
 if(LINUX)
-    target_link_libraries(verigpu_runtime PRIVATE stdc++fs)
+    target_link_libraries(verigpu_runtime PRIVATE)
 endif()
 target_compile_options(verigpu_runtime PRIVATE "-fPIE;-fPIC")
 

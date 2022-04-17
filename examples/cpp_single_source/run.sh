@@ -52,7 +52,6 @@ if [[ $(uname) == Linux ]]; then {
     LLC_ZFINX=/usr/local/bin/llc-zfinx
     LLC=llc-14
     GPU_RUNTIME_BUILD=${BASEDIR}/build/runtime-linux
-    LIBEXPFS=-lstdc++fs
 } elif [[ $(uname) == Darwin ]]; then {
     echo Mac detected
     CLANGDIR=/usr/local/opt/llvm-14.0.0
@@ -122,7 +121,7 @@ ${LLC} ${BASENAME}-hostpatched.ll --relocation-model=pic -o ${BASENAME}-hostpatc
 g++ -std=c++14 -fPIE -c ${BASENAME}-hostpatched.s
 g++ -std=c++14 -fPIE -I${VERILATORDIR}/include -c ${VERILATORDIR}/include/verilated.cpp
 
-g++ -o ${BASENAME} ${BASENAME}-hostpatched.o -L${GPU_RUNTIME_BUILD} -lverigpu_runtime ${LIBEXPFS}
+g++ -o ${BASENAME} ${BASENAME}-hostpatched.o -L${GPU_RUNTIME_BUILD} -lverigpu_runtime
 
 set +x
 

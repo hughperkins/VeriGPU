@@ -3,6 +3,7 @@
 #include "kernel_launch_ext.h"
 #include "kernel_launch.h"
 
+#include <algorithm>
 #include <sys/stat.h>
 #include <iostream>
 #include <memory>
@@ -16,7 +17,7 @@
 #include <fstream>
 #include <cassert>
 #include <bitset>
-#include <experimental/filesystem>
+// #include <experimental/filesystem>
 
 #include "stringhelper.h"
 #include "gpu_runtime.h"
@@ -49,8 +50,16 @@ void kernel_launch_assure_initialized(void)
 {
 }
 
+// static std::string makePreferred(std::string path) {
+//     return std::experimental::filesystem::path(path).make_preferred();
+// }
+
 static std::string makePreferred(std::string path) {
-    return std::experimental::filesystem::path(path).make_preferred();
+    // return std::experimental::filesystem::path(path).make_preferred();
+    #ifdef _WIN32
+        return std::replace(path.begin(), path.end(), '/', '\\');
+    #endif // _WIN32
+    return path;
 }
 
 namespace VeriGPU
