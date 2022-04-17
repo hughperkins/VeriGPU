@@ -5,7 +5,7 @@ HIP API, as described in https://github.com/ROCm-Developer-Tools/HIP
 ## Test case for development
 
 ```
-src/gpu_runtime/build-cmake.sh &&  python examples/pytorch/test_hip.py
+src/gpu_runtime/build-cmake.sh &&  python examples/pytorch/test_create_tensor.py
 ```
 
 ## Pre-requisites
