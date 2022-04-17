@@ -4,6 +4,7 @@
 
 #pragma once
 
+#ifndef DIM3  // hip defines this already
 struct dim3
 {
     dim3(unsigned int x, unsigned y, unsigned int z) : x(x), y(y), z(z) {}
@@ -18,6 +19,7 @@ struct dim3
 
 std::ostream &operator<<(std::ostream &os, const dim3 &value);
 std::ostream &operator<<(std::ostream &os, const size_t value[3]);
+#endif // DIM3
 
 extern "C"
 {

@@ -990,16 +990,18 @@ extern "C"
      * Struct for data in 3D
      *
      */
-/*    typedef struct dim3
+    #define DIM3
+    typedef struct dim3
     {
         uint32_t x; ///< x
         uint32_t y; ///< y
         uint32_t z; ///< z
 #ifdef __cplusplus
-        constexpr __host__ __device__ dim3(uint32_t _x = 1, uint32_t _y = 1, uint32_t _z = 1) : x(_x), y(_y), z(_z){};
+        // constexpr __host__ __device__ dim3(uint32_t _x = 1, uint32_t _y = 1, uint32_t _z = 1) : x(_x), y(_y), z(_z){};
+        constexpr dim3(uint32_t _x = 1, uint32_t _y = 1, uint32_t _z = 1) : x(_x), y(_y), z(_z){};
 #endif
     } dim3;
-    */
+    
     typedef struct hipLaunchParams_t
     {
         void *func;         ///< Device function symbol
@@ -1251,3 +1253,4 @@ extern "C"
             1, ///< Automatically free memory allocated in a graph before relaunching.
     } hipGraphInstantiateFlags;
 #include <hip/amd_detail/amd_hip_runtime_pt_api.h>
+}
