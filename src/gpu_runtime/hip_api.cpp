@@ -13,6 +13,10 @@ const int coresPerComputeUnit = 1;
 
 extern "C"
 {
+    std::ostream &operator<<(std::ostream &os, const dim3 &value) {
+        os << "dim3(" << value.x << ", " << value.y << ", " << value.z << ")";
+        return os;
+    }
     uint32_t hipInit()
     {
         std::cout << "hipInit" << std::endl;
@@ -79,19 +83,52 @@ extern "C"
         gpuCopyToDevice(dst, src, sizeBytes);
         return hipSuccess;
     }
+    // TODO make these actual stacks...
+    static dim3 s_gridDim;
+    static dim3 s_blockDim;
+    static size_t s_sharedMem;
+    static hipStream_t s_stream;
+    hipError_t __hipPushCallConfiguration(
+        dim3 gridDim,
+        dim3 blockDim,
+        size_t sharedMem __dparm(0),
+        hipStream_t stream __dparm(0)) {
+        std::cout << "__hipPushCallConfiguration gridDim " << gridDim << " blockDim " << blockDim
+            << " sharedMem=" << sharedMem << " stream=" << stream << std::endl;
+        s_gridDim = gridDim;
+        s_blockDim = blockDim;
+        s_sharedMem = sharedMem;
+        s_stream = stream;
+        return hipSuccess;
+    }
+    hipError_t __hipPopCallConfiguration
+        (dim3 *gridDim,
+        dim3 *blockDim,
+        size_t *sharedMem,
+        hipStream_t *stream) {
+        std::cout << "__hipPopCallConfiguration" << std::endl;
+        *gridDim = s_gridDim;
+        *blockDim = s_blockDim;
+        *sharedMem = s_sharedMem;
+        *stream = s_stream;
+        return hipSuccess;
+    }
+    hipError_t hipLaunchKernel(
+        const void *function_address,
+        dim3 numBlocks,
+        dim3 dimBlocks,
+        void **args,
+        size_t sharedMemBytes __dparm(0),
+        hipStream_t stream __dparm(0)) {
+        std::cout << "hipLaunchKernel function_address=" << (size_t)function_address <<
+            " numBlocks=" << numBlocks << " dimBlocks=" << dimBlocks <<
+            " sharedMemBytes=" << sharedMemBytes << " stream=" << stream << std::endl;
+    }
 
     // auto-generated stubs:
     void hipMemcpy()
     {
         std::cout << "hipMemcpy" << std::endl;
-    }
-    void __hipPopCallConfiguration()
-    {
-        std::cout << "__hipPopCallConfiguration" << std::endl;
-    }
-    void hipLaunchKernel()
-    {
-        std::cout << "hipLaunchKernel" << std::endl;
     }
     void __hipRegisterFunction()
     {
@@ -104,10 +141,6 @@ extern "C"
     void __hipUnregisterFatBinary()
     {
         // std::cout << "__hipUnregisterFatBinary" << std::endl;
-    }
-    void __hipPushCallConfiguration()
-    {
-        std::cout << "__hipPushCallConfiguration" << std::endl;
     }
     void hipMemsetAsync()
     {

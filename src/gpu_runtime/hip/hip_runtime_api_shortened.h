@@ -1001,7 +1001,9 @@ extern "C"
         constexpr dim3(uint32_t _x = 1, uint32_t _y = 1, uint32_t _z = 1) : x(_x), y(_y), z(_z){};
 #endif
     } dim3;
-    
+    std::ostream &operator<<(std::ostream &os, const dim3 &value);
+    // std::ostream &operator<<(std::ostream &os, const size_t value[3]);
+
     typedef struct hipLaunchParams_t
     {
         void *func;         ///< Device function symbol
