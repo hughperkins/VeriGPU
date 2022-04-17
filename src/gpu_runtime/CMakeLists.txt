@@ -38,6 +38,7 @@ add_library(verigpu_runtime SHARED
     ${CMAKE_SOURCE_DIR}/stringhelper.cpp
     ${CMAKE_SOURCE_DIR}/vector_types.cpp
     ${CMAKE_SOURCE_DIR}/hip_api.cpp
+    # ${BASE}/build/hip_api.cpp
 )
 message(STATUS "LLVM_INCLUDE_DIRS ${LLVM_INCLUDE_DIRS}")
 target_include_directories(verigpu_runtime PRIVATE ${CLANG_HOME}/include ${LLVM_INCLUDE_DIRS})
