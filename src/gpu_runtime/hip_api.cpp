@@ -289,7 +289,7 @@ extern "C"
     }
     void __hipRegisterVar()
     {
-        std::cout << "__hipRegisterVar" << std::endl;
+        // std::cout << "__hipRegisterVar" << std::endl;
     }
     void hipDeviceSetCacheConfig()
     {
