@@ -35,12 +35,18 @@ hipGetDevice
 hipGetDevice
 hipGetLastError
 hipMalloc size=2097152
+gpuMalloc 2097152
+ gpuMalloc candidate size 16777088 requested 2097152
 hipSetDevice
+hipSetDevice
+hipGetDevice
+hipGetDevice
+hipMemcpyWithStream
+hipGetLastError
+hipGetErrorString
 hipSetDevice
 Traceback (most recent call last):
   File "/home/ubuntu/git/verigpu/verigpu/test_hip.py", line 4, in <module>
     a.cuda()
-RuntimeError: Not enough free space
+RuntimeError
 ```
-
-It is curious that pytorch is allocating way more space than we claim we have...

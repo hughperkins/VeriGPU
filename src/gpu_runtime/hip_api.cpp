@@ -13,6 +13,12 @@ const int coresPerComputeUnit = 1;
 
 extern "C"
 {
+    uint32_t hipInit()
+    {
+        std::cout << "hipInit" << std::endl;
+        gpuCreateContext();
+        return 0;
+    }
     hipError_t hipGetDeviceProperties(hipDeviceProp_t *prop, int deviceId)
     {
         std::cout << "hipGetDeviceProperties" << std::endl;
@@ -494,11 +500,6 @@ extern "C"
     void hsa_amd_profiling_async_copy_enable()
     {
         std::cout << "hsa_amd_profiling_async_copy_enable" << std::endl;
-    }
-    uint32_t hipInit()
-    {
-        std::cout << "hipInit" << std::endl;
-        return 0;
     }
     void hipCtxGetCurrent()
     {

@@ -14,13 +14,13 @@
 #define MAX_SIM_TIME 5000000
 // #define MAX_SIM_TIME 250
 vluint64_t sim_time = 0;
+// yes we need to move to 64-bits soonish...
+uint32_t totalMemoryBytes = 16 * 1024 * 1024; // 16MB
 
 double sc_time_stamp()
 {
     return sim_time;
 }
-
-uint32_t totalMemoryBytes = 1024; // yes we need to move to 64-bits soonish...
 
 static gpu_card *dut = 0;
 
@@ -80,11 +80,12 @@ void *gpuMalloc(uint32_t requestedBytes)
 {
     // who should manage the memory? driver? gpu?
     // maybe driver???
-    // std::cout << "gpuMalloc " << requestedBytes << std::endl;
+    std::cout << "gpuMalloc " << requestedBytes << std::endl;
     MemoryInfo *freeSpace = 0;
     for (auto it = freeSpaces.begin(), e = freeSpaces.end(); it != e; it++)
     {
         MemoryInfo *candidate = *it;
+        std::cout << " gpuMalloc candidate size " << candidate->size << " requested " << requestedBytes << std::endl;
         if (candidate->size >= requestedBytes)
         {
             freeSpace = candidate;
