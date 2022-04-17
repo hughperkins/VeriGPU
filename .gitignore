@@ -38,3 +38,6 @@ build-*/
 
 pull/
 .vscode/
+push.sh
+pull.sh
+
