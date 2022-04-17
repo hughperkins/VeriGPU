@@ -85,7 +85,7 @@ we want the GPU to run quickly, and to use minimal die area. Read how we measure
 
 - [docs/metrics.md](docs/metrics.md)
 
-# What can I do with VeriGPU?
+<!-- # What can I do with VeriGPU?
 
 Well, aside from taping it out, which is going to be very expensive, you can:
 - run simulations of a single core
@@ -95,7 +95,7 @@ Well, aside from taping it out, which is going to be very expensive, you can:
     - Measure maximum propagation delay (as a ratio of number of NAND gates equivalent) for different designs
 - run simulations on a single compute unit (coming soon!)
     - similar experiments as for a single core, but on an entire compute unit, containing multiple cores
-- run simulations on an entire GPU die, including gpu controller (using supplied global memory simulator)
+- run simulations on an entire GPU die, including gpu controller (using supplied global memory simulator) -->
 
 <!-- # Why work on something that we might never be able to make for real?
 
