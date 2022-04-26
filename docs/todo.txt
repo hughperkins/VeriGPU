@@ -1,4 +1,4 @@
-- learn AXI
+- migrate memory controller to AXI4
 - get working with pytorch, at least for something simple, like adding 1 to an int tensor
 - migrate to use llvm assembler instead of assembler.py?
 - make a general single-source 'compile' script (?)
@@ -40,6 +40,7 @@ things I need that not thinking of implementing myself in short-term
 - Network on a chip (NoC)
 
 done:
+- learn AXI4
 - create new docker image for latest branch of llvm
 - move runtime out of prot into src (do this once tests are passing in current location first...)
 - fix single source runtime, so we only assemble each kernel once, and then cache that
