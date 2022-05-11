@@ -11,7 +11,7 @@
 module mem #(
     parameter DATA_WIDTH = 32,
     parameter ADDR_WIDTH = 32,
-    parameter MEM_SIZE_BYTES = 4096;
+    parameter MEM_SIZE_BYTES = 4096
 )(
     input axi_clk,
     input axi_resetn,
@@ -43,7 +43,7 @@ module mem #(
     output reg axi_bvalid,
     input axi_bready
 );
-    typedef enum bit[0:0] {
+    typedef enum bit[1:0] {
         R_AWAIT_ADDR,
         R_SENDING_DATA,
         R_SENT_DATA
@@ -54,6 +54,13 @@ module mem #(
         W_AWAIT_DATA,
         W_SENDING_RESPONSE
     } e_axi_write_state;
+
+    typedef enum bit[1:0] {
+        BRESP_OKAY   = 2'b00,
+        BRESP_EXOKAY = 2'b01,
+        BRESP_SLVERR = 2'b10,
+        BRESP_DECERR = 2'b11
+    } e_axi_bresp;
 
     reg e_axi_read_state axi_read_state;
     reg e_axi_write_state axi_write_state;
@@ -75,6 +82,7 @@ module mem #(
             axi_read_state <= R_AWAIT_ADDR;
             axi_write_state <= W_AWAIT_ADDR;
         end else begin
+
             axi_rvalid <= 0;
             axi_arready <= 0;
             axi_rlast <= 0;
@@ -99,6 +107,7 @@ module mem #(
                         // master confirmed receipt
                         axi_rvalid <= 0;
                         axi_read_state <= R_AWAIT_ADDR;
+                        axi_arready <= 1;
                     end
                     // end
                 end
@@ -120,17 +129,21 @@ module mem #(
                 W_AWAIT_DATA: begin
                     axi_wready <= 1;
                     if(axi_wready & axi_wvalid) begin
+                        $display("write %0d to mem[%0d]", axi_wdata, write_addr);
                         mem[write_addr] <= axi_wdata;
                         axi_write_state <= W_SENDING_RESPONSE;
                         axi_wready <= 0;
+                        axi_bresp <= BRESP_OKAY;
+                        axi_bvalid <= 1;
                     end
                 end
                 W_SENDING_RESPONSE: begin
-                    axi_bresp <= BRESP_OK;
+                    axi_bresp <= BRESP_OKAY;
                     axi_bvalid <= 1;
                     if(axi_bvalid & axi_bready) begin
                         axi_bvalid <= 0;
                         axi_write_state <= W_AWAIT_ADDR;
+                        axi_awready <= 1;
                     end
                 end
             endcase
@@ -144,41 +157,87 @@ module dut #(
     parameter ADDR_WIDTH = 32,
     parameter DATA_WIDTH = 32
 )(
-    input axi_clk,
-    input axi_resetn,
+    input                         axi_clk,
+    input                         axi_resetn,
 
     // read address channel
-    output [ADDR_WIDTH - 1:0] axi_araddr,
-    output axi_arvalid,
-    input axi_arready,
+    output reg [ADDR_WIDTH - 1:0] axi_araddr,
+    output reg                    axi_arvalid,
+    input                         axi_arready,
 
     // read data channel
-    input [DATA_WIDTH - 1:0] axi_rdata,
-    input axi_rlast,
-    input axi_rvalid,
-    output axi_rready,
+    input [DATA_WIDTH - 1:0]      axi_rdata,
+    input                         axi_rlast,
+    input                         axi_rvalid,
+    output reg                    axi_rready,
 
     // write address channel
-    output [ADDR_WIDTH - 1:0] axi_awaddr,
-    output axi_awvalid,
-    input axi_awready,
+    output reg [ADDR_WIDTH - 1:0] axi_awaddr,
+    output reg                    axi_awvalid,
+    input                         axi_awready,
 
     // write data channel
-    output [ADDR_WIDTH - 1:0] axi_wdata,
-    output axi_wlast,
-    output axi_wvalid,
-    input axi_wready,
+    output reg [ADDR_WIDTH - 1:0] axi_wdata,
+    output reg                    axi_wlast,
+    output reg                    axi_wvalid,
+    input                         axi_wready,
 
     // write response channel
-    input axi_bresp,
-    input axi_bvalid,
-    output axi_bready
+    input                         axi_bresp,
+    input                         axi_bvalid,
+    output reg                    axi_bready
 );
+    task write_mem([ADDR_WIDTH - 1:0] addr, [DATA_WIDTH - 1:0] data);
+        axi_awaddr <= addr;
+        axi_awvalid <= 1;
+        assert(axi_awready);
+
+        #10
+        assert(~axi_awready);
+        axi_awvalid <= 0;
+        axi_wdata <= data;
+        axi_wvalid <= 1;
+        assert(axi_wready);
+
+        #10
+        assert(~axi_wready);
+        axi_wvalid <= 0;
+        axi_bready <= 1;
+        assert(axi_bvalid);
+        
+        #10
+        axi_bready <= 0;
+        assert(~axi_bvalid);
+    endtask
+
+    task read_mem([ADDR_WIDTH - 1:0] addr, [DATA_WIDTH - 1:0] expected_data);
+        axi_araddr <= addr;
+        axi_arvalid <= 1;
+        assert(axi_arready);
+
+        #10
+        assert(~axi_arready);
+        axi_arvalid <= 0;
+
+        axi_rready <= 1;
+        assert(axi_rvalid);
+        assert(axi_rdata == expected_data);
+        $display("read %0d from mem[%0d]", axi_rdata, addr);
+
+        #10
+        assert(~axi_rvalid);
+        axi_wvalid <= 0;
+    endtask
+
     initial begin
         #30;
         $display("axi_resetn %d", axi_resetn);
 
+        write_mem(22, 123);
+        write_mem(44, 234);
 
+        read_mem(22, 123);
+        read_mem(44, 234);
     end
 
     always @(posedge axi_clk) begin
@@ -293,6 +352,6 @@ module test_dut #(
         // #5 axi_clk <= 0;
         // #5 axi_clk <= 1;
         axi_resetn <= 1;
-        #100 $finish;
+        #200 $finish;
     end
 endmodule
