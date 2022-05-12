@@ -13,8 +13,8 @@ module mem #(
     parameter ADDR_WIDTH = 32,
     parameter MEM_SIZE_BYTES = 4096
 )(
-    input axi_clk,
-    input axi_resetn,
+    input axi_aclk,
+    input axi_aresetn,
 
     // read address channel
     input [ADDR_WIDTH - 1:0] axi_araddr,
@@ -70,8 +70,8 @@ module mem #(
 
     reg [DATA_WIDTH - 1:0] mem[MEM_SIZE_BYTES >> 2];
 
-    always @(posedge axi_clk) begin
-        if(~axi_resetn) begin
+    always @(posedge axi_aclk) begin
+        if(~axi_aresetn) begin
             axi_arready <= 0;
             axi_rvalid <= 0;
             axi_awready <= 0;
@@ -153,8 +153,8 @@ module dut #(
     parameter ADDR_WIDTH = 32,
     parameter DATA_WIDTH = 32
 )(
-    input                         axi_clk,
-    input                         axi_resetn,
+    input                         axi_aclk,
+    input                         axi_aresetn,
 
     // read address channel
     output reg [ADDR_WIDTH - 1:0] axi_araddr,
@@ -227,7 +227,7 @@ module dut #(
 
     initial begin
         #30;
-        $display("axi_resetn %d", axi_resetn);
+        $display("axi_aresetn %d", axi_aresetn);
 
         write_mem(22, 123);
         write_mem(44, 234);
@@ -241,8 +241,8 @@ module test_dut #(
     parameter ADDR_WIDTH = 32,
     parameter DATA_WIDTH = 32
 )();
-    reg axi_clk;
-    reg axi_resetn;
+    reg axi_aclk;
+    reg axi_aresetn;
 
     // read address channel
     reg [ADDR_WIDTH - 1:0] axi_araddr;
@@ -272,8 +272,8 @@ module test_dut #(
     reg axi_bready;
 
     dut dut_(
-        .axi_clk(axi_clk),
-        .axi_resetn(axi_resetn),
+        .axi_aclk(axi_aclk),
+        .axi_aresetn(axi_aresetn),
 
         .axi_araddr(axi_araddr),
         .axi_arvalid(axi_arvalid),
@@ -298,8 +298,8 @@ module test_dut #(
         .axi_bready(axi_bready)
     );
     mem mem_(
-        .axi_clk(axi_clk),
-        .axi_resetn(axi_resetn),
+        .axi_aclk(axi_aclk),
+        .axi_aresetn(axi_aresetn),
 
         .axi_araddr(axi_araddr),
         .axi_arvalid(axi_arvalid),
@@ -327,16 +327,16 @@ module test_dut #(
     initial begin
         $display("clk initial");
         forever begin
-            axi_clk = 0;
-            #5 axi_clk = ~axi_clk;
+            axi_aclk = 0;
+            #5 axi_aclk = ~axi_aclk;
         end
     end
 
     initial begin
         $display("reset initial");
-        axi_resetn <= 0;
+        axi_aresetn <= 0;
         #20
-        axi_resetn <= 1;
+        axi_aresetn <= 1;
         #200 $finish;
     end
 endmodule
