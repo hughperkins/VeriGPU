@@ -56,24 +56,22 @@ module mem #(
     } e_axi_write_state;
 
     typedef enum bit[1:0] {
-        BRESP_OKAY   = 2'b00,
-        BRESP_EXOKAY = 2'b01,
-        BRESP_SLVERR = 2'b10,
-        BRESP_DECERR = 2'b11
+        AXI_BRESP_OKAY   = 2'b00,
+        AXI_BRESP_EXOKAY = 2'b01,
+        AXI_BRESP_SLVERR = 2'b10,
+        AXI_BRESP_DECERR = 2'b11
     } e_axi_bresp;
 
     reg e_axi_read_state axi_read_state;
     reg e_axi_write_state axi_write_state;
 
-    reg [ADDR_WIDTH - 1:0] read_addr;
     reg [ADDR_WIDTH - 1:0] write_addr;
+    reg [DATA_WIDTH - 1:0] read_data;
 
     reg [DATA_WIDTH - 1:0] mem[MEM_SIZE_BYTES >> 2];
 
     always @(posedge axi_clk) begin
-        // $display("mem posedge clk");
         if(~axi_resetn) begin
-            $display("mem reset");
             axi_arready <= 0;
             axi_rvalid <= 0;
             axi_awready <= 0;
@@ -90,17 +88,16 @@ module mem #(
                 R_AWAIT_ADDR: begin
                     axi_arready <= 1;
                     if(axi_arready & axi_arvalid) begin
-                        $display("got read address %0d", axi_araddr);
-                        read_addr <= axi_araddr;
+                        $display("got axi_araddr", axi_araddr);
                         axi_read_state <= R_SENDING_DATA;
                         axi_arready <= 0;
                         axi_rvalid <= 1;
                         axi_rdata <= mem[axi_araddr];
+                        read_data <= mem[axi_araddr];
                     end
                 end
                 R_SENDING_DATA: begin
-                    // if(axi_rready) begin
-                    axi_rdata <= mem[read_addr];
+                    axi_rdata <= read_data;
                     axi_rvalid <= 1;
                     axi_rlast <= 1;
                     if(axi_rready & axi_rvalid) begin
@@ -109,7 +106,6 @@ module mem #(
                         axi_read_state <= R_AWAIT_ADDR;
                         axi_arready <= 1;
                     end
-                    // end
                 end
             endcase
 
@@ -133,12 +129,12 @@ module mem #(
                         mem[write_addr] <= axi_wdata;
                         axi_write_state <= W_SENDING_RESPONSE;
                         axi_wready <= 0;
-                        axi_bresp <= BRESP_OKAY;
+                        axi_bresp <= AXI_BRESP_OKAY;
                         axi_bvalid <= 1;
                     end
                 end
                 W_SENDING_RESPONSE: begin
-                    axi_bresp <= BRESP_OKAY;
+                    axi_bresp <= AXI_BRESP_OKAY;
                     axi_bvalid <= 1;
                     if(axi_bvalid & axi_bready) begin
                         axi_bvalid <= 0;
@@ -238,13 +234,6 @@ module dut #(
 
         read_mem(22, 123);
         read_mem(44, 234);
-    end
-
-    always @(posedge axi_clk) begin
-        if(~axi_resetn) begin
-            $display("dut reset");
-        end else begin
-        end
     end
 endmodule
 
@@ -347,10 +336,6 @@ module test_dut #(
         $display("reset initial");
         axi_resetn <= 0;
         #20
-        // axi_clk <= 0;
-        // #5 axi_clk <= 1;
-        // #5 axi_clk <= 0;
-        // #5 axi_clk <= 1;
         axi_resetn <= 1;
         #200 $finish;
     end
