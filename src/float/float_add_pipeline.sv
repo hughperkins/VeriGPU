@@ -21,6 +21,7 @@ inputs and outputs, drawn from:
 max propagation delay: 51.2 nand units
 */
 
+`default_nettype none
 module float_add_pipeline(
     input                         clk,
     input                         rst,

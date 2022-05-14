@@ -1,5 +1,6 @@
 // represents an entire GPU card, including both the GPU die, and the GPU global memory
 // (although for now, the global_mem_controller contains the global memory)
+`default_nettype none
 module gpu_card(
     input clk,
     input rst,

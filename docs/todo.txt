@@ -1,3 +1,4 @@
+- add `default_nettype none to each module
 - migrate memory controller to AXI4
 - get working with pytorch, at least for something simple, like adding 1 to an int tensor
 - migrate to use llvm assembler instead of assembler.py?
@@ -40,6 +41,7 @@ things I need that not thinking of implementing myself in short-term
 - Network on a chip (NoC)
 
 done:
+- create prototype for memory controller for axi4
 - learn AXI4
 - create new docker image for latest branch of llvm
 - move runtime out of prot into src (do this once tests are passing in current location first...)

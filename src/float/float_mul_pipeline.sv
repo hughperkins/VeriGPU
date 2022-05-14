@@ -13,6 +13,8 @@ Max propagation delay: 54.6 nand units
 Area:                  3841.5 nand units
 
 */
+
+`default_nettype none
 module float_mul_pipeline(
     input                               clk,
     input                               rst,

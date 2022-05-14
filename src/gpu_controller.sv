@@ -36,6 +36,7 @@ things we need to handle:
 We can be pretty wasteful of resources in the controller, since there's only one of them on the die.
 (cf thousands of cores...)
 */
+`default_nettype none
 module gpu_controller(
     input clk,
     input rst,

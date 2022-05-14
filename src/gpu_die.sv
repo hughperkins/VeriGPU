@@ -7,6 +7,7 @@
 // for now, the global memory controller also contains global memory, but we will split those
 // off from each other
 
+`default_nettype none
 module gpu_die(
     input clk,
     input rst,

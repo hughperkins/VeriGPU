@@ -5,6 +5,8 @@ As of mar 28 2022:
 Max propagation delay: 82.8 nand units
 Area:                  30956.0 nand units
  */
+
+`default_nettype none
 module core(
     input rst,  // async resets the core, everything goes to zero (do we actually need this?), active low
     input clk,  // clock
