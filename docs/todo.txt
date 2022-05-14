@@ -1,5 +1,6 @@
-- add `default_nettype none to each module
 - migrate memory controller to AXI4
+- learn how an axi4 interface for pcie might look
+- migrate gpu controller to have an AXI4 interface to a pcie placeholder
 - get working with pytorch, at least for something simple, like adding 1 to an int tensor
 - migrate to use llvm assembler instead of assembler.py?
 - make a general single-source 'compile' script (?)
@@ -41,6 +42,7 @@ things I need that not thinking of implementing myself in short-term
 - Network on a chip (NoC)
 
 done:
+- add `default_nettype none to each module
 - create prototype for memory controller for axi4
 - learn AXI4
 - create new docker image for latest branch of llvm
