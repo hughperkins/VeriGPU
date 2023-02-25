@@ -23,7 +23,7 @@ verilator -sv --cc src/proc.sv src/mem.sv src/comp.sv -Isrc
 
 ### Prequisites
 
-- yosys (e.g. `brew install yosys`, or see [http://bygone.clairexen.net/yosys/](http://bygone.clairexen.net/yosys/))
+- yosys (e.g. `brew install yosys`, or see [http://bygone.clairexen.net/yosys/](https://yosyshq.net/yosys/))
 - opensroad/sta (build from source, see https://github.com/The-OpenROAD-Project/OpenSTA )
 
 ### Procedure

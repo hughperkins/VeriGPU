@@ -46,7 +46,7 @@ bash test/behav/run_examples.sh
 
 Gate-level simulation runs on partially synthesized verilog, where the behavioral-level code, such as `always` blocks and `if` blocks has been converted into purely combinatorial logic and flip-flops, and then further converted into actual cells, using osu018 technology.
 
-We use [yosys](http://bygone.clairexen.net/yosys/) to simulate down to cell-level, using asu018 technology, then use [iverilog](http://iverilog.icarus.com/) to run simulation of the resulting netlist.
+We use [yosys](https://yosyshq.net/yosys/) to simulate down to cell-level, using asu018 technology, then use [iverilog](http://iverilog.icarus.com/) to run simulation of the resulting netlist.
 
 ### Results
 
@@ -55,7 +55,7 @@ You can view execution of these tests in the CI server linked above.
 ### Pre-requisites
 
 - `python3`
-- [yosys](http://bygone.clairexen.net/yosys/)
+- [yosys](https://yosyshq.net/yosys/)
 - [iverilog](http://iverilog.icarus.com/)
 - have cloned this repo, and be in the root of this cloned repo
 

@@ -15,7 +15,7 @@ The CI server runs the following metrics scripts:
 
 ## Combinatorial propagation delay
 
-We run timing metrics based on the gate-level netlist that we obtain by running synthesis down to cell level using [yosys](http://bygone.clairexen.net/yosys/). This netlist has converted the various behavioral notation, such as `always` and `if` into combinatorial gates and flip-flops. We then assign a weight to each cell, according to the delay it represents, and find the longest path between flip-flop outpus and inputs, and also between module inputs and flip-flops, flip-flops and module outputs, and module inputs and outputs. The combinatorial propagation delay is the sum of the cell delays along this longest path. We measure the propagation delay in `nand gate units`: the propagation delay for a single `nand` gate.
+We run timing metrics based on the gate-level netlist that we obtain by running synthesis down to cell level using [yosys](https://yosyshq.net/yosys/). This netlist has converted the various behavioral notation, such as `always` and `if` into combinatorial gates and flip-flops. We then assign a weight to each cell, according to the delay it represents, and find the longest path between flip-flop outpus and inputs, and also between module inputs and flip-flops, flip-flops and module outputs, and module inputs and outputs. The combinatorial propagation delay is the sum of the cell delays along this longest path. We measure the propagation delay in `nand gate units`: the propagation delay for a single `nand` gate.
 
 ### Latest results
 
@@ -26,7 +26,7 @@ You can see the current clock cycle propagation delay by opening the most recent
 
 ### Details
 
-- we first use [yosys](http://bygone.clairexen.net/yosys/) to synthesize our verilog file to a gate-level netlist
+- we first use [yosys](https://yosyshq.net/yosys/) to synthesize our verilog file to a gate-level netlist
     - a gate-level netlist is also a verilog file, but with the behavioral bits (`always`, etc.) removed, and operations such as `+`, `-` etc all replaced by calls to standard cells, such as `NOR2X1`, `NAND2X1`, etc
 - then we use a custom script [verigpu/timing.py](/verigpu/timing.py) to walk the graph of the resulting netlist, and find the longest propagation delay from the inputs to the outputs
     - the delay units are in `nand` propagation units, where a `nand` propagation unit is defined as the time to propagate through a single nand gate
@@ -39,7 +39,7 @@ You can see the current clock cycle propagation delay by opening the most recent
 ### Prerequities
 
 - python3
-- [yosys](http://bygone.clairexen.net/yosys/)
+- [yosys](https://yosyshq.net/yosys/)
 
 ### Procedure
 
