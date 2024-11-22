@@ -94,13 +94,13 @@ jobs:
   check-markdown-links:
     resource_class: small
     docker:
-      - image: cimg/node:lts
+      - image: cimg/node:17.8.0
     steps:
       - checkout
       - run:
           name: "Run check markdown links"
           command: |
-            npm i --global -D markdown-link-check
+            npm i --global -D markdown-link-check@3.9.3
             bash cicd/check_markdown.sh
           no_output_timeout: 2m
 
