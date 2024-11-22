@@ -7,5 +7,5 @@
 - install python libraries:
 ```
 pip install -e .
-pip install -r test/requirements.txt
+pip install -r test/py/requirements.txt
 ```
