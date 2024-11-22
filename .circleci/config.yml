@@ -94,7 +94,7 @@ jobs:
   check-markdown-links:
     resource_class: small
     docker:
-      - image: cimg/node:17.8.0
+      - image: cimg/node:23.3
     steps:
       - checkout
       - run:
