@@ -33,7 +33,7 @@ You can see the current clock cycle propagation delay by opening the most recent
     - a NOT gate is 0.6
     - an AND gate is 1.6 (it's a NAND followed by a NOT)
     - we assume that all cells only have a single output currently
-- the cell propagation delays are loosely based on those in https://web.engr.oregonstate.edu/~traylor/ece474/reading/SAED_Cell_Lib_Rev1_4_20_1.pdf , which is a 90nm spec sheet, but could be representative of relative timings, which are likely architecture-independent
+- the cell propagation delays are loosely based on those in Synopsys Educational Design Kit 90nm, which used to be available at web.engr.oregonstate.edu/~traylor/ece474/reading/SAED_Cell_Lib_Rev1_4_20_1.pdf , but seems to be no longer available. It is/was a 90nm spec sheet, but could be representative of relative timings, which are likely architecture-independent. Note: if you can find an alternative open cell design kit, please let me know
 - you can see the relative cell times we use at the top of [verigpu/timing.py](/verigpu/timing.py), in the global dict `g_cell_times`
 
 ### Prerequities
